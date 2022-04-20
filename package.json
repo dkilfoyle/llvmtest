@@ -1,0 +1,22 @@
+{
+  "name": "llvmtest",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "antlr4ts": "antlr4ts -visitor src/simple.g4",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "antlr4": "^4.10.1",
+    "antlr4ts": "^0.5.0-alpha.4",
+    "llvm-bindings": "^0.3.6",
+    "ts-node": "^10.7.0"
+  },
+  "devDependencies": {
+    "antlr4ts-cli": "^0.5.0-alpha.4",
+    "typescript": "^4.6.3"
+  }
+}
