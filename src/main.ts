@@ -18,7 +18,17 @@ class SimpleLexer2 extends SimpleLexer {
 
 function main(): void {
   // Create the lexer and parser
-  let inputStream = new ANTLRInputStream("def foo(int x, int y) return x+y; end\nint z; z=5;");
+  let inputStream = new ANTLRInputStream(
+`int foo(int x, int y) {
+  if x>5 { 
+    return x+y;
+  }
+  return 0;
+}
+int z;
+z=5;
+foo(z,6);
+`);
   let lexer = new SimpleLexer2(inputStream);
   let tokenStream = new CommonTokenStream(lexer);
   let parser = new SimpleParser(tokenStream);

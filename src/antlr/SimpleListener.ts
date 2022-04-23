@@ -23,17 +23,13 @@ import { IdentifierExpressionContext } from "./SimpleParser";
 import { StringExpressionContext } from "./SimpleParser";
 import { BracketExpressionContext } from "./SimpleParser";
 import { InputExpressionContext } from "./SimpleParser";
-import { IdentifierFunctionCallContext } from "./SimpleParser";
-import { PrintlnFunctionCallContext } from "./SimpleParser";
-import { PrintFunctionCallContext } from "./SimpleParser";
-import { AssertFunctionCallContext } from "./SimpleParser";
-import { SizeFunctionCallContext } from "./SimpleParser";
 import { ParseContext } from "./SimpleParser";
 import { ReplContext } from "./SimpleParser";
 import { BlockContext } from "./SimpleParser";
 import { StatementContext } from "./SimpleParser";
 import { VariableDeclarationContext } from "./SimpleParser";
 import { VarTypeContext } from "./SimpleParser";
+import { FunTypeContext } from "./SimpleParser";
 import { AssignmentContext } from "./SimpleParser";
 import { FunctionCallContext } from "./SimpleParser";
 import { IfStatementContext } from "./SimpleParser";
@@ -318,71 +314,6 @@ export interface SimpleListener extends ParseTreeListener {
 	exitInputExpression?: (ctx: InputExpressionContext) => void;
 
 	/**
-	 * Enter a parse tree produced by the `identifierFunctionCall`
-	 * labeled alternative in `SimpleParser.functionCall`.
-	 * @param ctx the parse tree
-	 */
-	enterIdentifierFunctionCall?: (ctx: IdentifierFunctionCallContext) => void;
-	/**
-	 * Exit a parse tree produced by the `identifierFunctionCall`
-	 * labeled alternative in `SimpleParser.functionCall`.
-	 * @param ctx the parse tree
-	 */
-	exitIdentifierFunctionCall?: (ctx: IdentifierFunctionCallContext) => void;
-
-	/**
-	 * Enter a parse tree produced by the `printlnFunctionCall`
-	 * labeled alternative in `SimpleParser.functionCall`.
-	 * @param ctx the parse tree
-	 */
-	enterPrintlnFunctionCall?: (ctx: PrintlnFunctionCallContext) => void;
-	/**
-	 * Exit a parse tree produced by the `printlnFunctionCall`
-	 * labeled alternative in `SimpleParser.functionCall`.
-	 * @param ctx the parse tree
-	 */
-	exitPrintlnFunctionCall?: (ctx: PrintlnFunctionCallContext) => void;
-
-	/**
-	 * Enter a parse tree produced by the `printFunctionCall`
-	 * labeled alternative in `SimpleParser.functionCall`.
-	 * @param ctx the parse tree
-	 */
-	enterPrintFunctionCall?: (ctx: PrintFunctionCallContext) => void;
-	/**
-	 * Exit a parse tree produced by the `printFunctionCall`
-	 * labeled alternative in `SimpleParser.functionCall`.
-	 * @param ctx the parse tree
-	 */
-	exitPrintFunctionCall?: (ctx: PrintFunctionCallContext) => void;
-
-	/**
-	 * Enter a parse tree produced by the `assertFunctionCall`
-	 * labeled alternative in `SimpleParser.functionCall`.
-	 * @param ctx the parse tree
-	 */
-	enterAssertFunctionCall?: (ctx: AssertFunctionCallContext) => void;
-	/**
-	 * Exit a parse tree produced by the `assertFunctionCall`
-	 * labeled alternative in `SimpleParser.functionCall`.
-	 * @param ctx the parse tree
-	 */
-	exitAssertFunctionCall?: (ctx: AssertFunctionCallContext) => void;
-
-	/**
-	 * Enter a parse tree produced by the `sizeFunctionCall`
-	 * labeled alternative in `SimpleParser.functionCall`.
-	 * @param ctx the parse tree
-	 */
-	enterSizeFunctionCall?: (ctx: SizeFunctionCallContext) => void;
-	/**
-	 * Exit a parse tree produced by the `sizeFunctionCall`
-	 * labeled alternative in `SimpleParser.functionCall`.
-	 * @param ctx the parse tree
-	 */
-	exitSizeFunctionCall?: (ctx: SizeFunctionCallContext) => void;
-
-	/**
 	 * Enter a parse tree produced by `SimpleParser.parse`.
 	 * @param ctx the parse tree
 	 */
@@ -447,6 +378,17 @@ export interface SimpleListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	exitVarType?: (ctx: VarTypeContext) => void;
+
+	/**
+	 * Enter a parse tree produced by `SimpleParser.funType`.
+	 * @param ctx the parse tree
+	 */
+	enterFunType?: (ctx: FunTypeContext) => void;
+	/**
+	 * Exit a parse tree produced by `SimpleParser.funType`.
+	 * @param ctx the parse tree
+	 */
+	exitFunType?: (ctx: FunTypeContext) => void;
 
 	/**
 	 * Enter a parse tree produced by `SimpleParser.assignment`.

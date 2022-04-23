@@ -23,17 +23,13 @@ import { IdentifierExpressionContext } from "./SimpleParser";
 import { StringExpressionContext } from "./SimpleParser";
 import { BracketExpressionContext } from "./SimpleParser";
 import { InputExpressionContext } from "./SimpleParser";
-import { IdentifierFunctionCallContext } from "./SimpleParser";
-import { PrintlnFunctionCallContext } from "./SimpleParser";
-import { PrintFunctionCallContext } from "./SimpleParser";
-import { AssertFunctionCallContext } from "./SimpleParser";
-import { SizeFunctionCallContext } from "./SimpleParser";
 import { ParseContext } from "./SimpleParser";
 import { ReplContext } from "./SimpleParser";
 import { BlockContext } from "./SimpleParser";
 import { StatementContext } from "./SimpleParser";
 import { VariableDeclarationContext } from "./SimpleParser";
 import { VarTypeContext } from "./SimpleParser";
+import { FunTypeContext } from "./SimpleParser";
 import { AssignmentContext } from "./SimpleParser";
 import { FunctionCallContext } from "./SimpleParser";
 import { IfStatementContext } from "./SimpleParser";
@@ -221,46 +217,6 @@ export interface SimpleVisitor<Result> extends ParseTreeVisitor<Result> {
 	visitInputExpression?: (ctx: InputExpressionContext) => Result;
 
 	/**
-	 * Visit a parse tree produced by the `identifierFunctionCall`
-	 * labeled alternative in `SimpleParser.functionCall`.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	visitIdentifierFunctionCall?: (ctx: IdentifierFunctionCallContext) => Result;
-
-	/**
-	 * Visit a parse tree produced by the `printlnFunctionCall`
-	 * labeled alternative in `SimpleParser.functionCall`.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	visitPrintlnFunctionCall?: (ctx: PrintlnFunctionCallContext) => Result;
-
-	/**
-	 * Visit a parse tree produced by the `printFunctionCall`
-	 * labeled alternative in `SimpleParser.functionCall`.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	visitPrintFunctionCall?: (ctx: PrintFunctionCallContext) => Result;
-
-	/**
-	 * Visit a parse tree produced by the `assertFunctionCall`
-	 * labeled alternative in `SimpleParser.functionCall`.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	visitAssertFunctionCall?: (ctx: AssertFunctionCallContext) => Result;
-
-	/**
-	 * Visit a parse tree produced by the `sizeFunctionCall`
-	 * labeled alternative in `SimpleParser.functionCall`.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	visitSizeFunctionCall?: (ctx: SizeFunctionCallContext) => Result;
-
-	/**
 	 * Visit a parse tree produced by `SimpleParser.parse`.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -301,6 +257,13 @@ export interface SimpleVisitor<Result> extends ParseTreeVisitor<Result> {
 	 * @return the visitor result
 	 */
 	visitVarType?: (ctx: VarTypeContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by `SimpleParser.funType`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitFunType?: (ctx: FunTypeContext) => Result;
 
 	/**
 	 * Visit a parse tree produced by `SimpleParser.assignment`.

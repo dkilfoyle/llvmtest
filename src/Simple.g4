@@ -17,25 +17,22 @@ statement:
 variableDeclaration: varType Identifier (',' Identifier)* ';';
 
 varType: 'int' | 'string';
+funType: varType | 'void';
 
 assignment: Identifier indexes? '=' expression ';';
 
-functionCall:
-	Identifier '(' exprList? ')' ';'	# identifierFunctionCall
-	| 'println' '(' expression? ')' ';'	# printlnFunctionCall
-	| 'print' '(' expression ')' ';'	# printFunctionCall
-	| 'assert' '(' expression ')' ';'	# assertFunctionCall
-	| 'size' '(' expression ')' ';'		# sizeFunctionCall;
+functionCall: Identifier '(' exprList? ')' ';';
 
-ifStatement: ifStat elseIfStat* elseStat? 'end';
+ifStatement: ifStat elseIfStat* elseStat?;
 
-ifStat: 'if' expression 'do' block;
+ifStat: 'if' expression '{' block '}';
 
-elseIfStat: 'else' 'if' expression 'do' block;
+elseIfStat: 'else' 'if' expression '{' block '}';
 
-elseStat: 'else' 'do' block;
+elseStat: 'else' '{' block '}';
 
-functionDecl: 'def' Identifier '(' paramList? ')' block 'end';
+functionDecl:
+	funType Identifier '(' paramList? ')' '{' block '}';
 param: varType Identifier;
 paramList: param (',' param)*;
 
