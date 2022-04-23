@@ -2,8 +2,8 @@ import { AbstractParseTreeVisitor } from "antlr4ts/tree/AbstractParseTreeVisitor
 import { SimpleVisitor } from "../antlr/SimpleVisitor";
 import { ScopeStack } from "./scopeStack";
 
-import { AddExpressionContext, AssignmentContext, BlockContext, BracketExpressionContext, CompExpressionContext, ElseIfStatContext, ExpressionContext, FunctionCallContext, FunctionDeclContext, IdentifierExpressionContext, IfStatContext, IfStatementContext, MultExpressionContext,  NumberExpressionContext, ParamContext, ParseContext, ReplContext, VariableDeclarationContext } from "../antlr/SimpleParser";
-import { AstAssignment, AstBinaryExpression, AstBlock, AstBracketExpression, AstConstExpression, AstError, AstExpression, AstFunctionCall, AstFunctionDeclaration, AstIdentifierDeclaration, AstIdentifierExpression, AstIf, AstIfElse, AstNode, AstNull, AstRepl, AstUndeclaredError, AstVariableDeclaration } from "./nodes";
+import { AddExpressionContext, AssignmentContext, BlockContext, BracketExpressionContext, CompExpressionContext, ElseIfStatContext, ExpressionContext, ForStatementContext, FunctionCallContext, FunctionDeclContext, IdentifierExpressionContext, IfStatContext, IfStatementContext, MultExpressionContext,  NumberExpressionContext, ParamContext, ParseContext, ReplContext, StatementContext, VariableDeclarationContext } from "../antlr/SimpleParser";
+import { AstAssignment, AstBinaryExpression, AstBlock, AstBracketExpression, AstConstExpression, AstError, AstErrorExpression, AstExpression, AstFor, AstFunctionCall, AstFunctionDeclaration, AstIdentifierDeclaration, AstIdentifierExpression, AstIf, AstIfElse, AstNode, AstNull, AstRepl, AstStatement, AstUndeclaredError, AstVariableDeclaration } from "./nodes";
 import { AllowedTypes } from "./signature";
 import { createIf, Expression } from "typescript";
 
@@ -90,6 +90,10 @@ export class AstBuilder extends AbstractParseTreeVisitor<AstNode> implements Sim
 
   // statements
 
+  visitStatement(ctx: StatementContext) {
+    return this.visit(ctx.getChild(0)) as AstStatement;
+  }
+
   visitVariableDeclaration(ctx: VariableDeclarationContext) {
     const varType = ctx.varType().text;
     const ids = ctx.Identifier().map(id => id.text);
@@ -108,8 +112,8 @@ export class AstBuilder extends AbstractParseTreeVisitor<AstNode> implements Sim
   visitAssignment(ctx: AssignmentContext) {
     const rhs = this.visit(ctx.expression());
     const id = ctx.Identifier().text;
-    const idNode = this.scopeStack.getSymbol(id)
-    return new AstAssignment(ctx, id, rhs);
+    const [found, idNode] = this.scopeStack.getSymbol(id);
+    return found ? new AstAssignment(ctx, id, rhs) : new AstError(ctx, `variable ${id} not in scope`);
   }
 
   visitFunctionCall(ctx: FunctionCallContext) {
@@ -142,6 +146,20 @@ export class AstBuilder extends AbstractParseTreeVisitor<AstNode> implements Sim
       [createAstIf(ctx.ifStat()), 
       ...ctx.elseIfStat().map(elif  => createAstIf(elif))],
       ctx.elseStat() ? this.visitBlock(ctx.elseStat().block()) : new AstNull());
+  }
+
+  visitForStatement(ctx: ForStatementContext) {
+    const initialAssignment = this.visitAssignment(ctx.assignment(0));
+    const testExpression = this.visitExpression(ctx.expression());
+    const updateAssignment = this.visitAssignment(ctx.assignment(1));
+    const block = this.visitBlock(ctx.block());
+
+    return new AstFor(ctx, 
+      initialAssignment,
+      testExpression.returnType() == 'bool' ? testExpression : new AstErrorExpression(ctx.expression(), "for test expression must return bool"),
+      updateAssignment,
+      block
+    );
   }
 
   // Functions

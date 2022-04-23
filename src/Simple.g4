@@ -1,48 +1,41 @@
 grammar Simple;
 
 parse: repl EOF;
-
 repl: functionDecl* block;
 
-block: statement* ('return' expression ';')?;
-
-statement:
-	variableDeclaration
-	| assignment
-	| functionCall
-	| ifStatement
-	| forStatement
-	| whileStatement;
-
-variableDeclaration: varType Identifier (',' Identifier)* ';';
-
-varType: 'int' | 'string';
 funType: varType | 'void';
-
-assignment: Identifier indexes? '=' expression ';';
-
-functionCall: Identifier '(' exprList? ')' ';';
-
-ifStatement: ifStat elseIfStat* elseStat?;
-
-ifStat: 'if' expression '{' block '}';
-
-elseIfStat: 'else' 'if' expression '{' block '}';
-
-elseStat: 'else' '{' block '}';
-
 functionDecl:
 	funType Identifier '(' paramList? ')' '{' block '}';
 param: varType Identifier;
 paramList: param (',' param)*;
 
-forStatement:
-	'for' Identifier '=' expression 'to' expression 'do' block 'end';
+block: statement* ('return' expression ';')?;
 
-whileStatement: 'while' expression 'do' block 'end';
+statement:
+	variableDeclaration ';'
+	| assignment ';'
+	| functionCall ';'
+	| ifStatement
+	| forStatement
+	| whileStatement;
+
+varType: 'int' | 'string';
+variableDeclaration: varType Identifier (',' Identifier)*;
+
+assignment: Identifier indexes? '=' expression;
+
+functionCall: Identifier '(' exprList? ')';
+ifStatement: ifStat elseIfStat* elseStat?;
+ifStat: 'if' expression '{' block '}';
+elseIfStat: 'else' 'if' expression '{' block '}';
+elseStat: 'else' '{' block '}';
+
+forStatement:
+	'for' '(' assignment ';' expression ';' assignment ')' '{' block '}';
+
+whileStatement: 'while' expression '{' block '}';
 
 idList: Identifier ( ',' Identifier)*;
-
 exprList: expression ( ',' expression)*;
 
 expression:
@@ -68,13 +61,9 @@ expression:
 	| 'input' '(' String? ')'								# inputExpression;
 
 list: '[' exprList? ']';
-
 indexes: ( '[' expression ']')+;
-
 Bool: 'true' | 'false';
-
 Number: Int ( '.' Digit*)?;
-
 Identifier: [a-zA-Z_] [a-zA-Z_0-9]*;
 
 String:

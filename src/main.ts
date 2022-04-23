@@ -3,6 +3,7 @@ import { ANTLRInputStream, CommonTokenStream, Lexer, Parser, ParserRuleContext }
 import { SimpleLexer } from "./antlr/SimpleLexer";
 import { SimpleParser } from './antlr/SimpleParser';
 import { AstBuilder } from './ast/builder';
+import { errorNodes} from "./ast/nodes";
 
 class SimpleLexer2 extends SimpleLexer {
   FeatureControlFlow:boolean;
@@ -25,9 +26,14 @@ function main(): void {
   }
   return 0;
 }
-int z;
-z=5;
-foo(z,6);
+x=2;
+// int z;
+// z=foo(2,6);
+// int i;
+// for (i = 0; i < 10; i=i+1) {
+//  int j;
+//  x = 2;
+}
 `);
   let lexer = new SimpleLexer2(inputStream);
   let tokenStream = new CommonTokenStream(lexer);
@@ -36,6 +42,7 @@ foo(z,6);
   const astBuilder = new AstBuilder()
   const ast = astBuilder.visit(tree);
   console.log(ast.toString());
+  console.log(errorNodes);
 }
 
 main();

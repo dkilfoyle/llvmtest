@@ -25,20 +25,20 @@ import { BracketExpressionContext } from "./SimpleParser";
 import { InputExpressionContext } from "./SimpleParser";
 import { ParseContext } from "./SimpleParser";
 import { ReplContext } from "./SimpleParser";
+import { FunTypeContext } from "./SimpleParser";
+import { FunctionDeclContext } from "./SimpleParser";
+import { ParamContext } from "./SimpleParser";
+import { ParamListContext } from "./SimpleParser";
 import { BlockContext } from "./SimpleParser";
 import { StatementContext } from "./SimpleParser";
-import { VariableDeclarationContext } from "./SimpleParser";
 import { VarTypeContext } from "./SimpleParser";
-import { FunTypeContext } from "./SimpleParser";
+import { VariableDeclarationContext } from "./SimpleParser";
 import { AssignmentContext } from "./SimpleParser";
 import { FunctionCallContext } from "./SimpleParser";
 import { IfStatementContext } from "./SimpleParser";
 import { IfStatContext } from "./SimpleParser";
 import { ElseIfStatContext } from "./SimpleParser";
 import { ElseStatContext } from "./SimpleParser";
-import { FunctionDeclContext } from "./SimpleParser";
-import { ParamContext } from "./SimpleParser";
-import { ParamListContext } from "./SimpleParser";
 import { ForStatementContext } from "./SimpleParser";
 import { WhileStatementContext } from "./SimpleParser";
 import { IdListContext } from "./SimpleParser";
@@ -231,6 +231,34 @@ export interface SimpleVisitor<Result> extends ParseTreeVisitor<Result> {
 	visitRepl?: (ctx: ReplContext) => Result;
 
 	/**
+	 * Visit a parse tree produced by `SimpleParser.funType`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitFunType?: (ctx: FunTypeContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by `SimpleParser.functionDecl`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitFunctionDecl?: (ctx: FunctionDeclContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by `SimpleParser.param`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitParam?: (ctx: ParamContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by `SimpleParser.paramList`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitParamList?: (ctx: ParamListContext) => Result;
+
+	/**
 	 * Visit a parse tree produced by `SimpleParser.block`.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -245,13 +273,6 @@ export interface SimpleVisitor<Result> extends ParseTreeVisitor<Result> {
 	visitStatement?: (ctx: StatementContext) => Result;
 
 	/**
-	 * Visit a parse tree produced by `SimpleParser.variableDeclaration`.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	visitVariableDeclaration?: (ctx: VariableDeclarationContext) => Result;
-
-	/**
 	 * Visit a parse tree produced by `SimpleParser.varType`.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -259,11 +280,11 @@ export interface SimpleVisitor<Result> extends ParseTreeVisitor<Result> {
 	visitVarType?: (ctx: VarTypeContext) => Result;
 
 	/**
-	 * Visit a parse tree produced by `SimpleParser.funType`.
+	 * Visit a parse tree produced by `SimpleParser.variableDeclaration`.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	visitFunType?: (ctx: FunTypeContext) => Result;
+	visitVariableDeclaration?: (ctx: VariableDeclarationContext) => Result;
 
 	/**
 	 * Visit a parse tree produced by `SimpleParser.assignment`.
@@ -306,27 +327,6 @@ export interface SimpleVisitor<Result> extends ParseTreeVisitor<Result> {
 	 * @return the visitor result
 	 */
 	visitElseStat?: (ctx: ElseStatContext) => Result;
-
-	/**
-	 * Visit a parse tree produced by `SimpleParser.functionDecl`.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	visitFunctionDecl?: (ctx: FunctionDeclContext) => Result;
-
-	/**
-	 * Visit a parse tree produced by `SimpleParser.param`.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	visitParam?: (ctx: ParamContext) => Result;
-
-	/**
-	 * Visit a parse tree produced by `SimpleParser.paramList`.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	visitParamList?: (ctx: ParamListContext) => Result;
 
 	/**
 	 * Visit a parse tree produced by `SimpleParser.forStatement`.

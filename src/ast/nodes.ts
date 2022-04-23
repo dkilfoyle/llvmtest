@@ -2,6 +2,8 @@ import { ParserRuleContext } from "antlr4ts";
 import { Scope } from "./scopeStack";
 import { AllowedTypes, Signature } from "./signature";
 
+export const errorNodes: AstNode[] = [];
+
 // ================= base nodes
 
 export class AstNode {
@@ -13,7 +15,7 @@ export class AstNode {
       this.Location = [0,0,0,0];
   }
   indent(n:number, s:string, nl:boolean=false) {
-    return s.split("\n").map(line => ' '.repeat(n) + line).filter(line => line.trimStart() != "").join("\n");
+    return s.split("\n").filter(line=>line != "").map(line => ' '.repeat(n) + line).join("\n");
   }
   toString(indent:number=0) {
     return this.indent(indent, "AstNode(unimpl)");
@@ -40,6 +42,7 @@ export class AstError extends AstNode {
   constructor(ctx:ParserRuleContext, msg:string) {
     super(ctx);
     this.errorMsg = msg;
+    errorNodes.push(this);
   }
   toString(indent=0) {
     return this.indent(indent, `Error(${this.errorMsg})`);
@@ -139,11 +142,40 @@ export class AstIfElse extends AstStatement {
   }
 }
 
+export class AstFor extends AstStatement {
+  initialAssignment: AstStatement;
+  testExpression: AstExpression;
+  updateAssignement: AstStatement;
+  block: AstBlock;
+  constructor(ctx:ParserRuleContext, initialAssignment: AstStatement, testExpression: AstExpression, updateAssignement: AstStatement, block:AstBlock) {
+    super(ctx);
+    this.initialAssignment = initialAssignment;
+    this.testExpression = testExpression;
+    this.updateAssignement = updateAssignement;
+    this.block = block;
+  }
+  toString(indent=0) {
+    return this.indent(indent,
+`for (${this.initialAssignment.toString()} ; ${this.testExpression.toString()} ; ${this.updateAssignement.toString()} )
+${this.block.toString(2)}`);
+    }
+}
+
 // =============== Expression nodes
 
 export class AstExpression extends AstNode {
   returnType() { return "unknown"};
 };
+
+export class AstErrorExpression extends AstNode {
+  msg: string;
+  constructor(ctx:ParserRuleContext, msg:string) {
+    super(ctx);
+    this.msg = msg;
+    errorNodes.push(this);
+  }
+  returnType() { return "error" };
+}
 
 export class AstBinaryExpression extends AstExpression {
   lhs: AstNode;
@@ -158,7 +190,11 @@ export class AstBinaryExpression extends AstExpression {
   toString(indent:number=0) {
     return this.indent(indent, `Op(${this.lhs.toString()} ${this.op} ${this.rhs.toString()})`); 
   }
-  returnType() { return "int" };
+  returnType() { 
+    if (["+","-","*","/"].includes(this.op)) return "int"; // TODO - should check type of LHS and RHS to see if int or float
+    if (["<=","<",">=",">","==","!="].includes(this.op)) return "bool"; 
+    return "unknown";
+  }
 }
 
 export class AstConstExpression extends AstExpression {
