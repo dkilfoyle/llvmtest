@@ -13,7 +13,6 @@ import { EqExpressionContext } from "./SimpleParser";
 import { AndExpressionContext } from "./SimpleParser";
 import { OrExpressionContext } from "./SimpleParser";
 import { TernaryExpressionContext } from "./SimpleParser";
-import { InExpressionContext } from "./SimpleParser";
 import { NumberExpressionContext } from "./SimpleParser";
 import { BoolExpressionContext } from "./SimpleParser";
 import { NullExpressionContext } from "./SimpleParser";
@@ -22,7 +21,6 @@ import { ListExpressionContext } from "./SimpleParser";
 import { IdentifierExpressionContext } from "./SimpleParser";
 import { StringExpressionContext } from "./SimpleParser";
 import { BracketExpressionContext } from "./SimpleParser";
-import { InputExpressionContext } from "./SimpleParser";
 import { ParseContext } from "./SimpleParser";
 import { ReplContext } from "./SimpleParser";
 import { FunTypeContext } from "./SimpleParser";
@@ -33,6 +31,8 @@ import { BlockContext } from "./SimpleParser";
 import { StatementContext } from "./SimpleParser";
 import { VarTypeContext } from "./SimpleParser";
 import { VariableDeclarationContext } from "./SimpleParser";
+import { InitDeclaratorListContext } from "./SimpleParser";
+import { InitDeclaratorContext } from "./SimpleParser";
 import { AssignmentContext } from "./SimpleParser";
 import { FunctionCallContext } from "./SimpleParser";
 import { IfStatementContext } from "./SimpleParser";
@@ -40,6 +40,7 @@ import { IfStatContext } from "./SimpleParser";
 import { ElseIfStatContext } from "./SimpleParser";
 import { ElseStatContext } from "./SimpleParser";
 import { ForStatementContext } from "./SimpleParser";
+import { ForInitialContext } from "./SimpleParser";
 import { WhileStatementContext } from "./SimpleParser";
 import { IdListContext } from "./SimpleParser";
 import { ExprListContext } from "./SimpleParser";
@@ -137,14 +138,6 @@ export interface SimpleVisitor<Result> extends ParseTreeVisitor<Result> {
 	visitTernaryExpression?: (ctx: TernaryExpressionContext) => Result;
 
 	/**
-	 * Visit a parse tree produced by the `inExpression`
-	 * labeled alternative in `SimpleParser.expression`.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	visitInExpression?: (ctx: InExpressionContext) => Result;
-
-	/**
 	 * Visit a parse tree produced by the `numberExpression`
 	 * labeled alternative in `SimpleParser.expression`.
 	 * @param ctx the parse tree
@@ -207,14 +200,6 @@ export interface SimpleVisitor<Result> extends ParseTreeVisitor<Result> {
 	 * @return the visitor result
 	 */
 	visitBracketExpression?: (ctx: BracketExpressionContext) => Result;
-
-	/**
-	 * Visit a parse tree produced by the `inputExpression`
-	 * labeled alternative in `SimpleParser.expression`.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	visitInputExpression?: (ctx: InputExpressionContext) => Result;
 
 	/**
 	 * Visit a parse tree produced by `SimpleParser.parse`.
@@ -287,6 +272,20 @@ export interface SimpleVisitor<Result> extends ParseTreeVisitor<Result> {
 	visitVariableDeclaration?: (ctx: VariableDeclarationContext) => Result;
 
 	/**
+	 * Visit a parse tree produced by `SimpleParser.initDeclaratorList`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitInitDeclaratorList?: (ctx: InitDeclaratorListContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by `SimpleParser.initDeclarator`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitInitDeclarator?: (ctx: InitDeclaratorContext) => Result;
+
+	/**
 	 * Visit a parse tree produced by `SimpleParser.assignment`.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -334,6 +333,13 @@ export interface SimpleVisitor<Result> extends ParseTreeVisitor<Result> {
 	 * @return the visitor result
 	 */
 	visitForStatement?: (ctx: ForStatementContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by `SimpleParser.forInitial`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitForInitial?: (ctx: ForInitialContext) => Result;
 
 	/**
 	 * Visit a parse tree produced by `SimpleParser.whileStatement`.

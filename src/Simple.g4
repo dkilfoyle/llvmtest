@@ -20,7 +20,9 @@ statement:
 	| whileStatement;
 
 varType: 'int' | 'string';
-variableDeclaration: varType Identifier (',' Identifier)*;
+variableDeclaration: varType initDeclaratorList;
+initDeclaratorList: initDeclarator (',' initDeclarator)*;
+initDeclarator: Identifier ('=' expression)?;
 
 assignment: Identifier indexes? '=' expression;
 
@@ -31,7 +33,8 @@ elseIfStat: 'else' 'if' expression '{' block '}';
 elseStat: 'else' '{' block '}';
 
 forStatement:
-	'for' '(' assignment ';' expression ';' assignment ')' '{' block '}';
+	'for' '(' forInitial ';' expression ';' assignment ')' '{' block '}';
+forInitial: variableDeclaration | assignment;
 
 whileStatement: 'while' expression '{' block '}';
 
@@ -49,7 +52,6 @@ expression:
 	| expression op = '&&' expression						# andExpression
 	| expression op = '||' expression						# orExpression
 	| expression op = '?' expression ':' expression			# ternaryExpression
-	| expression op = 'in' expression						# inExpression
 	| Number												# numberExpression
 	| Bool													# boolExpression
 	| 'null'												# nullExpression
@@ -57,8 +59,7 @@ expression:
 	| list indexes?											# listExpression
 	| Identifier indexes?									# identifierExpression
 	| String indexes?										# stringExpression
-	| '(' expression ')' indexes?							# bracketExpression
-	| 'input' '(' String? ')'								# inputExpression;
+	| '(' expression ')' indexes?							# bracketExpression;
 
 list: '[' exprList? ']';
 indexes: ( '[' expression ']')+;

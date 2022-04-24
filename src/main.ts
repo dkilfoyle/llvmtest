@@ -17,13 +17,12 @@ class SimpleLexer2 extends SimpleLexer {
   }
 }
 
+const fs = require("fs");
+
 function main(): void {
+  const buffer = fs.readFileSync("src/test.tc");
   // Create the lexer and parser
-  let inputStream = new ANTLRInputStream(
-`int x;
-x=2;
-assert(x==2);
-`);
+  let inputStream = new ANTLRInputStream(buffer.toString());
   let lexer = new SimpleLexer2(inputStream);
   let tokenStream = new CommonTokenStream(lexer);
   let parser = new SimpleParser(tokenStream);

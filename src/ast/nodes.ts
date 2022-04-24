@@ -224,6 +224,14 @@ export class AstFor extends AstStatement {
 `for (${this.initialAssignment.toString()} ; ${this.testExpression.toString()} ; ${this.updateAssignement.toString()} )
 ${this.block.toString(2)}`);
     }
+  execute() {
+    this.initialAssignment.execute();
+    while (this.testExpression.execute()) {
+      this.block.execute();
+      this.updateAssignement.execute();
+    }
+    return "void";
+  }
 }
 
 // =============== Expression nodes
@@ -242,6 +250,35 @@ export class AstErrorExpression extends AstNode {
   returnType() { return "error" };
 }
 
+export class AstUnaryExpression extends AstExpression {
+  rhs: AstExpression;
+  op: string;
+  constructor(ctx: ParserRuleContext, op:string, rhs:AstExpression) {
+    super(ctx);
+    this.op = op;
+    this.rhs = rhs;
+  }
+  toString(indent:number=0) {
+    return this.indent(indent, `Op(${this.op} ${this.rhs.toString()})`); 
+  }
+  returnType() { 
+    if (this.op == "-") return "int";
+    if (this.op == "!") return "bool";
+    return "unknown";
+  }
+  execute() {
+    if (this.op == "-") {
+      const rhsRes = Number(this.rhs.execute());
+      return rhsRes * -1;
+    }
+    if (this.op == "!") {
+      const rhsRes = Boolean(this.rhs.execute());
+      return !rhsRes;
+    }
+    throw new Error();
+  }
+}
+
 export class AstBinaryExpression extends AstExpression {
   lhs: AstExpression;
   rhs: AstExpression;
@@ -256,47 +293,53 @@ export class AstBinaryExpression extends AstExpression {
     return this.indent(indent, `Op(${this.lhs.toString()} ${this.op} ${this.rhs.toString()})`); 
   }
   returnType() { 
-    if (["+","-","*","/"].includes(this.op)) return "int"; // TODO - should check type of LHS and RHS to see if int or float
-    if (["<=","<",">=",">","==","!="].includes(this.op)) return "bool"; 
+    if (["+","-","*","/","%","^"].includes(this.op)) return "int"; // TODO - should check type of LHS and RHS to see if int or float
+    if (["<=","<",">=",">","==","!=","&&","||"].includes(this.op)) return "bool"; 
     return "unknown";
   }
   execute() {
     const lhsRes = Number(this.lhs.execute());
     const rhsRes = Number(this.rhs.execute());
     switch (this.op) {
+      case "^": return lhsRes ** rhsRes;
       case "+": return lhsRes + rhsRes;
       case "-": return lhsRes - rhsRes;
       case "*": return lhsRes * rhsRes;
       case "/": return lhsRes / rhsRes;
+      case "%": return lhsRes % rhsRes;
       case "<": return lhsRes < rhsRes;
       case ">": return lhsRes > rhsRes;
       case "<=": return lhsRes <= rhsRes;
       case ">=": return lhsRes >= rhsRes;
       case "==": return lhsRes == rhsRes;
       case "!=": return lhsRes != rhsRes;
+      case "&&": return Boolean(lhsRes && rhsRes);
+      case "||": return Boolean(lhsRes || rhsRes);
       default: throw new Error();
     }
   }
 }
 
 export class AstConstExpression extends AstExpression {
-  value: number;
-  constructor(ctx:ParserRuleContext, value:number) {
+  value;
+  valueType;
+  constructor(ctx:ParserRuleContext, value:number | boolean | string | null, valueType: "int" | "bool" | "string" | "null" ) {
     super(ctx);
     this.value = value;
+    this.valueType = valueType;
   }
   toString() {
     return `Const(${this.value})`;
   }
-  returnType() { return "int" };
+  returnType() { return this.valueType };
   execute() {
     return this.value;
   }
 }
 
 export class AstIdentifierExpression extends AstExpression {
-  declaration: AstIdentifierDeclaration;
-  constructor(ctx: ParserRuleContext, declarataion: AstIdentifierDeclaration) {
+  declaration;
+  constructor(ctx: ParserRuleContext, declarataion: AstVariableDeclaration | AstUndeclaredError) {
     super(ctx);
     this.declaration = declarataion;
   }
@@ -307,7 +350,7 @@ export class AstIdentifierExpression extends AstExpression {
     return this.declaration.signature.returnType;
   }
   execute() {
-    return this.declaration.execute();
+    return this.declaration.value;
   }
 }
 
@@ -337,10 +380,12 @@ export class AstIdentifierDeclaration extends AstNode {
 }
 
 export class AstVariableDeclaration extends AstIdentifierDeclaration {
-  value: AllowedTypes;
-  constructor(ctx:ParserRuleContext, id:string, type: AllowedTypes) {
+  initialExpression: AstExpression;
+  value: any;
+  constructor(ctx:ParserRuleContext, id:string, type: AllowedTypes, initialExpression?:AstExpression) {
     super(ctx, id);
     this.signature = new Signature('var', type);
+    this.initialExpression = initialExpression;
   }
   toString(indent:number =0) {
     return this.indent(indent, `VariableDeclaration(${this.signature.returnType}: ${this.id})`);
@@ -352,7 +397,8 @@ export class AstVariableDeclaration extends AstIdentifierDeclaration {
       throw new Error();
   }
   execute() {
-    return this.value;
+    this.setValue(this.initialExpression.execute());
+    return "void";
   }
 }
 

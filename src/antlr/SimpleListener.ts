@@ -13,7 +13,6 @@ import { EqExpressionContext } from "./SimpleParser";
 import { AndExpressionContext } from "./SimpleParser";
 import { OrExpressionContext } from "./SimpleParser";
 import { TernaryExpressionContext } from "./SimpleParser";
-import { InExpressionContext } from "./SimpleParser";
 import { NumberExpressionContext } from "./SimpleParser";
 import { BoolExpressionContext } from "./SimpleParser";
 import { NullExpressionContext } from "./SimpleParser";
@@ -22,7 +21,6 @@ import { ListExpressionContext } from "./SimpleParser";
 import { IdentifierExpressionContext } from "./SimpleParser";
 import { StringExpressionContext } from "./SimpleParser";
 import { BracketExpressionContext } from "./SimpleParser";
-import { InputExpressionContext } from "./SimpleParser";
 import { ParseContext } from "./SimpleParser";
 import { ReplContext } from "./SimpleParser";
 import { FunTypeContext } from "./SimpleParser";
@@ -33,6 +31,8 @@ import { BlockContext } from "./SimpleParser";
 import { StatementContext } from "./SimpleParser";
 import { VarTypeContext } from "./SimpleParser";
 import { VariableDeclarationContext } from "./SimpleParser";
+import { InitDeclaratorListContext } from "./SimpleParser";
+import { InitDeclaratorContext } from "./SimpleParser";
 import { AssignmentContext } from "./SimpleParser";
 import { FunctionCallContext } from "./SimpleParser";
 import { IfStatementContext } from "./SimpleParser";
@@ -40,6 +40,7 @@ import { IfStatContext } from "./SimpleParser";
 import { ElseIfStatContext } from "./SimpleParser";
 import { ElseStatContext } from "./SimpleParser";
 import { ForStatementContext } from "./SimpleParser";
+import { ForInitialContext } from "./SimpleParser";
 import { WhileStatementContext } from "./SimpleParser";
 import { IdListContext } from "./SimpleParser";
 import { ExprListContext } from "./SimpleParser";
@@ -184,19 +185,6 @@ export interface SimpleListener extends ParseTreeListener {
 	exitTernaryExpression?: (ctx: TernaryExpressionContext) => void;
 
 	/**
-	 * Enter a parse tree produced by the `inExpression`
-	 * labeled alternative in `SimpleParser.expression`.
-	 * @param ctx the parse tree
-	 */
-	enterInExpression?: (ctx: InExpressionContext) => void;
-	/**
-	 * Exit a parse tree produced by the `inExpression`
-	 * labeled alternative in `SimpleParser.expression`.
-	 * @param ctx the parse tree
-	 */
-	exitInExpression?: (ctx: InExpressionContext) => void;
-
-	/**
 	 * Enter a parse tree produced by the `numberExpression`
 	 * labeled alternative in `SimpleParser.expression`.
 	 * @param ctx the parse tree
@@ -299,19 +287,6 @@ export interface SimpleListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	exitBracketExpression?: (ctx: BracketExpressionContext) => void;
-
-	/**
-	 * Enter a parse tree produced by the `inputExpression`
-	 * labeled alternative in `SimpleParser.expression`.
-	 * @param ctx the parse tree
-	 */
-	enterInputExpression?: (ctx: InputExpressionContext) => void;
-	/**
-	 * Exit a parse tree produced by the `inputExpression`
-	 * labeled alternative in `SimpleParser.expression`.
-	 * @param ctx the parse tree
-	 */
-	exitInputExpression?: (ctx: InputExpressionContext) => void;
 
 	/**
 	 * Enter a parse tree produced by `SimpleParser.parse`.
@@ -424,6 +399,28 @@ export interface SimpleListener extends ParseTreeListener {
 	exitVariableDeclaration?: (ctx: VariableDeclarationContext) => void;
 
 	/**
+	 * Enter a parse tree produced by `SimpleParser.initDeclaratorList`.
+	 * @param ctx the parse tree
+	 */
+	enterInitDeclaratorList?: (ctx: InitDeclaratorListContext) => void;
+	/**
+	 * Exit a parse tree produced by `SimpleParser.initDeclaratorList`.
+	 * @param ctx the parse tree
+	 */
+	exitInitDeclaratorList?: (ctx: InitDeclaratorListContext) => void;
+
+	/**
+	 * Enter a parse tree produced by `SimpleParser.initDeclarator`.
+	 * @param ctx the parse tree
+	 */
+	enterInitDeclarator?: (ctx: InitDeclaratorContext) => void;
+	/**
+	 * Exit a parse tree produced by `SimpleParser.initDeclarator`.
+	 * @param ctx the parse tree
+	 */
+	exitInitDeclarator?: (ctx: InitDeclaratorContext) => void;
+
+	/**
 	 * Enter a parse tree produced by `SimpleParser.assignment`.
 	 * @param ctx the parse tree
 	 */
@@ -499,6 +496,17 @@ export interface SimpleListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	exitForStatement?: (ctx: ForStatementContext) => void;
+
+	/**
+	 * Enter a parse tree produced by `SimpleParser.forInitial`.
+	 * @param ctx the parse tree
+	 */
+	enterForInitial?: (ctx: ForInitialContext) => void;
+	/**
+	 * Exit a parse tree produced by `SimpleParser.forInitial`.
+	 * @param ctx the parse tree
+	 */
+	exitForInitial?: (ctx: ForInitialContext) => void;
 
 	/**
 	 * Enter a parse tree produced by `SimpleParser.whileStatement`.
