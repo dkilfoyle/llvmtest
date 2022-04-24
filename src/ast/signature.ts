@@ -1,4 +1,4 @@
-export type AllowedTypes = 'int' | 'string' | 'void';
+export type AllowedTypes = 'int' | 'string' | 'void' | 'bool';
 export type AllowedSignatures = 'var' | 'fun';
 
 export class Signature {

@@ -1,11 +1,10 @@
 import { AbstractParseTreeVisitor } from "antlr4ts/tree/AbstractParseTreeVisitor";
+import { ParserRuleContext } from "antlr4ts/ParserRuleContext";
+import { AddExpressionContext, AssignmentContext, BlockContext, BracketExpressionContext, CompExpressionContext, ElseIfStatContext, ElseStatContext, ExpressionContext, ForStatementContext, FunctionCallContext, FunctionDeclContext, IdentifierExpressionContext, IfStatContext, IfStatementContext, MultExpressionContext,  NumberExpressionContext, ParamContext, ParseContext, ReplContext, StatementContext, VariableDeclarationContext } from "../antlr/SimpleParser";
+import { AstAssignment, AstBinaryExpression, AstBlock, AstBracketExpression, AstConstExpression, AstError, AstErrorExpression, AstExpression, AstFor, AstFunctionCall, AstFunctionDeclaration, AstIdentifierDeclaration, AstIdentifierExpression, AstIf, AstIfElse, AstNode, AstNull, AstRepl, AstStatement, AstUndeclaredError, AstVariableDeclaration } from "./nodes";
 import { SimpleVisitor } from "../antlr/SimpleVisitor";
 import { ScopeStack } from "./scopeStack";
-
-import { AddExpressionContext, AssignmentContext, BlockContext, BracketExpressionContext, CompExpressionContext, ElseIfStatContext, ExpressionContext, ForStatementContext, FunctionCallContext, FunctionDeclContext, IdentifierExpressionContext, IfStatContext, IfStatementContext, MultExpressionContext,  NumberExpressionContext, ParamContext, ParseContext, ReplContext, StatementContext, VariableDeclarationContext } from "../antlr/SimpleParser";
-import { AstAssignment, AstBinaryExpression, AstBlock, AstBracketExpression, AstConstExpression, AstError, AstErrorExpression, AstExpression, AstFor, AstFunctionCall, AstFunctionDeclaration, AstIdentifierDeclaration, AstIdentifierExpression, AstIf, AstIfElse, AstNode, AstNull, AstRepl, AstStatement, AstUndeclaredError, AstVariableDeclaration } from "./nodes";
 import { AllowedTypes } from "./signature";
-import { createIf, Expression } from "typescript";
 
 export class AstBuilder extends AbstractParseTreeVisitor<AstNode> implements SimpleVisitor<AstNode> {
 
@@ -16,7 +15,12 @@ export class AstBuilder extends AbstractParseTreeVisitor<AstNode> implements Sim
   constructor() {
     super();
     this.scopeStack = new ScopeStack();
+  }
 
+  createStdLibFunction(ctx: ParserRuleContext, id:string, params: AstVariableDeclaration[]) {
+    const funcDecl = new AstFunctionDeclaration(ctx, 'void', id, params);
+    this.scopeStack.setSymbol(id, funcDecl);
+    return funcDecl;
   }
 
   getAnonName() {
@@ -32,11 +36,16 @@ export class AstBuilder extends AbstractParseTreeVisitor<AstNode> implements Sim
   }
 
   visitParse(ctx: ParseContext) {
+
     return this.visit(ctx.repl());
   }
 
   visitRepl(ctx: ReplContext) {
-    const functions = ctx.functionDecl().map(decl => this.visitFunctionDecl(decl));
+    const stdlib = [
+      this.createStdLibFunction(ctx, "assert", [new AstVariableDeclaration(ctx, "test", "bool")]),
+      this.createStdLibFunction(ctx, "print", [new AstVariableDeclaration(ctx, "val", "int")]),
+    ];
+    const functions = [...stdlib, ...ctx.functionDecl().map(decl => this.visitFunctionDecl(decl))];
     const body = this.visitBlock(ctx.block(), "toplevelStatements");
     return new AstRepl(ctx, functions, body);
   }
@@ -57,22 +66,29 @@ export class AstBuilder extends AbstractParseTreeVisitor<AstNode> implements Sim
   }
 
   visitAddExpression(ctx: AddExpressionContext) {
-    const lhs = this.visit(ctx.expression(0));
-    const rhs = this.visit(ctx.expression(1));
+    const lhs = this.visitExpression(ctx.expression(0));
+    const rhs = this.visitExpression(ctx.expression(1));
     const op = ctx._op.text;
     return new AstBinaryExpression(ctx, op, lhs, rhs);
   }
   
   visitMultExpression(ctx: MultExpressionContext) {
-    const lhs = this.visit(ctx.expression(0));
-    const rhs = this.visit(ctx.expression(1));
+    const lhs = this.visitExpression(ctx.expression(0));
+    const rhs = this.visitExpression(ctx.expression(1));
     const op = ctx._op.text;
     return new AstBinaryExpression(ctx, op, lhs, rhs);
   }
 
   visitCompExpression(ctx: CompExpressionContext) {
-    const lhs = this.visit(ctx.expression(0));
-    const rhs = this.visit(ctx.expression(1));
+    const lhs = this.visitExpression(ctx.expression(0));
+    const rhs = this.visitExpression(ctx.expression(1));
+    const op = ctx._op.text;
+    return new AstBinaryExpression(ctx, op, lhs, rhs);
+  }
+
+  visitEqExpression(ctx: CompExpressionContext) {
+    const lhs = this.visitExpression(ctx.expression(0));
+    const rhs = this.visitExpression(ctx.expression(1));
     const op = ctx._op.text;
     return new AstBinaryExpression(ctx, op, lhs, rhs);
   }
@@ -110,24 +126,29 @@ export class AstBuilder extends AbstractParseTreeVisitor<AstNode> implements Sim
   }
 
   visitAssignment(ctx: AssignmentContext) {
-    const rhs = this.visit(ctx.expression());
+    const rhs = this.visitExpression(ctx.expression());
     const id = ctx.Identifier().text;
     const [found, idNode] = this.scopeStack.getSymbol(id);
-    return found ? new AstAssignment(ctx, id, rhs) : new AstError(ctx, `variable ${id} not in scope`);
+    return found ? new AstAssignment(ctx, idNode as AstVariableDeclaration, rhs) : new AstError(ctx, `variable ${id} not in scope`);
   }
 
   visitFunctionCall(ctx: FunctionCallContext) {
     const id = ctx.Identifier().text;
+    let [found, decl] = this.scopeStack.getSymbol(id);
+    if (!found) return new AstError(ctx, `function ${id} does not exist`);
+
+    const funDecl = decl as AstFunctionDeclaration;
+
+
+
     const params = ctx.exprList().expression().map(expr => this.visit(expr) as AstExpression);
-    if (!this.scopeStack.hasSymbol(id)) return new AstError(ctx, `function ${id} does not exist`);
-    const [found,decl] = this.scopeStack.getSymbol(id);
-    const decl2 = decl as AstIdentifierDeclaration;
-    if (params.length != decl2.signature.params.length) return new AstError(ctx, `function ${id} incorrect number of params`);
+    if (params.length != funDecl.signature.params.length) return new AstError(ctx, `function ${id} incorrect number of params`);
     const matches = params.every((param,i) => {
-      return param.returnType() == decl2.signature.params[i];
+      return param.returnType() == funDecl.signature.params[i];
     });
-    if (!matches) return new AstError(ctx, `function ${id} incorrect param typeS`);
-    return new AstFunctionCall(ctx, id, params);
+    if (!matches) 
+      return new AstError(ctx, `function ${id} incorrect param typeS`);
+    return new AstFunctionCall(ctx, funDecl, params);
   }
 
   visitExpression(ctx: ExpressionContext) {

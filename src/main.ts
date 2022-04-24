@@ -20,20 +20,9 @@ class SimpleLexer2 extends SimpleLexer {
 function main(): void {
   // Create the lexer and parser
   let inputStream = new ANTLRInputStream(
-`int foo(int x, int y) {
-  if x>5 { 
-    return x+y;
-  }
-  return 0;
-}
+`int x;
 x=2;
-// int z;
-// z=foo(2,6);
-// int i;
-// for (i = 0; i < 10; i=i+1) {
-//  int j;
-//  x = 2;
-}
+assert(x==2);
 `);
   let lexer = new SimpleLexer2(inputStream);
   let tokenStream = new CommonTokenStream(lexer);
@@ -41,8 +30,9 @@ x=2;
   let tree = parser.parse();
   const astBuilder = new AstBuilder()
   const ast = astBuilder.visit(tree);
-  console.log(ast.toString());
-  console.log(errorNodes);
+  console.log("AST print", ast.toString());
+  console.log("AST errors", errorNodes);
+  console.log("AST execute", ast.execute());
 }
 
 main();
