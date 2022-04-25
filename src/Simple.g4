@@ -1,23 +1,27 @@
 grammar Simple;
 
 parse: repl EOF;
-repl: functionDecl* block;
+repl: functionDecl* statements;
 
 funType: varType | 'void';
 functionDecl:
-	funType Identifier '(' paramList? ')' '{' block '}';
+	funType Identifier '(' paramList? ')' '{' returnBlock '}';
 param: varType Identifier;
 paramList: param (',' param)*;
-
-block: statement* ('return' expression ';')?;
+returnBlock: statement* ('return' expression ';')?;
 
 statement:
 	variableDeclaration ';'
 	| assignment ';'
 	| functionCall ';'
 	| ifStatement
+	| switchStatement
 	| forStatement
-	| whileStatement;
+	| whileStatement
+	| compoundStatement;
+
+compoundStatement: '{' statements '}';
+statements: statement*;
 
 varType: 'int' | 'string';
 variableDeclaration: varType initDeclaratorList;
@@ -27,16 +31,22 @@ initDeclarator: Identifier ('=' expression)?;
 assignment: Identifier indexes? '=' expression;
 
 functionCall: Identifier '(' exprList? ')';
-ifStatement: ifStat elseIfStat* elseStat?;
-ifStat: 'if' expression '{' block '}';
-elseIfStat: 'else' 'if' expression '{' block '}';
-elseStat: 'else' '{' block '}';
+
+ifStatement: 'if' '(' expression ')' statement elseStat?;
+elseStat: 'else' statement;
+
+switchStatement:
+	'switch' '(' expression ')' '{' caseStatement* defaultCase? '}';
+caseStatement:
+	'case' constantValue ':' statements breakStatement?;
+defaultCase: 'default' ':' statements;
+breakStatement: 'break;';
 
 forStatement:
-	'for' '(' forInitial ';' expression ';' assignment ')' '{' block '}';
+	'for' '(' forInitial ';' expression ';' assignment ')' statement;
 forInitial: variableDeclaration | assignment;
 
-whileStatement: 'while' expression '{' block '}';
+whileStatement: 'while' '(' expression ')' statement;
 
 idList: Identifier ( ',' Identifier)*;
 exprList: expression ( ',' expression)*;
@@ -52,14 +62,16 @@ expression:
 	| expression op = '&&' expression						# andExpression
 	| expression op = '||' expression						# orExpression
 	| expression op = '?' expression ':' expression			# ternaryExpression
-	| Number												# numberExpression
-	| Bool													# boolExpression
-	| 'null'												# nullExpression
-	| functionCall indexes?									# functionCallExpression
-	| list indexes?											# listExpression
+	| constantValue											# constantExpression
+	| functionCall											# functionCallExpression
 	| Identifier indexes?									# identifierExpression
-	| String indexes?										# stringExpression
-	| '(' expression ')' indexes?							# bracketExpression;
+	| '(' expression ')'									# bracketExpression;
+
+constantValue:
+	Number				# numberExpression
+	| Bool				# boolExpression
+	| 'null'			# nullExpression
+	| String indexes?	# stringExpression;
 
 list: '[' exprList? ']';
 indexes: ( '[' expression ']')+;

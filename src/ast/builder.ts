@@ -1,8 +1,8 @@
-import { AbstractParseTreeVisitor } from "antlr4ts/tree/AbstractParseTreeVisitor";
 import { ParserRuleContext } from "antlr4ts/ParserRuleContext";
-import { AddExpressionContext, AndExpressionContext, AssignmentContext, BlockContext, BoolExpressionContext, BracketExpressionContext, CompExpressionContext, ElseIfStatContext, ElseStatContext, EqExpressionContext, ExpressionContext, ForStatementContext, FunctionCallContext, FunctionDeclContext, IdentifierExpressionContext, IfStatContext, IfStatementContext, MultExpressionContext,  NullExpressionContext,  NumberExpressionContext, OrExpressionContext, ParamContext, ParseContext, ReplContext, StatementContext, StringExpressionContext, UnaryMinusExpressionContext, NotExpressionContext, VariableDeclarationContext, PowerExpressionContext, ForInitialContext } from "../antlr/SimpleParser";
-import { AstAssignment, AstBinaryExpression, AstBlock, AstBracketExpression, AstConstExpression, AstError, AstErrorExpression, AstExpression, AstFor, AstFunctionCall, AstFunctionDeclaration, AstIdentifierDeclaration, AstIdentifierExpression, AstIf, AstIfElse, AstNode, AstNull, AstRepl, AstStatement, AstUnaryExpression, AstUndeclaredError, AstVariableDeclaration } from "./nodes";
+import { AbstractParseTreeVisitor } from "antlr4ts/tree/AbstractParseTreeVisitor";
+import { AddExpressionContext, AndExpressionContext, AssignmentContext, BoolExpressionContext, BracketExpressionContext, CaseStatementContext, CompExpressionContext, CompoundStatementContext, ConstantValueContext, EqExpressionContext, ExpressionContext, ForStatementContext, FunctionCallContext, FunctionDeclContext, IdentifierExpressionContext, IfStatementContext, MultExpressionContext, NotExpressionContext, NullExpressionContext, NumberExpressionContext, OrExpressionContext, ParamContext, ParseContext, PowerExpressionContext, ReplContext, ReturnBlockContext, StatementContext, StatementsContext, StringExpressionContext, SwitchStatementContext, UnaryMinusExpressionContext, VariableDeclarationContext, WhileStatementContext } from "../antlr/SimpleParser";
 import { SimpleVisitor } from "../antlr/SimpleVisitor";
+import { AstAssignment, AstBinaryExpression, AstBlock, AstCase, AstConstExpression, AstError, AstErrorExpression, AstExpression, AstFor, AstFunctionCall, AstFunctionDeclaration, AstIdentifierExpression, AstIf, AstNode, AstNull, AstRepl, AstStatement, AstSwitch, AstUnaryExpression, AstUndeclaredError, AstVariableDeclaration, AstWhile } from "./nodes";
 import { ScopeStack } from "./scopeStack";
 import { AllowedTypes } from "./signature";
 
@@ -17,7 +17,7 @@ export class AstBuilder extends AbstractParseTreeVisitor<AstNode> implements Sim
     this.scopeStack = new ScopeStack();
   }
 
-  createStdLibFunction(ctx: ParserRuleContext, id:string, params: AstVariableDeclaration[]) {
+  createStdLibFunction(ctx: ParserRuleContext, id: string, params: AstVariableDeclaration[]) {
     const funcDecl = new AstFunctionDeclaration(ctx, 'void', id, params);
     this.scopeStack.setSymbol(id, funcDecl);
     return funcDecl;
@@ -46,22 +46,38 @@ export class AstBuilder extends AbstractParseTreeVisitor<AstNode> implements Sim
       this.createStdLibFunction(ctx, "print", [new AstVariableDeclaration(ctx, "val", "int")]),
     ];
     const functions = [...stdlib, ...ctx.functionDecl().map(decl => this.visitFunctionDecl(decl))];
-    const body = this.visitBlock(ctx.block(), "toplevelStatements");
+    const body = this.visitStatements(ctx.statements());
     return new AstRepl(ctx, functions, body);
   }
 
-  visitBlock(ctx: BlockContext, name="unnamedblock") {
+  visitReturnBlock(ctx: ReturnBlockContext, name = "unnamedblock") {
     this.scopeStack.enterScope(name);
     const body = ctx.statement().map(statement => this.visit(statement));
-    const returnVal = ctx.expression() ? this.visitExpression(ctx.expression()) : new AstNull();
+    const returnVal = ctx.expression() ? this.visitExpression(ctx.expression()) : undefined;
     this.scopeStack.disposeScope();
     return new AstBlock(ctx, body, returnVal);
+  }
+
+  visitStatements(ctx: StatementsContext) {
+    const body = ctx.statement().map(statement => this.visitStatement(statement));
+    return new AstBlock(ctx, body);
+  }
+
+  visitCompoundStatement(ctx: CompoundStatementContext, name = "unnamedblock") {
+    this.scopeStack.enterScope(name);
+    const body = this.visitStatements(ctx.statements());
+    this.scopeStack.disposeScope();
+    return body;
   }
 
   // Expressions
 
   visitExpression(ctx: ExpressionContext) {
     return ctx.accept(this) as AstExpression;
+  }
+
+  visitConstantValue(ctx: ConstantValueContext) {
+    return ctx.accept(this) as AstConstExpression;
   }
 
   visitUnaryMinusExpression(ctx: UnaryMinusExpressionContext) {
@@ -76,7 +92,7 @@ export class AstBuilder extends AbstractParseTreeVisitor<AstNode> implements Sim
     return new AstUnaryExpression(ctx, op, rhs);
   }
 
-  createBinaryExpression(ctx: AddExpressionContext | MultExpressionContext | CompExpressionContext | EqExpressionContext | AndExpressionContext | OrExpressionContext ) {
+  createBinaryExpression(ctx: AddExpressionContext | MultExpressionContext | CompExpressionContext | EqExpressionContext | AndExpressionContext | OrExpressionContext) {
     const lhs = this.visitExpression(ctx.expression(0) as ExpressionContext);
     const rhs = this.visitExpression(ctx.expression(1) as ExpressionContext);
     const op = ctx._op.text;
@@ -90,7 +106,7 @@ export class AstBuilder extends AbstractParseTreeVisitor<AstNode> implements Sim
   visitAddExpression(ctx: AddExpressionContext) {
     return this.createBinaryExpression(ctx);
   }
-  
+
   visitMultExpression(ctx: MultExpressionContext) {
     return this.createBinaryExpression(ctx);
   }
@@ -128,11 +144,11 @@ export class AstBuilder extends AbstractParseTreeVisitor<AstNode> implements Sim
 
   visitBoolExpression(ctx: BoolExpressionContext) {
     const b = ctx.Bool().text;
-    return new AstConstExpression(ctx, b=='true', "bool");
+    return new AstConstExpression(ctx, b == 'true', "bool");
   }
 
   visitStringExpression(ctx: StringExpressionContext) {
-    const s= ctx.String().text;
+    const s = ctx.String().text;
     return new AstConstExpression(ctx, s, "string");
   }
 
@@ -152,7 +168,7 @@ export class AstBuilder extends AbstractParseTreeVisitor<AstNode> implements Sim
     ctx.initDeclaratorList().initDeclarator().forEach(idctx => {
       const id = idctx.Identifier().text;
       let node;
-      if (idctx.expression()) 
+      if (idctx.expression())
         node = new AstVariableDeclaration(idctx, id, varType as AllowedTypes, this.visitExpression(idctx.expression()));
       else
         node = new AstVariableDeclaration(idctx, id, varType as AllowedTypes);
@@ -181,29 +197,31 @@ export class AstBuilder extends AbstractParseTreeVisitor<AstNode> implements Sim
 
     const params = ctx.exprList().expression().map(expr => this.visit(expr) as AstExpression);
     if (params.length != funDecl.signature.params.length) return new AstError(ctx, `function ${id} incorrect number of params`);
-    const matches = params.every((param,i) => {
-      console.log(param, i)
+    const matches = params.every((param, i) => {
       return param.returnType() == funDecl.signature.params[i];
     });
-    if (!matches) 
+    if (!matches)
       return new AstError(ctx, `function ${id} incorrect param typeS`);
     return new AstFunctionCall(ctx, funDecl, params);
   }
 
-
-
   visitIfStatement(ctx: IfStatementContext) {
+    return new AstIf(ctx,
+      this.visitExpression(ctx.expression()),
+      this.visitStatement(ctx.statement()),
+      ctx.elseStat() ? this.visitStatement(ctx.elseStat().statement()) : undefined);
+  }
 
-    const createAstIf = (ifctx: IfStatContext | ElseIfStatContext)  => {
-      return new AstIf(ifctx, 
-        this.visitExpression(ctx.ifStat().expression()),
-        this.visitBlock(ctx.ifStat().block()));
-    };
-
-    return new AstIfElse(ctx,
-      [createAstIf(ctx.ifStat()), 
-      ...ctx.elseIfStat().map(elif  => createAstIf(elif))],
-      ctx.elseStat() ? this.visitBlock(ctx.elseStat().block()) : new AstNull());
+  visitSwitchStatement(ctx: SwitchStatementContext) {
+    return new AstSwitch(ctx,
+      this.visitExpression(ctx.expression()),
+      ctx.caseStatement().map(cs => new AstCase(cs,
+        this.visitConstantValue(cs.constantValue()),
+        this.visitStatements(cs.statements()),
+        cs.breakStatement() ? true : false)
+      ),
+      ctx.defaultCase() ? this.visitStatements(ctx.defaultCase().statements()) : undefined
+    );
   }
 
   visitForStatement(ctx: ForStatementContext) {
@@ -213,12 +231,21 @@ export class AstBuilder extends AbstractParseTreeVisitor<AstNode> implements Sim
       this.visitAssignment(ctx.forInitial().assignment());
     const testExpression = this.visitExpression(ctx.expression());
     const updateAssignment = this.visitAssignment(ctx.assignment());
-    const block = this.visitBlock(ctx.block());
+    const block = this.visitStatement(ctx.statement());
     this.scopeStack.disposeScope();
-    return new AstFor(ctx, 
+    return new AstFor(ctx,
       initialStatement,
       testExpression.returnType() == 'bool' ? testExpression : new AstErrorExpression(ctx.expression(), "for test expression must return bool"),
       updateAssignment,
+      block
+    );
+  }
+
+  visitWhileStatement(ctx: WhileStatementContext) {
+    const testExpression = this.visitExpression(ctx.expression());
+    const block = this.visitStatement(ctx.statement());
+    return new AstWhile(ctx,
+      testExpression.returnType() == 'bool' ? testExpression : new AstErrorExpression(ctx.expression(), "for test expression must return bool"),
       block
     );
   }
@@ -232,14 +259,14 @@ export class AstBuilder extends AbstractParseTreeVisitor<AstNode> implements Sim
   }
 
   visitFunctionDecl(ctx: FunctionDeclContext) {
-    const funType =  ctx.funType().text as AllowedTypes;
+    const funType = ctx.funType().text as AllowedTypes;
     const id = ctx.Identifier().text;
     const params = ctx.paramList().param().map(param => this.visitParam(param));
     if (params.length) {
       this.scopeStack.enterScope(`fun(${id})`);
       params.forEach(param => this.scopeStack.setSymbol(param.id, param))
     }
-    const body = this.visitBlock(ctx.block(), `fun(${id})body`);
+    const body = this.visitReturnBlock(ctx.returnBlock(), `fun(${id})body`);
     if (params.length) this.scopeStack.disposeScope(); // dispose param scope
     const funcDecl = new AstFunctionDeclaration(ctx, funType, id, params, body);
     this.scopeStack.setSymbol(id, funcDecl);

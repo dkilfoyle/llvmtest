@@ -13,22 +13,24 @@ import { EqExpressionContext } from "./SimpleParser";
 import { AndExpressionContext } from "./SimpleParser";
 import { OrExpressionContext } from "./SimpleParser";
 import { TernaryExpressionContext } from "./SimpleParser";
+import { ConstantExpressionContext } from "./SimpleParser";
+import { FunctionCallExpressionContext } from "./SimpleParser";
+import { IdentifierExpressionContext } from "./SimpleParser";
+import { BracketExpressionContext } from "./SimpleParser";
 import { NumberExpressionContext } from "./SimpleParser";
 import { BoolExpressionContext } from "./SimpleParser";
 import { NullExpressionContext } from "./SimpleParser";
-import { FunctionCallExpressionContext } from "./SimpleParser";
-import { ListExpressionContext } from "./SimpleParser";
-import { IdentifierExpressionContext } from "./SimpleParser";
 import { StringExpressionContext } from "./SimpleParser";
-import { BracketExpressionContext } from "./SimpleParser";
 import { ParseContext } from "./SimpleParser";
 import { ReplContext } from "./SimpleParser";
 import { FunTypeContext } from "./SimpleParser";
 import { FunctionDeclContext } from "./SimpleParser";
 import { ParamContext } from "./SimpleParser";
 import { ParamListContext } from "./SimpleParser";
-import { BlockContext } from "./SimpleParser";
+import { ReturnBlockContext } from "./SimpleParser";
 import { StatementContext } from "./SimpleParser";
+import { CompoundStatementContext } from "./SimpleParser";
+import { StatementsContext } from "./SimpleParser";
 import { VarTypeContext } from "./SimpleParser";
 import { VariableDeclarationContext } from "./SimpleParser";
 import { InitDeclaratorListContext } from "./SimpleParser";
@@ -36,15 +38,18 @@ import { InitDeclaratorContext } from "./SimpleParser";
 import { AssignmentContext } from "./SimpleParser";
 import { FunctionCallContext } from "./SimpleParser";
 import { IfStatementContext } from "./SimpleParser";
-import { IfStatContext } from "./SimpleParser";
-import { ElseIfStatContext } from "./SimpleParser";
 import { ElseStatContext } from "./SimpleParser";
+import { SwitchStatementContext } from "./SimpleParser";
+import { CaseStatementContext } from "./SimpleParser";
+import { DefaultCaseContext } from "./SimpleParser";
+import { BreakStatementContext } from "./SimpleParser";
 import { ForStatementContext } from "./SimpleParser";
 import { ForInitialContext } from "./SimpleParser";
 import { WhileStatementContext } from "./SimpleParser";
 import { IdListContext } from "./SimpleParser";
 import { ExprListContext } from "./SimpleParser";
 import { ExpressionContext } from "./SimpleParser";
+import { ConstantValueContext } from "./SimpleParser";
 import { ListContext } from "./SimpleParser";
 import { IndexesContext } from "./SimpleParser";
 
@@ -185,43 +190,17 @@ export interface SimpleListener extends ParseTreeListener {
 	exitTernaryExpression?: (ctx: TernaryExpressionContext) => void;
 
 	/**
-	 * Enter a parse tree produced by the `numberExpression`
+	 * Enter a parse tree produced by the `constantExpression`
 	 * labeled alternative in `SimpleParser.expression`.
 	 * @param ctx the parse tree
 	 */
-	enterNumberExpression?: (ctx: NumberExpressionContext) => void;
+	enterConstantExpression?: (ctx: ConstantExpressionContext) => void;
 	/**
-	 * Exit a parse tree produced by the `numberExpression`
+	 * Exit a parse tree produced by the `constantExpression`
 	 * labeled alternative in `SimpleParser.expression`.
 	 * @param ctx the parse tree
 	 */
-	exitNumberExpression?: (ctx: NumberExpressionContext) => void;
-
-	/**
-	 * Enter a parse tree produced by the `boolExpression`
-	 * labeled alternative in `SimpleParser.expression`.
-	 * @param ctx the parse tree
-	 */
-	enterBoolExpression?: (ctx: BoolExpressionContext) => void;
-	/**
-	 * Exit a parse tree produced by the `boolExpression`
-	 * labeled alternative in `SimpleParser.expression`.
-	 * @param ctx the parse tree
-	 */
-	exitBoolExpression?: (ctx: BoolExpressionContext) => void;
-
-	/**
-	 * Enter a parse tree produced by the `nullExpression`
-	 * labeled alternative in `SimpleParser.expression`.
-	 * @param ctx the parse tree
-	 */
-	enterNullExpression?: (ctx: NullExpressionContext) => void;
-	/**
-	 * Exit a parse tree produced by the `nullExpression`
-	 * labeled alternative in `SimpleParser.expression`.
-	 * @param ctx the parse tree
-	 */
-	exitNullExpression?: (ctx: NullExpressionContext) => void;
+	exitConstantExpression?: (ctx: ConstantExpressionContext) => void;
 
 	/**
 	 * Enter a parse tree produced by the `functionCallExpression`
@@ -237,19 +216,6 @@ export interface SimpleListener extends ParseTreeListener {
 	exitFunctionCallExpression?: (ctx: FunctionCallExpressionContext) => void;
 
 	/**
-	 * Enter a parse tree produced by the `listExpression`
-	 * labeled alternative in `SimpleParser.expression`.
-	 * @param ctx the parse tree
-	 */
-	enterListExpression?: (ctx: ListExpressionContext) => void;
-	/**
-	 * Exit a parse tree produced by the `listExpression`
-	 * labeled alternative in `SimpleParser.expression`.
-	 * @param ctx the parse tree
-	 */
-	exitListExpression?: (ctx: ListExpressionContext) => void;
-
-	/**
 	 * Enter a parse tree produced by the `identifierExpression`
 	 * labeled alternative in `SimpleParser.expression`.
 	 * @param ctx the parse tree
@@ -263,19 +229,6 @@ export interface SimpleListener extends ParseTreeListener {
 	exitIdentifierExpression?: (ctx: IdentifierExpressionContext) => void;
 
 	/**
-	 * Enter a parse tree produced by the `stringExpression`
-	 * labeled alternative in `SimpleParser.expression`.
-	 * @param ctx the parse tree
-	 */
-	enterStringExpression?: (ctx: StringExpressionContext) => void;
-	/**
-	 * Exit a parse tree produced by the `stringExpression`
-	 * labeled alternative in `SimpleParser.expression`.
-	 * @param ctx the parse tree
-	 */
-	exitStringExpression?: (ctx: StringExpressionContext) => void;
-
-	/**
 	 * Enter a parse tree produced by the `bracketExpression`
 	 * labeled alternative in `SimpleParser.expression`.
 	 * @param ctx the parse tree
@@ -287,6 +240,58 @@ export interface SimpleListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	exitBracketExpression?: (ctx: BracketExpressionContext) => void;
+
+	/**
+	 * Enter a parse tree produced by the `numberExpression`
+	 * labeled alternative in `SimpleParser.constantValue`.
+	 * @param ctx the parse tree
+	 */
+	enterNumberExpression?: (ctx: NumberExpressionContext) => void;
+	/**
+	 * Exit a parse tree produced by the `numberExpression`
+	 * labeled alternative in `SimpleParser.constantValue`.
+	 * @param ctx the parse tree
+	 */
+	exitNumberExpression?: (ctx: NumberExpressionContext) => void;
+
+	/**
+	 * Enter a parse tree produced by the `boolExpression`
+	 * labeled alternative in `SimpleParser.constantValue`.
+	 * @param ctx the parse tree
+	 */
+	enterBoolExpression?: (ctx: BoolExpressionContext) => void;
+	/**
+	 * Exit a parse tree produced by the `boolExpression`
+	 * labeled alternative in `SimpleParser.constantValue`.
+	 * @param ctx the parse tree
+	 */
+	exitBoolExpression?: (ctx: BoolExpressionContext) => void;
+
+	/**
+	 * Enter a parse tree produced by the `nullExpression`
+	 * labeled alternative in `SimpleParser.constantValue`.
+	 * @param ctx the parse tree
+	 */
+	enterNullExpression?: (ctx: NullExpressionContext) => void;
+	/**
+	 * Exit a parse tree produced by the `nullExpression`
+	 * labeled alternative in `SimpleParser.constantValue`.
+	 * @param ctx the parse tree
+	 */
+	exitNullExpression?: (ctx: NullExpressionContext) => void;
+
+	/**
+	 * Enter a parse tree produced by the `stringExpression`
+	 * labeled alternative in `SimpleParser.constantValue`.
+	 * @param ctx the parse tree
+	 */
+	enterStringExpression?: (ctx: StringExpressionContext) => void;
+	/**
+	 * Exit a parse tree produced by the `stringExpression`
+	 * labeled alternative in `SimpleParser.constantValue`.
+	 * @param ctx the parse tree
+	 */
+	exitStringExpression?: (ctx: StringExpressionContext) => void;
 
 	/**
 	 * Enter a parse tree produced by `SimpleParser.parse`.
@@ -355,15 +360,15 @@ export interface SimpleListener extends ParseTreeListener {
 	exitParamList?: (ctx: ParamListContext) => void;
 
 	/**
-	 * Enter a parse tree produced by `SimpleParser.block`.
+	 * Enter a parse tree produced by `SimpleParser.returnBlock`.
 	 * @param ctx the parse tree
 	 */
-	enterBlock?: (ctx: BlockContext) => void;
+	enterReturnBlock?: (ctx: ReturnBlockContext) => void;
 	/**
-	 * Exit a parse tree produced by `SimpleParser.block`.
+	 * Exit a parse tree produced by `SimpleParser.returnBlock`.
 	 * @param ctx the parse tree
 	 */
-	exitBlock?: (ctx: BlockContext) => void;
+	exitReturnBlock?: (ctx: ReturnBlockContext) => void;
 
 	/**
 	 * Enter a parse tree produced by `SimpleParser.statement`.
@@ -375,6 +380,28 @@ export interface SimpleListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	exitStatement?: (ctx: StatementContext) => void;
+
+	/**
+	 * Enter a parse tree produced by `SimpleParser.compoundStatement`.
+	 * @param ctx the parse tree
+	 */
+	enterCompoundStatement?: (ctx: CompoundStatementContext) => void;
+	/**
+	 * Exit a parse tree produced by `SimpleParser.compoundStatement`.
+	 * @param ctx the parse tree
+	 */
+	exitCompoundStatement?: (ctx: CompoundStatementContext) => void;
+
+	/**
+	 * Enter a parse tree produced by `SimpleParser.statements`.
+	 * @param ctx the parse tree
+	 */
+	enterStatements?: (ctx: StatementsContext) => void;
+	/**
+	 * Exit a parse tree produced by `SimpleParser.statements`.
+	 * @param ctx the parse tree
+	 */
+	exitStatements?: (ctx: StatementsContext) => void;
 
 	/**
 	 * Enter a parse tree produced by `SimpleParser.varType`.
@@ -454,28 +481,6 @@ export interface SimpleListener extends ParseTreeListener {
 	exitIfStatement?: (ctx: IfStatementContext) => void;
 
 	/**
-	 * Enter a parse tree produced by `SimpleParser.ifStat`.
-	 * @param ctx the parse tree
-	 */
-	enterIfStat?: (ctx: IfStatContext) => void;
-	/**
-	 * Exit a parse tree produced by `SimpleParser.ifStat`.
-	 * @param ctx the parse tree
-	 */
-	exitIfStat?: (ctx: IfStatContext) => void;
-
-	/**
-	 * Enter a parse tree produced by `SimpleParser.elseIfStat`.
-	 * @param ctx the parse tree
-	 */
-	enterElseIfStat?: (ctx: ElseIfStatContext) => void;
-	/**
-	 * Exit a parse tree produced by `SimpleParser.elseIfStat`.
-	 * @param ctx the parse tree
-	 */
-	exitElseIfStat?: (ctx: ElseIfStatContext) => void;
-
-	/**
 	 * Enter a parse tree produced by `SimpleParser.elseStat`.
 	 * @param ctx the parse tree
 	 */
@@ -485,6 +490,50 @@ export interface SimpleListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	exitElseStat?: (ctx: ElseStatContext) => void;
+
+	/**
+	 * Enter a parse tree produced by `SimpleParser.switchStatement`.
+	 * @param ctx the parse tree
+	 */
+	enterSwitchStatement?: (ctx: SwitchStatementContext) => void;
+	/**
+	 * Exit a parse tree produced by `SimpleParser.switchStatement`.
+	 * @param ctx the parse tree
+	 */
+	exitSwitchStatement?: (ctx: SwitchStatementContext) => void;
+
+	/**
+	 * Enter a parse tree produced by `SimpleParser.caseStatement`.
+	 * @param ctx the parse tree
+	 */
+	enterCaseStatement?: (ctx: CaseStatementContext) => void;
+	/**
+	 * Exit a parse tree produced by `SimpleParser.caseStatement`.
+	 * @param ctx the parse tree
+	 */
+	exitCaseStatement?: (ctx: CaseStatementContext) => void;
+
+	/**
+	 * Enter a parse tree produced by `SimpleParser.defaultCase`.
+	 * @param ctx the parse tree
+	 */
+	enterDefaultCase?: (ctx: DefaultCaseContext) => void;
+	/**
+	 * Exit a parse tree produced by `SimpleParser.defaultCase`.
+	 * @param ctx the parse tree
+	 */
+	exitDefaultCase?: (ctx: DefaultCaseContext) => void;
+
+	/**
+	 * Enter a parse tree produced by `SimpleParser.breakStatement`.
+	 * @param ctx the parse tree
+	 */
+	enterBreakStatement?: (ctx: BreakStatementContext) => void;
+	/**
+	 * Exit a parse tree produced by `SimpleParser.breakStatement`.
+	 * @param ctx the parse tree
+	 */
+	exitBreakStatement?: (ctx: BreakStatementContext) => void;
 
 	/**
 	 * Enter a parse tree produced by `SimpleParser.forStatement`.
@@ -551,6 +600,17 @@ export interface SimpleListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	exitExpression?: (ctx: ExpressionContext) => void;
+
+	/**
+	 * Enter a parse tree produced by `SimpleParser.constantValue`.
+	 * @param ctx the parse tree
+	 */
+	enterConstantValue?: (ctx: ConstantValueContext) => void;
+	/**
+	 * Exit a parse tree produced by `SimpleParser.constantValue`.
+	 * @param ctx the parse tree
+	 */
+	exitConstantValue?: (ctx: ConstantValueContext) => void;
 
 	/**
 	 * Enter a parse tree produced by `SimpleParser.list`.

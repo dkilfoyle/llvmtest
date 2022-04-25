@@ -29,9 +29,9 @@ function main(): void {
   let tree = parser.parse();
   const astBuilder = new AstBuilder()
   const ast = astBuilder.visit(tree);
-  console.log("AST print", ast.toString());
-  console.log("AST errors", errorNodes);
-  console.log("AST execute", ast.execute());
+  console.log("AST print:\n", ast.toString());
+  console.log("AST errors:\n", errorNodes);
+  console.log("AST execute:\n", ast.execute());
 }
 
 main();

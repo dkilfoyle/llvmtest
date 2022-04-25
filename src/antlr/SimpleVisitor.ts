@@ -13,22 +13,24 @@ import { EqExpressionContext } from "./SimpleParser";
 import { AndExpressionContext } from "./SimpleParser";
 import { OrExpressionContext } from "./SimpleParser";
 import { TernaryExpressionContext } from "./SimpleParser";
+import { ConstantExpressionContext } from "./SimpleParser";
+import { FunctionCallExpressionContext } from "./SimpleParser";
+import { IdentifierExpressionContext } from "./SimpleParser";
+import { BracketExpressionContext } from "./SimpleParser";
 import { NumberExpressionContext } from "./SimpleParser";
 import { BoolExpressionContext } from "./SimpleParser";
 import { NullExpressionContext } from "./SimpleParser";
-import { FunctionCallExpressionContext } from "./SimpleParser";
-import { ListExpressionContext } from "./SimpleParser";
-import { IdentifierExpressionContext } from "./SimpleParser";
 import { StringExpressionContext } from "./SimpleParser";
-import { BracketExpressionContext } from "./SimpleParser";
 import { ParseContext } from "./SimpleParser";
 import { ReplContext } from "./SimpleParser";
 import { FunTypeContext } from "./SimpleParser";
 import { FunctionDeclContext } from "./SimpleParser";
 import { ParamContext } from "./SimpleParser";
 import { ParamListContext } from "./SimpleParser";
-import { BlockContext } from "./SimpleParser";
+import { ReturnBlockContext } from "./SimpleParser";
 import { StatementContext } from "./SimpleParser";
+import { CompoundStatementContext } from "./SimpleParser";
+import { StatementsContext } from "./SimpleParser";
 import { VarTypeContext } from "./SimpleParser";
 import { VariableDeclarationContext } from "./SimpleParser";
 import { InitDeclaratorListContext } from "./SimpleParser";
@@ -36,15 +38,18 @@ import { InitDeclaratorContext } from "./SimpleParser";
 import { AssignmentContext } from "./SimpleParser";
 import { FunctionCallContext } from "./SimpleParser";
 import { IfStatementContext } from "./SimpleParser";
-import { IfStatContext } from "./SimpleParser";
-import { ElseIfStatContext } from "./SimpleParser";
 import { ElseStatContext } from "./SimpleParser";
+import { SwitchStatementContext } from "./SimpleParser";
+import { CaseStatementContext } from "./SimpleParser";
+import { DefaultCaseContext } from "./SimpleParser";
+import { BreakStatementContext } from "./SimpleParser";
 import { ForStatementContext } from "./SimpleParser";
 import { ForInitialContext } from "./SimpleParser";
 import { WhileStatementContext } from "./SimpleParser";
 import { IdListContext } from "./SimpleParser";
 import { ExprListContext } from "./SimpleParser";
 import { ExpressionContext } from "./SimpleParser";
+import { ConstantValueContext } from "./SimpleParser";
 import { ListContext } from "./SimpleParser";
 import { IndexesContext } from "./SimpleParser";
 
@@ -138,28 +143,12 @@ export interface SimpleVisitor<Result> extends ParseTreeVisitor<Result> {
 	visitTernaryExpression?: (ctx: TernaryExpressionContext) => Result;
 
 	/**
-	 * Visit a parse tree produced by the `numberExpression`
+	 * Visit a parse tree produced by the `constantExpression`
 	 * labeled alternative in `SimpleParser.expression`.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	visitNumberExpression?: (ctx: NumberExpressionContext) => Result;
-
-	/**
-	 * Visit a parse tree produced by the `boolExpression`
-	 * labeled alternative in `SimpleParser.expression`.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	visitBoolExpression?: (ctx: BoolExpressionContext) => Result;
-
-	/**
-	 * Visit a parse tree produced by the `nullExpression`
-	 * labeled alternative in `SimpleParser.expression`.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	visitNullExpression?: (ctx: NullExpressionContext) => Result;
+	visitConstantExpression?: (ctx: ConstantExpressionContext) => Result;
 
 	/**
 	 * Visit a parse tree produced by the `functionCallExpression`
@@ -170,14 +159,6 @@ export interface SimpleVisitor<Result> extends ParseTreeVisitor<Result> {
 	visitFunctionCallExpression?: (ctx: FunctionCallExpressionContext) => Result;
 
 	/**
-	 * Visit a parse tree produced by the `listExpression`
-	 * labeled alternative in `SimpleParser.expression`.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	visitListExpression?: (ctx: ListExpressionContext) => Result;
-
-	/**
 	 * Visit a parse tree produced by the `identifierExpression`
 	 * labeled alternative in `SimpleParser.expression`.
 	 * @param ctx the parse tree
@@ -186,20 +167,44 @@ export interface SimpleVisitor<Result> extends ParseTreeVisitor<Result> {
 	visitIdentifierExpression?: (ctx: IdentifierExpressionContext) => Result;
 
 	/**
-	 * Visit a parse tree produced by the `stringExpression`
-	 * labeled alternative in `SimpleParser.expression`.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	visitStringExpression?: (ctx: StringExpressionContext) => Result;
-
-	/**
 	 * Visit a parse tree produced by the `bracketExpression`
 	 * labeled alternative in `SimpleParser.expression`.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	visitBracketExpression?: (ctx: BracketExpressionContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by the `numberExpression`
+	 * labeled alternative in `SimpleParser.constantValue`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitNumberExpression?: (ctx: NumberExpressionContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by the `boolExpression`
+	 * labeled alternative in `SimpleParser.constantValue`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitBoolExpression?: (ctx: BoolExpressionContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by the `nullExpression`
+	 * labeled alternative in `SimpleParser.constantValue`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitNullExpression?: (ctx: NullExpressionContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by the `stringExpression`
+	 * labeled alternative in `SimpleParser.constantValue`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitStringExpression?: (ctx: StringExpressionContext) => Result;
 
 	/**
 	 * Visit a parse tree produced by `SimpleParser.parse`.
@@ -244,11 +249,11 @@ export interface SimpleVisitor<Result> extends ParseTreeVisitor<Result> {
 	visitParamList?: (ctx: ParamListContext) => Result;
 
 	/**
-	 * Visit a parse tree produced by `SimpleParser.block`.
+	 * Visit a parse tree produced by `SimpleParser.returnBlock`.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	visitBlock?: (ctx: BlockContext) => Result;
+	visitReturnBlock?: (ctx: ReturnBlockContext) => Result;
 
 	/**
 	 * Visit a parse tree produced by `SimpleParser.statement`.
@@ -256,6 +261,20 @@ export interface SimpleVisitor<Result> extends ParseTreeVisitor<Result> {
 	 * @return the visitor result
 	 */
 	visitStatement?: (ctx: StatementContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by `SimpleParser.compoundStatement`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitCompoundStatement?: (ctx: CompoundStatementContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by `SimpleParser.statements`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitStatements?: (ctx: StatementsContext) => Result;
 
 	/**
 	 * Visit a parse tree produced by `SimpleParser.varType`.
@@ -307,25 +326,39 @@ export interface SimpleVisitor<Result> extends ParseTreeVisitor<Result> {
 	visitIfStatement?: (ctx: IfStatementContext) => Result;
 
 	/**
-	 * Visit a parse tree produced by `SimpleParser.ifStat`.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	visitIfStat?: (ctx: IfStatContext) => Result;
-
-	/**
-	 * Visit a parse tree produced by `SimpleParser.elseIfStat`.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	visitElseIfStat?: (ctx: ElseIfStatContext) => Result;
-
-	/**
 	 * Visit a parse tree produced by `SimpleParser.elseStat`.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	visitElseStat?: (ctx: ElseStatContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by `SimpleParser.switchStatement`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitSwitchStatement?: (ctx: SwitchStatementContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by `SimpleParser.caseStatement`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitCaseStatement?: (ctx: CaseStatementContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by `SimpleParser.defaultCase`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitDefaultCase?: (ctx: DefaultCaseContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by `SimpleParser.breakStatement`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitBreakStatement?: (ctx: BreakStatementContext) => Result;
 
 	/**
 	 * Visit a parse tree produced by `SimpleParser.forStatement`.
@@ -368,6 +401,13 @@ export interface SimpleVisitor<Result> extends ParseTreeVisitor<Result> {
 	 * @return the visitor result
 	 */
 	visitExpression?: (ctx: ExpressionContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by `SimpleParser.constantValue`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitConstantValue?: (ctx: ConstantValueContext) => Result;
 
 	/**
 	 * Visit a parse tree produced by `SimpleParser.list`.

@@ -1,38 +1,69 @@
-// boolean expressions
-assert(true || false);
-assert(!false);
-assert(true && true);
-assert(!true || !false);
-assert(true && (true || false));
+// // boolean expressions
+// assert(true || false);
+// assert(!false);
+// assert(true && true);
+// assert(!true || !false);
+// assert(true && (true || false));
 
-// relational expressions
-assert(1 < 2);
-assert(666 >= 666);
-assert(-5 > -6);
-assert(0 >= -1);
+// // relational expressions
+// assert(1 < 2);
+// assert(666 >= 666);
+// assert(-5 > -6);
+// assert(0 >= -1);
 
-// add
-assert(1 + 999 == 1000);
-assert(2 - -2 == 4);
-assert(-1 + 1 == 0);
-assert(1 - 50 == -49);
+// // add
+// assert(1 + 999 == 1000);
+// assert(2 - -2 == 4);
+// assert(-1 + 1 == 0);
+// assert(1 - 50 == -49);
 
-// multiply
-assert(3 * 50 == 150);
-assert(4 / 2 == 2);
-assert(1 / 4 == 0.25);
-assert(999999 % 3 == 0);
-assert(-5 * -5 == 25);
+// // multiply
+// assert(3 * 50 == 150);
+// assert(4 / 2 == 2);
+// assert(1 / 4 == 0.25);
+// assert(999999 % 3 == 0);
+// assert(-5 * -5 == 25);
 
-// power
-assert(2^10 == 1024);
-assert(3^3 == 27);
-assert(4^3^2 == 262144); // power is right associative
-assert((4^3)^2 == 4096);
+// // power
+// assert(2^10 == 1024);
+// assert(3^3 == 27);
+// assert(4^3^2 == 262144); // power is right associative
+// assert((4^3)^2 == 4096);
 
 // for- and while statements
-int a=0;
-for (int i=1; i<=10; i=i+1) {
-  a = a + i;
+// int a=0;
+// for (int i=1; i<=10; i=i+1) {
+//   a = a + i;
+// }
+// assert(a == (1+2+3+4+5+6+7+8+9+10));
+
+// int b = -10;
+// int c = 0;
+// while (b < 0) { 
+//   c = c + b;
+//   b = b + 1;
+// }
+// assert(c == -(1+2+3+4+5+6+7+8+9+10));
+
+// if
+// int a = 123;
+// if (a < 200) {
+//   assert(true);
+// }
+
+// if (a < 100)
+//   assert(false);
+// else
+//   assert(true);
+
+// switch
+int x = 5;
+switch (x) {
+  case 1 : assert(false); break;
+  case 2 : assert(false); break;
+  case 3 : assert(false); break;
+  case 4 : assert(false); break;
+  case 5 : assert(true); break;
+  case 6 : assert(false); break;
+  default: assert(false);
 }
-assert(a == (1+2+3+4+5+6+7+8+9+10));
