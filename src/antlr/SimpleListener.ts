@@ -31,6 +31,7 @@ import { ReturnBlockContext } from "./SimpleParser";
 import { StatementContext } from "./SimpleParser";
 import { CompoundStatementContext } from "./SimpleParser";
 import { StatementsContext } from "./SimpleParser";
+import { ReturnStatementContext } from "./SimpleParser";
 import { VarTypeContext } from "./SimpleParser";
 import { VariableDeclarationContext } from "./SimpleParser";
 import { InitDeclaratorListContext } from "./SimpleParser";
@@ -402,6 +403,17 @@ export interface SimpleListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	exitStatements?: (ctx: StatementsContext) => void;
+
+	/**
+	 * Enter a parse tree produced by `SimpleParser.returnStatement`.
+	 * @param ctx the parse tree
+	 */
+	enterReturnStatement?: (ctx: ReturnStatementContext) => void;
+	/**
+	 * Exit a parse tree produced by `SimpleParser.returnStatement`.
+	 * @param ctx the parse tree
+	 */
+	exitReturnStatement?: (ctx: ReturnStatementContext) => void;
 
 	/**
 	 * Enter a parse tree produced by `SimpleParser.varType`.

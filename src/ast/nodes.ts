@@ -1,19 +1,32 @@
 import { ParserRuleContext } from "antlr4ts";
-import { Scope } from "./scopeStack";
+import { Scope, ScopeStack } from "./scopeStack";
 import { AllowedTypes, Signature } from "./signature";
 
 export const errorNodes: AstNode[] = [];
+let globalReturnResult: string | number | boolean; // todo better method
+const globalAstScopeStack = new ScopeStack<VariableInstance>();
 
 const debugging = true;
 const debug = (msg: string, res?: string | number | boolean) => {
   if (debugging) console.log(msg, res ? res : "");
 }
 
-const getType = (x: any) => {
+const getJavascriptType = (x: any) => {
   if (typeof (x) == "number") return "int";
   if (typeof (x) == "boolean") return "bool";
   if (typeof (x) == "string") return "string";
   return "unknown";
+}
+
+export class VariableInstance {
+  id;
+  type;
+  value;
+  constructor(id: string, type: AllowedTypes, initialValue?: string | number | boolean) {
+    this.id = id;
+    this.type = type;
+    this.value = initialValue;
+  }
 }
 
 // ================= base nodes
@@ -93,6 +106,7 @@ export class AstRepl extends AstNode {
   }
   execute() {
     // debug("AstRepl...")
+    globalAstScopeStack.reset();
     const res = this.body.execute();
     // debug("AstRepl result:", res);
     return res;
@@ -102,25 +116,28 @@ export class AstRepl extends AstNode {
 // ============= statement nodes
 
 export class AstBlock extends AstNode {
-  body: AstStatement[];
-  returnVal: AstExpression | AstNull;
-  constructor(ctx: ParserRuleContext, body: AstStatement[], returnVal?: AstExpression) {
+  body;
+  returnExpression;
+  constructor(ctx: ParserRuleContext, body: AstStatement[], returnExpression?: AstExpression) {
     super(ctx);
     this.body = body;
-    this.returnVal = returnVal;
+    this.returnExpression = returnExpression;
   }
   toString(indent: number = 0) {
     return this.indent(indent,
       `Block(
 ${this.body.map(node => node.toString(2)).join('\n')}
+${this.returnExpression ? '  return ' + this.returnExpression.toString() : ""}
 )`);
   }
   execute() {
     // debug("AstBlock...")
-    this.body.forEach(statement => {
-      statement.execute()
-    });
-    const res = this.returnVal ? this.returnVal.execute() : "void"
+    for (let i = 0; i < this.body.length; i++) {
+      let res = this.body[i].execute();
+      if (res == 'return')
+        return globalReturnResult;
+    }
+    const res = this.returnExpression ? this.returnExpression.execute() : "void"
     // debug("AstBlock result:", res)
     return res;
   }
@@ -158,20 +175,35 @@ export class AstFunctionCall extends AstStatement {
   toString(indent = 0) {
     return this.indent(indent, `Call(${this.funDecl.id}, ${this.params.map(param => param.toString()).join(',')})`);
   }
+  returnType() {
+    return this.funDecl.signature.returnType;
+  }
   execute() {
-    // debug("AstFunctionCall...")
+    // debug(`AstFunctionCall(${this.funDecl.id})`)
     if (this.funDecl.id == 'assert') {
       let res = this.params[0].execute();
       console.log(`assert(${this.params[0].toString()}) is ${res}`);
       // debug("AstFunctionCall result: ", res)
       return res;
     }
-    else {
+    else if (this.funDecl.id == 'print') {
+      console.log("stdout: ", this.params[0].execute());
+      return 'void'
+    } else {
+      if (this.params.length != this.funDecl.params.length) throw new Error("functional call parameter mismatch");
+      globalAstScopeStack.enterScope(this.funDecl.id);
+
+      this.funDecl.params.forEach((funDeclParam, i) => {
+        funDeclParam.execute(); // push an instance onto the scope stack
+        funDeclParam.setValue(this.params[i]);
+      });
+
       let res = this.funDecl.execute();
-      // debug("AstFunctionCall result: ", res);
+      globalAstScopeStack.disposeScope();
+      // debug("--Result: ", res);
       return res;
-    };
-  }
+    }
+  };
 }
 
 export class AstIf extends AstStatement {
@@ -192,10 +224,9 @@ ${this.thenBlock.toString(2)}
   }
   execute() {
     const test = this.ifExpression.execute();
-    if (test) this.thenBlock.execute(); else {
-      if (this.elseBlock) this.elseBlock.execute();
-    }
-    return "void";
+    return test ?
+      this.thenBlock.execute() :
+      this.elseBlock.execute();
   }
 }
 
@@ -299,6 +330,22 @@ ${this.block.toString(2)}`);
       this.block.execute();
     }
     return "void";
+  }
+}
+
+export class AstReturn extends AstStatement {
+  returnExpression;
+  constructor(ctx: ParserRuleContext, returnExpression: AstExpression) {
+    super(ctx);
+    this.returnExpression = returnExpression;
+  }
+  toString(indent = 0) {
+    return this.indent(indent,
+      `return ${this.returnExpression.toString()}`);
+  }
+  execute() {
+    globalReturnResult = this.returnExpression.execute();
+    return "return";
   }
 }
 
@@ -418,7 +465,7 @@ export class AstIdentifierExpression extends AstExpression {
     return this.declaration.signature.returnType;
   }
   execute() {
-    return this.declaration.value;
+    return this.declaration.getValue();
   }
 }
 
@@ -449,9 +496,10 @@ export class AstIdentifierDeclaration extends AstNode {
 
 export class AstVariableDeclaration extends AstIdentifierDeclaration {
   initialExpression: AstExpression;
-  value: any;
+  ctx: ParserRuleContext;
   constructor(ctx: ParserRuleContext, id: string, type: AllowedTypes, initialExpression?: AstExpression) {
     super(ctx, id);
+    this.ctx = ctx;
     this.signature = new Signature('var', type);
     this.initialExpression = initialExpression;
   }
@@ -459,13 +507,21 @@ export class AstVariableDeclaration extends AstIdentifierDeclaration {
     return this.indent(indent, `VariableDeclaration(${this.signature.returnType}: ${this.id})`);
   }
   setValue(newValue: any) {
-    if (getType(newValue) == this.signature.returnType)
-      this.value = newValue;
+    if (getJavascriptType(newValue) == this.signature.returnType) {
+      const [found, x] = globalAstScopeStack.getSymbol(this.id);
+      if (found) (x as VariableInstance).value = newValue; else throw new Error(`variable instance ${this.id} not in scope`);
+    }
     else
       throw new Error();
   }
+  getValue() {
+    const [found, x] = globalAstScopeStack.getSymbol(this.id);
+    if (found) return (x as VariableInstance).value; else throw new Error(`variable instance ${this.id} not in scope`);
+  }
   execute() {
-    this.setValue(this.initialExpression.execute());
+    // push an instance of this variable onto the stack
+    globalAstScopeStack.setSymbol(this.id,
+      new VariableInstance(this.id, this.signature.returnType, this.initialExpression?.execute()))
     return "void";
   }
 }
@@ -480,24 +536,16 @@ export class AstFunctionDeclaration extends AstIdentifierDeclaration {
     this.signature = new Signature('fun', returnType, params.map(param => param.signature.returnType))
   }
   toString(indent = 0) {
+    if (!this.body) return ""; // stdlib
     return this.indent(indent,
       `Function(${this.id}, ${this.params.map(param => param.toString()).join(',')})
 ${this.body ? this.body.toString(2) : '  StdLib'}
 )`);
   }
+  execute() {
+    return this.body.execute();
+  }
 }
-
-// export class AstStdLibFunctionDeclaration extends AstFunctionDeclaration {
-//   constructor(ctx: ParserRuleContext, returnType: AllowedTypes | 'void', id: string, params: AstVariableDeclaration[]) {
-//     super(ctx, returnType, id, params);
-//   }
-//   execute() {
-//     if (this.id == 'assert') {
-//       console.log()
-//     }
-//   }
-
-// }
 
 export class AstUndeclaredError extends AstIdentifierDeclaration {
   constructor(ctx: ParserRuleContext, id: string) {
@@ -507,6 +555,4 @@ export class AstUndeclaredError extends AstIdentifierDeclaration {
     return this.indent(indent, `Symbol ${this.id} undeclared`);
   }
 }
-
-// statement nodes
 

@@ -31,6 +31,7 @@ import { ReturnBlockContext } from "./SimpleParser";
 import { StatementContext } from "./SimpleParser";
 import { CompoundStatementContext } from "./SimpleParser";
 import { StatementsContext } from "./SimpleParser";
+import { ReturnStatementContext } from "./SimpleParser";
 import { VarTypeContext } from "./SimpleParser";
 import { VariableDeclarationContext } from "./SimpleParser";
 import { InitDeclaratorListContext } from "./SimpleParser";
@@ -275,6 +276,13 @@ export interface SimpleVisitor<Result> extends ParseTreeVisitor<Result> {
 	 * @return the visitor result
 	 */
 	visitStatements?: (ctx: StatementsContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by `SimpleParser.returnStatement`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitReturnStatement?: (ctx: ReturnStatementContext) => Result;
 
 	/**
 	 * Visit a parse tree produced by `SimpleParser.varType`.

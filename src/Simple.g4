@@ -18,10 +18,13 @@ statement:
 	| switchStatement
 	| forStatement
 	| whileStatement
-	| compoundStatement;
+	| compoundStatement
+	| returnStatement;
 
 compoundStatement: '{' statements '}';
 statements: statement*;
+
+returnStatement: 'return' expression? ';';
 
 varType: 'int' | 'string';
 variableDeclaration: varType initDeclaratorList;

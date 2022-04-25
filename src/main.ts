@@ -3,13 +3,13 @@ import { ANTLRInputStream, CommonTokenStream, Lexer, Parser, ParserRuleContext }
 import { SimpleLexer } from "./antlr/SimpleLexer";
 import { SimpleParser } from './antlr/SimpleParser';
 import { AstBuilder } from './ast/builder';
-import { errorNodes} from "./ast/nodes";
+import { errorNodes } from "./ast/nodes";
 
 class SimpleLexer2 extends SimpleLexer {
-  FeatureControlFlow:boolean;
-  FeatureMutableVars:boolean;
-  FeatureUserOperators:boolean;
-  constructor(inputStream:ANTLRInputStream) {
+  FeatureControlFlow: boolean;
+  FeatureMutableVars: boolean;
+  FeatureUserOperators: boolean;
+  constructor(inputStream: ANTLRInputStream) {
     super(inputStream);
     this.FeatureControlFlow = false;
     this.FeatureMutableVars = false;
@@ -29,9 +29,11 @@ function main(): void {
   let tree = parser.parse();
   const astBuilder = new AstBuilder()
   const ast = astBuilder.visit(tree);
-  console.log("AST print:\n", ast.toString());
+  console.log("AST print:");
+  console.log(ast.toString());
   console.log("AST errors:\n", errorNodes);
-  console.log("AST execute:\n", ast.execute());
+  console.log("AST execute:");
+  console.log(ast.execute());
 }
 
 main();
