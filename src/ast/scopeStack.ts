@@ -34,7 +34,7 @@ export class ScopeStack<T> {
     if (found)
       stackVar = value;
     else
-      this.scopes[this.scopes.length - 1].entries[name] = value;
+      this.top().entries[name] = value;
   }
   hasSymbol(name: string) {
     return this.scopes.some(scope => scope.entries.hasOwnProperty(name));
@@ -45,5 +45,10 @@ export class ScopeStack<T> {
       if (scope.entries.hasOwnProperty(name)) return true;
     });
     return found ? [true, found.entries[name]] : [false, {}];
+  }
+  newSymbol(name: string, value: T) {
+    // shouldnt already be delcared in current scope
+    if (this.top().entries.hasOwnProperty(name)) throw new Error(`${name} already exists in current scope`);
+    this.top().entries[name] = value;
   }
 }

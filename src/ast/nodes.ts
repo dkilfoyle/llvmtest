@@ -134,8 +134,7 @@ ${this.returnExpression ? '  return ' + this.returnExpression.toString() : ""}
     // debug("AstBlock...")
     for (let i = 0; i < this.body.length; i++) {
       let res = this.body[i].execute();
-      if (res == 'return')
-        return globalReturnResult;
+      if (res == 'return') return 'return';
     }
     const res = this.returnExpression ? this.returnExpression.execute() : "void"
     // debug("AstBlock result:", res)
@@ -187,21 +186,22 @@ export class AstFunctionCall extends AstStatement {
       return res;
     }
     else if (this.funDecl.id == 'print') {
-      console.log("stdout: ", this.params[0].execute());
+      console.log("stdout: ", this.params[0].execute(), this.params[1].execute());
       return 'void'
     } else {
       if (this.params.length != this.funDecl.params.length) throw new Error("functional call parameter mismatch");
       globalAstScopeStack.enterScope(this.funDecl.id);
 
       this.funDecl.params.forEach((funDeclParam, i) => {
+        const paramValue = this.params[i].execute(); // calculate now incase references current value
         funDeclParam.execute(); // push an instance onto the scope stack
-        funDeclParam.setValue(this.params[i]);
+        funDeclParam.setValue(paramValue);
       });
 
       let res = this.funDecl.execute();
       globalAstScopeStack.disposeScope();
       // debug("--Result: ", res);
-      return res;
+      return res == 'return' ? globalReturnResult : res;
     }
   };
 }
@@ -226,7 +226,7 @@ ${this.thenBlock.toString(2)}
     const test = this.ifExpression.execute();
     return test ?
       this.thenBlock.execute() :
-      this.elseBlock.execute();
+      this.elseBlock ? this.elseBlock.execute() : "void";
   }
 }
 
@@ -509,7 +509,10 @@ export class AstVariableDeclaration extends AstIdentifierDeclaration {
   setValue(newValue: any) {
     if (getJavascriptType(newValue) == this.signature.returnType) {
       const [found, x] = globalAstScopeStack.getSymbol(this.id);
-      if (found) (x as VariableInstance).value = newValue; else throw new Error(`variable instance ${this.id} not in scope`);
+      if (found)
+        (x as VariableInstance).value = newValue;
+      else
+        throw new Error(`variable instance ${this.id} not in scope`);
     }
     else
       throw new Error();
@@ -520,7 +523,7 @@ export class AstVariableDeclaration extends AstIdentifierDeclaration {
   }
   execute() {
     // push an instance of this variable onto the stack
-    globalAstScopeStack.setSymbol(this.id,
+    globalAstScopeStack.newSymbol(this.id,
       new VariableInstance(this.id, this.signature.returnType, this.initialExpression?.execute()))
     return "void";
   }
