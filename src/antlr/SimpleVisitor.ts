@@ -1,4 +1,4 @@
-// Generated from /home/dean/llvmtest/src/Simple.g4 by ANTLR 4.7.3-SNAPSHOT
+// Generated from /home/dkilfoyle/llvmtest/src/Simple.g4 by ANTLR 4.7.3-SNAPSHOT
 
 
 import { ParseTreeVisitor } from "antlr4ts/tree/ParseTreeVisitor";
@@ -15,7 +15,7 @@ import { OrExpressionContext } from "./SimpleParser";
 import { TernaryExpressionContext } from "./SimpleParser";
 import { ConstantExpressionContext } from "./SimpleParser";
 import { FunctionCallExpressionContext } from "./SimpleParser";
-import { IdentifierExpressionContext } from "./SimpleParser";
+import { VariableExpressionContext } from "./SimpleParser";
 import { BracketExpressionContext } from "./SimpleParser";
 import { NumberExpressionContext } from "./SimpleParser";
 import { BoolExpressionContext } from "./SimpleParser";
@@ -36,6 +36,7 @@ import { VarTypeContext } from "./SimpleParser";
 import { VariableDeclarationContext } from "./SimpleParser";
 import { InitDeclaratorListContext } from "./SimpleParser";
 import { InitDeclaratorContext } from "./SimpleParser";
+import { DimensionsContext } from "./SimpleParser";
 import { AssignmentContext } from "./SimpleParser";
 import { FunctionCallContext } from "./SimpleParser";
 import { IfStatementContext } from "./SimpleParser";
@@ -160,12 +161,12 @@ export interface SimpleVisitor<Result> extends ParseTreeVisitor<Result> {
 	visitFunctionCallExpression?: (ctx: FunctionCallExpressionContext) => Result;
 
 	/**
-	 * Visit a parse tree produced by the `identifierExpression`
+	 * Visit a parse tree produced by the `variableExpression`
 	 * labeled alternative in `SimpleParser.expression`.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	visitIdentifierExpression?: (ctx: IdentifierExpressionContext) => Result;
+	visitVariableExpression?: (ctx: VariableExpressionContext) => Result;
 
 	/**
 	 * Visit a parse tree produced by the `bracketExpression`
@@ -311,6 +312,13 @@ export interface SimpleVisitor<Result> extends ParseTreeVisitor<Result> {
 	 * @return the visitor result
 	 */
 	visitInitDeclarator?: (ctx: InitDeclaratorContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by `SimpleParser.dimensions`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitDimensions?: (ctx: DimensionsContext) => Result;
 
 	/**
 	 * Visit a parse tree produced by `SimpleParser.assignment`.

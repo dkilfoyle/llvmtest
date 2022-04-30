@@ -29,9 +29,10 @@ returnStatement: 'return' expression? ';';
 varType: 'int' | 'string';
 variableDeclaration: varType initDeclaratorList;
 initDeclaratorList: initDeclarator (',' initDeclarator)*;
-initDeclarator: Identifier ('=' expression)?;
+initDeclarator: Identifier dimensions* ('=' expression)?;
+dimensions: '[' Number ']';
 
-assignment: Identifier indexes? '=' expression;
+assignment: expression '=' expression;
 
 functionCall: Identifier '(' exprList? ')';
 
@@ -67,7 +68,7 @@ expression:
 	| expression op = '?' expression ':' expression			# ternaryExpression
 	| constantValue											# constantExpression
 	| functionCall											# functionCallExpression
-	| Identifier indexes?									# identifierExpression
+	| Identifier indexes?									# variableExpression
 	| '(' expression ')'									# bracketExpression;
 
 constantValue:

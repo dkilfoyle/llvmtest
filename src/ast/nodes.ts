@@ -1,10 +1,10 @@
 import { ParserRuleContext } from "antlr4ts";
-import { Scope, ScopeStack } from "./scopeStack";
-import { AllowedTypes, Signature } from "./signature";
+import { ScopeStack } from "./scopeStack";
+import { AllowedTypes, ArraySignature, FunctionSignature, Signature, VariableSignature } from "./signature";
 
 export const errorNodes: AstNode[] = [];
 let globalReturnResult: string | number | boolean; // todo better method
-const globalAstScopeStack = new ScopeStack<VariableInstance>();
+const globalAstScopeStack = new ScopeStack<Instance>();
 
 const debugging = true;
 const debug = (msg: string, res?: string | number | boolean) => {
@@ -18,14 +18,55 @@ const getJavascriptType = (x: any) => {
   return "unknown";
 }
 
-export class VariableInstance {
-  id;
-  type;
-  value;
-  constructor(id: string, type: AllowedTypes, initialValue?: string | number | boolean) {
+export abstract class Instance {
+  constructor(public id: string, public type: AllowedTypes) {
     this.id = id;
     this.type = type;
-    this.value = initialValue;
+  }
+  abstract getValue(index?:number): string | number | boolean;
+  abstract setValue(newValue: string | number | boolean, index?: number);
+}
+
+export class ErrorInstance extends Instance {
+  constructor() {
+    super("error","void");
+  }
+  getValue() { return 0; }
+  setValue() {}
+}
+
+export class VariableInstance extends Instance {
+  constructor(id: string, type: AllowedTypes, public value?: string | number | boolean) {
+    super(id, type);
+    this.value = value;
+  }
+  getValue() {return this.value;}
+  setValue(newValue: string | number | boolean) {
+    if (getJavascriptType(newValue) != this.type) throw new Error();
+    this.value = newValue;
+  }
+}
+
+export class ArrayInstance extends Instance {
+  value;
+  constructor(id: string, type: AllowedTypes, length:number) {
+    super(id, type);
+    if (type == "int") this.value = new Array<number>(length);
+    else if (type == "bool") this.value = new Array<boolean>(length);
+    else if (type == "string") this.value = new Array<string>(length);
+    else throw new Error();
+  }
+  getValue(index?: number) {
+    if (index) {
+      if ((index < 0) || (index > this.value.length-1)) throw new Error();
+      return this.value[index];
+    } else
+    return this.value;
+  }
+  setValue(newValue: string | number | boolean, index: number) {
+    if (getJavascriptType(newValue) != this.type) return new Error();
+    if ((index < 0) || (index > this.value.length-1)) throw new Error();
+    this.value[index] = newValue;
   }
 }
 
@@ -146,15 +187,15 @@ export class AstStatement extends AstNode {
 }
 
 export class AstAssignment extends AstStatement {
-  lhsVariable: AstVariableDeclaration;
+  lhsVariable: AstVariableExpression;
   rhsExpression: AstExpression;
-  constructor(ctx: ParserRuleContext, lhsVariable: AstVariableDeclaration, rhsExpression: AstExpression) {
+  constructor(ctx: ParserRuleContext, lhsVariable: AstVariableExpression, rhsExpression: AstExpression) {
     super(ctx);
     this.lhsVariable = lhsVariable;
     this.rhsExpression = rhsExpression;
   }
   toString(indent: number) {
-    return this.indent(indent, `Assignment(${this.lhsVariable.id} = ${this.rhsExpression.toString()})`);
+    return this.indent(indent, `Assignment(${this.lhsVariable.toString()} = ${this.rhsExpression.toString()})`);
   }
   execute() {
     // debug("AstAssignment...")
@@ -195,7 +236,7 @@ export class AstFunctionCall extends AstStatement {
       this.funDecl.params.forEach((funDeclParam, i) => {
         const paramValue = this.params[i].execute(); // calculate now incase references current value
         funDeclParam.execute(); // push an instance onto the scope stack
-        funDeclParam.setValue(paramValue);
+        funDeclParam.getInstance().setValue(paramValue);
       });
 
       let res = this.funDecl.execute();
@@ -452,20 +493,43 @@ export class AstConstExpression extends AstExpression {
   }
 }
 
-export class AstIdentifierExpression extends AstExpression {
-  declaration;
-  constructor(ctx: ParserRuleContext, declarataion: AstVariableDeclaration | AstUndeclaredError) {
+export class AstVariableExpression extends AstExpression {
+  declaration:AstIdentifierDeclaration;
+  indexExpressions:AstExpression[];
+  constructor(ctx: ParserRuleContext, declaration: AstIdentifierDeclaration, indexExpressions?: AstExpression[]) {
     super(ctx);
-    this.declaration = declarataion;
+    this.declaration = declaration;
+    if (indexExpressions && (!(declaration instanceof AstArrayDeclaration))) throw new Error("indexing variable that is not an array");
+    this.indexExpressions = indexExpressions;
+  }
+  getIndexString() {
+    return this.indexExpressions ? "[" + this.getIndexValues().join(",") + "]" : "";
   }
   toString(indent = 0) {
-    return this.indent(indent, `Identifier(${this.declaration.id})`);
+    return this.indent(indent, `Variable(${this.declaration.id + this.getIndexString()})`);
   }
   returnType() {
     return this.declaration.signature.returnType;
   }
+  getIndexValues() {
+    if (this.indexExpressions) {
+      const arrayIndexes = this.indexExpressions.map((x,i) => {
+        const xn = Number(x.execute());
+        if ((xn < 0) || (xn >= this.declaration.signature.dimensions[i])) throw new Error("array index out of bounds");
+        return xn;
+      });
+      return arrayIndexes;
+    } else
+      return [];
+  }
+  setValue(newValue : string | number | boolean) {
+    if (this.indexExpressions) {
+      this.declaration.getInstance().setValue(newValue, this.getIndexValues()[0])
+    }
+  }
   execute() {
-    return this.declaration.getValue();
+    if (this.indexExpressions) return this.declaration.getInstance().getValue(this.getIndexValues()[0]);
+    else return this.declaration.getInstance().getValue();
   }
 }
 
@@ -485,41 +549,34 @@ export class AstBracketExpression extends AstExpression {
 
 // ==================== Named declarations (on stack)
 
-export class AstIdentifierDeclaration extends AstNode {
+export abstract class AstIdentifierDeclaration extends AstNode {
   id: string;
   signature: Signature;
   constructor(ctx: ParserRuleContext, id: string) {
     super(ctx);
     this.id = id;
+    this.signature = new Signature("void");
   }
+  abstract getInstance():Instance;
 }
 
 export class AstVariableDeclaration extends AstIdentifierDeclaration {
   initialExpression: AstExpression;
-  ctx: ParserRuleContext;
+  signature: VariableSignature;
   constructor(ctx: ParserRuleContext, id: string, type: AllowedTypes, initialExpression?: AstExpression) {
     super(ctx, id);
-    this.ctx = ctx;
-    this.signature = new Signature('var', type);
+    this.signature = new VariableSignature(type);
     this.initialExpression = initialExpression;
   }
   toString(indent: number = 0) {
     return this.indent(indent, `VariableDeclaration(${this.signature.returnType}: ${this.id})`);
   }
-  setValue(newValue: any) {
-    if (getJavascriptType(newValue) == this.signature.returnType) {
-      const [found, x] = globalAstScopeStack.getSymbol(this.id);
-      if (found)
-        (x as VariableInstance).value = newValue;
-      else
-        throw new Error(`variable instance ${this.id} not in scope`);
-    }
-    else
-      throw new Error();
-  }
-  getValue() {
+  getInstance() {
     const [found, x] = globalAstScopeStack.getSymbol(this.id);
-    if (found) return (x as VariableInstance).value; else throw new Error(`variable instance ${this.id} not in scope`);
+    if (found)
+      return x as VariableInstance;
+    else
+      throw new Error(`variable instance ${this.id} not in scope`);
   }
   execute() {
     // push an instance of this variable onto the stack
@@ -529,14 +586,39 @@ export class AstVariableDeclaration extends AstIdentifierDeclaration {
   }
 }
 
+export class AstArrayDeclaration extends AstIdentifierDeclaration {
+  signature: ArraySignature;
+  constructor(ctx: ParserRuleContext, id: string, type: AllowedTypes, dimensions: number[]) {
+    super(ctx, id);
+    this.signature = new ArraySignature(type, dimensions)
+  }
+  toString(indent: number = 0) {
+    return this.indent(indent, `ArrayDeclaration(${this.signature.returnType}[${this.signature.dimensions.join(':')}]: ${this.id})`);
+  }
+  getInstance() {
+    const [found, x] = globalAstScopeStack.getSymbol(this.id);
+    if (found)
+      return x as ArrayInstance;
+    else
+      throw new Error(`Array instance ${this.id} not in scope`);
+  }
+  execute() {
+    // push an instance of this variable onto the stack
+    globalAstScopeStack.newSymbol(this.id,
+      new ArrayInstance(this.id, this.signature.returnType, this.signature.dimensions[0])); // TODO: implement multidimensional array
+    return "void";
+  }
+}
+
 export class AstFunctionDeclaration extends AstIdentifierDeclaration {
   params: AstVariableDeclaration[];
   body: AstBlock
+  signature: FunctionSignature;
   constructor(ctx: ParserRuleContext, returnType: AllowedTypes | 'void', id: string, params: AstVariableDeclaration[], body?: AstBlock) {
     super(ctx, id);
     this.params = params;
     this.body = body;
-    this.signature = new Signature('fun', returnType, params.map(param => param.signature.returnType))
+    this.signature = new FunctionSignature(returnType, params.map(param => param.signature.returnType))
   }
   toString(indent = 0) {
     if (!this.body) return ""; // stdlib
@@ -545,6 +627,7 @@ export class AstFunctionDeclaration extends AstIdentifierDeclaration {
 ${this.body ? this.body.toString(2) : '  StdLib'}
 )`);
   }
+  getInstance() { return new ErrorInstance() }
   execute() {
     return this.body.execute();
   }
@@ -554,6 +637,7 @@ export class AstUndeclaredError extends AstIdentifierDeclaration {
   constructor(ctx: ParserRuleContext, id: string) {
     super(ctx, id);
   }
+    getInstance() { return new ErrorInstance() }
   toString(indent = 0) {
     return this.indent(indent, `Symbol ${this.id} undeclared`);
   }

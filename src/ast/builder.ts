@@ -1,8 +1,8 @@
 import { ParserRuleContext } from "antlr4ts/ParserRuleContext";
 import { AbstractParseTreeVisitor } from "antlr4ts/tree/AbstractParseTreeVisitor";
-import { AddExpressionContext, AndExpressionContext, AssignmentContext, BoolExpressionContext, BracketExpressionContext, CaseStatementContext, CompExpressionContext, CompoundStatementContext, ConstantValueContext, EqExpressionContext, ExpressionContext, ForStatementContext, FunctionCallContext, FunctionDeclContext, IdentifierExpressionContext, IfStatementContext, MultExpressionContext, NotExpressionContext, NullExpressionContext, NumberExpressionContext, OrExpressionContext, ParamContext, ParseContext, PowerExpressionContext, ReplContext, ReturnBlockContext, ReturnStatementContext, StatementContext, StatementsContext, StringExpressionContext, SwitchStatementContext, UnaryMinusExpressionContext, VariableDeclarationContext, WhileStatementContext } from "../antlr/SimpleParser";
+import { AddExpressionContext, AndExpressionContext, AssignmentContext, BoolExpressionContext, BracketExpressionContext, CaseStatementContext, CompExpressionContext, CompoundStatementContext, ConstantValueContext, EqExpressionContext, ExpressionContext, ForStatementContext, FunctionCallContext, FunctionDeclContext, IfStatementContext, MultExpressionContext, NotExpressionContext, NullExpressionContext, NumberExpressionContext, OrExpressionContext, ParamContext, ParseContext, PowerExpressionContext, ReplContext, ReturnBlockContext, ReturnStatementContext, StatementContext, StatementsContext, StringExpressionContext, SwitchStatementContext, UnaryMinusExpressionContext, VariableDeclarationContext, VariableExpressionContext, WhileStatementContext } from "../antlr/SimpleParser";
 import { SimpleVisitor } from "../antlr/SimpleVisitor";
-import { AstAssignment, AstBinaryExpression, AstBlock, AstCase, AstConstExpression, AstError, AstErrorExpression, AstExpression, AstFor, AstFunctionCall, AstFunctionDeclaration, AstIdentifierDeclaration, AstIdentifierExpression, AstIf, AstNode, AstNull, AstRepl, AstReturn, AstStatement, AstSwitch, AstUnaryExpression, AstUndeclaredError, AstVariableDeclaration, AstWhile } from "./nodes";
+import { AstArrayDeclaration, AstAssignment, AstBinaryExpression, AstBlock, AstCase, AstConstExpression, AstError, AstErrorExpression, AstExpression, AstFor, AstFunctionCall, AstFunctionDeclaration, AstIdentifierDeclaration, AstIf, AstNode, AstNull, AstRepl, AstReturn, AstStatement, AstSwitch, AstUnaryExpression, AstUndeclaredError, AstVariableDeclaration, AstVariableExpression, AstWhile } from "./nodes";
 import { ScopeStack } from "./scopeStack";
 import { AllowedTypes } from "./signature";
 
@@ -127,10 +127,12 @@ export class AstBuilder extends AbstractParseTreeVisitor<AstNode> implements Sim
     return this.createBinaryExpression(ctx);
   }
 
-  visitIdentifierExpression(ctx: IdentifierExpressionContext) {
+  visitVariableExpression(ctx: VariableExpressionContext) {
     const id = ctx.Identifier().text;
     const [found, idNode] = this.scopeStack.getSymbol(id);
-    return new AstIdentifierExpression(ctx, found ? idNode as AstVariableDeclaration : new AstUndeclaredError(ctx, id));
+    if (!found) return new AstUndeclaredError(ctx, id);
+    const indexes = ctx.indexes() ? ctx.indexes().expression().map(e => this.visitExpression(e)) : undefined;
+    return new AstVariableExpression(ctx, idNode as AstVariableDeclaration, indexes);
   }
 
   visitBracketExpression(ctx: BracketExpressionContext) {
@@ -171,11 +173,9 @@ export class AstBuilder extends AbstractParseTreeVisitor<AstNode> implements Sim
     const body: AstNode[] = [];
     ctx.initDeclaratorList().initDeclarator().forEach(idctx => {
       const id = idctx.Identifier().text;
-      let node;
-      if (idctx.expression())
-        node = new AstVariableDeclaration(idctx, id, varType as AllowedTypes, this.visitExpression(idctx.expression()));
-      else
-        node = new AstVariableDeclaration(idctx, id, varType as AllowedTypes);
+      const node = idctx.dimensions().length ?
+         new AstArrayDeclaration(idctx, id, varType as AllowedTypes, idctx.dimensions().map(dimCtx => Number(dimCtx.Number().text))) :
+         new AstVariableDeclaration(idctx, id, varType as AllowedTypes, idctx.expression() ? this.visitExpression(idctx.expression()) : undefined);
       this.scopeStack.setSymbol(id, node);
       body.push(node);
     });
@@ -184,10 +184,10 @@ export class AstBuilder extends AbstractParseTreeVisitor<AstNode> implements Sim
   }
 
   visitAssignment(ctx: AssignmentContext) {
-    const rhs = this.visitExpression(ctx.expression());
-    const id = ctx.Identifier().text;
-    const [found, idNode] = this.scopeStack.getSymbol(id);
-    return found ? new AstAssignment(ctx, idNode as AstVariableDeclaration, rhs) : new AstError(ctx, `variable ${id} not in scope`);
+    const lhs = this.visitExpression(ctx.expression(0));
+    if (!(lhs instanceof AstVariableExpression)) return new AstError(ctx, `lhs of assignment is not a variable`)
+    const rhs = this.visitExpression(ctx.expression(1));
+    return new AstAssignment(ctx, lhs, rhs);  
   }
 
   visitFunctionCall(ctx: FunctionCallContext) {
@@ -199,10 +199,10 @@ export class AstBuilder extends AbstractParseTreeVisitor<AstNode> implements Sim
     const funDecl = decl as AstFunctionDeclaration;
 
     const params = ctx.exprList().expression().map(expr => this.visit(expr) as AstExpression);
-    if (params.length != funDecl.signature.params.length) return new AstError(ctx, `function ${id} incorrect number of params`);
+    if (params.length != funDecl.signature.paramTypes.length) return new AstError(ctx, `function ${id} incorrect number of params`);
     const matches = params.every((param, i) => {
       console.log(i, param)
-      return param.returnType() == funDecl.signature.params[i];
+      return param.returnType() == funDecl.signature.paramTypes[i];
     });
     if (!matches)
       return new AstError(ctx, `function ${id} incorrect param typeS`);

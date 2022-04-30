@@ -1,4 +1,4 @@
-// Generated from /home/dean/llvmtest/src/Simple.g4 by ANTLR 4.7.3-SNAPSHOT
+// Generated from /home/dkilfoyle/llvmtest/src/Simple.g4 by ANTLR 4.7.3-SNAPSHOT
 
 
 import { ParseTreeListener } from "antlr4ts/tree/ParseTreeListener";
@@ -15,7 +15,7 @@ import { OrExpressionContext } from "./SimpleParser";
 import { TernaryExpressionContext } from "./SimpleParser";
 import { ConstantExpressionContext } from "./SimpleParser";
 import { FunctionCallExpressionContext } from "./SimpleParser";
-import { IdentifierExpressionContext } from "./SimpleParser";
+import { VariableExpressionContext } from "./SimpleParser";
 import { BracketExpressionContext } from "./SimpleParser";
 import { NumberExpressionContext } from "./SimpleParser";
 import { BoolExpressionContext } from "./SimpleParser";
@@ -36,6 +36,7 @@ import { VarTypeContext } from "./SimpleParser";
 import { VariableDeclarationContext } from "./SimpleParser";
 import { InitDeclaratorListContext } from "./SimpleParser";
 import { InitDeclaratorContext } from "./SimpleParser";
+import { DimensionsContext } from "./SimpleParser";
 import { AssignmentContext } from "./SimpleParser";
 import { FunctionCallContext } from "./SimpleParser";
 import { IfStatementContext } from "./SimpleParser";
@@ -217,17 +218,17 @@ export interface SimpleListener extends ParseTreeListener {
 	exitFunctionCallExpression?: (ctx: FunctionCallExpressionContext) => void;
 
 	/**
-	 * Enter a parse tree produced by the `identifierExpression`
+	 * Enter a parse tree produced by the `variableExpression`
 	 * labeled alternative in `SimpleParser.expression`.
 	 * @param ctx the parse tree
 	 */
-	enterIdentifierExpression?: (ctx: IdentifierExpressionContext) => void;
+	enterVariableExpression?: (ctx: VariableExpressionContext) => void;
 	/**
-	 * Exit a parse tree produced by the `identifierExpression`
+	 * Exit a parse tree produced by the `variableExpression`
 	 * labeled alternative in `SimpleParser.expression`.
 	 * @param ctx the parse tree
 	 */
-	exitIdentifierExpression?: (ctx: IdentifierExpressionContext) => void;
+	exitVariableExpression?: (ctx: VariableExpressionContext) => void;
 
 	/**
 	 * Enter a parse tree produced by the `bracketExpression`
@@ -458,6 +459,17 @@ export interface SimpleListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	exitInitDeclarator?: (ctx: InitDeclaratorContext) => void;
+
+	/**
+	 * Enter a parse tree produced by `SimpleParser.dimensions`.
+	 * @param ctx the parse tree
+	 */
+	enterDimensions?: (ctx: DimensionsContext) => void;
+	/**
+	 * Exit a parse tree produced by `SimpleParser.dimensions`.
+	 * @param ctx the parse tree
+	 */
+	exitDimensions?: (ctx: DimensionsContext) => void;
 
 	/**
 	 * Enter a parse tree produced by `SimpleParser.assignment`.
