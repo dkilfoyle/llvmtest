@@ -99,6 +99,10 @@
 //   print("fib(i)=", fib(i));
 // }
 
-int x[10];
-x[2]=5;
-print("x[2]=",x[2]);
+// int x[10];
+// x[2]=5;
+// print("x[2]=",x[2]);
+
+int x;
+x = 2 + 3;
+return x;

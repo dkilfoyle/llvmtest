@@ -8,8 +8,7 @@ import { AllowedTypes } from "./signature";
 
 export class AstBuilder extends AbstractParseTreeVisitor<AstNode> implements SimpleVisitor<AstNode> {
 
-  functions: AstFunctionDeclaration[] = [];
-  scopeStack: ScopeStack<AstIdentifierDeclaration>;
+  scopeStack: ScopeStack<AstIdentifierDeclaration, void>;
   anonMax: number = 0;
 
   constructor() {
@@ -21,6 +20,12 @@ export class AstBuilder extends AbstractParseTreeVisitor<AstNode> implements Sim
     const funcDecl = new AstFunctionDeclaration(ctx, 'void', id, params);
     this.scopeStack.setSymbol(id, funcDecl);
     return funcDecl;
+  }
+
+  createMainFunction(ctx: ParserRuleContext, body:AstBlock) {
+    const main = new AstFunctionDeclaration(ctx, "int", "main", [], body);
+    this.scopeStack.setSymbol("main", main);
+    return main;
   }
 
   getAnonName() {
@@ -36,18 +41,18 @@ export class AstBuilder extends AbstractParseTreeVisitor<AstNode> implements Sim
   }
 
   visitParse(ctx: ParseContext) {
-
     return this.visit(ctx.repl());
   }
 
   visitRepl(ctx: ReplContext) {
-    const stdlib = [
+    const functions = [
       this.createStdLibFunction(ctx, "assert", [new AstVariableDeclaration(ctx, "test", "bool")]),
       this.createStdLibFunction(ctx, "print", [new AstVariableDeclaration(ctx, "msg", "string"), new AstVariableDeclaration(ctx, "val", "int")]),
+      ...ctx.functionDecl().map(decl => this.visitFunctionDecl(decl)),
+      this.createMainFunction(ctx.statements(), this.visitStatements(ctx.statements()))
     ];
-    const functions = [...stdlib, ...ctx.functionDecl().map(decl => this.visitFunctionDecl(decl))];
-    const body = this.visitStatements(ctx.statements());
-    return new AstRepl(ctx, functions, body);
+
+    return new AstRepl(ctx, functions);
   }
 
   visitReturnBlock(ctx: ReturnBlockContext, name = "unnamedblock") {

@@ -4,26 +4,14 @@ import { SimpleLexer } from "./antlr/SimpleLexer";
 import { SimpleParser } from './antlr/SimpleParser';
 import { AstBuilder } from './ast/builder';
 import { errorNodes } from "./ast/nodes";
-
-class SimpleLexer2 extends SimpleLexer {
-  FeatureControlFlow: boolean;
-  FeatureMutableVars: boolean;
-  FeatureUserOperators: boolean;
-  constructor(inputStream: ANTLRInputStream) {
-    super(inputStream);
-    this.FeatureControlFlow = false;
-    this.FeatureMutableVars = false;
-    this.FeatureUserOperators = false;
-  }
-}
-
-const fs = require("fs");
+import { IRGenerator } from './IRGenerator';
 
 function main(): void {
+  const fs = require("fs");
   const buffer = fs.readFileSync("src/test.tc");
   // Create the lexer and parser
   let inputStream = new ANTLRInputStream(buffer.toString());
-  let lexer = new SimpleLexer2(inputStream);
+  let lexer = new SimpleLexer(inputStream);
   let tokenStream = new CommonTokenStream(lexer);
   let parser = new SimpleParser(tokenStream);
   let tree = parser.parse();
@@ -34,6 +22,10 @@ function main(): void {
   console.log("AST errors:\n", errorNodes);
   console.log("AST execute:");
   console.log(ast.execute());
+
+  const ir = new IRGenerator();
+  console.log(ir.codegen(ast));
+
 }
 
 main();

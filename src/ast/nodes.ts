@@ -4,7 +4,7 @@ import { AllowedTypes, ArraySignature, FunctionSignature, Signature, VariableSig
 
 export const errorNodes: AstNode[] = [];
 let globalReturnResult: string | number | boolean; // todo better method
-const globalAstScopeStack = new ScopeStack<Instance>();
+const globalAstScopeStack = new ScopeStack<Instance, void>();
 
 const debugging = true;
 const debug = (msg: string, res?: string | number | boolean) => {
@@ -136,19 +136,20 @@ export class AstError extends AstNode {
 
 export class AstRepl extends AstNode {
   functions: AstFunctionDeclaration[];
-  body: AstBlock;
-  constructor(ctx: ParserRuleContext, functions: AstFunctionDeclaration[], body: AstBlock) {
+  constructor(ctx: ParserRuleContext, functions: AstFunctionDeclaration[]) {
     super(ctx);
     this.functions = functions;
-    this.body = body;
   }
   toString() {
-    return this.functions.map(funct => funct.toString()).join('\n') + "\n" + this.body.toString();
+    return this.functions.map(funct => funct.toString()).join('\n') + "\n" + this.getMainFunction().body.toString();
+  }
+  getMainFunction() {
+    return this.functions[this.functions.length-1];
   }
   execute() {
     // debug("AstRepl...")
     globalAstScopeStack.reset();
-    const res = this.body.execute();
+    const res = this.getMainFunction().body.execute();
     // debug("AstRepl result:", res);
     return res;
   }
@@ -173,11 +174,13 @@ ${this.returnExpression ? '  return ' + this.returnExpression.toString() : ""}
   }
   execute() {
     // debug("AstBlock...")
+    globalAstScopeStack.enterScope("block");
     for (let i = 0; i < this.body.length; i++) {
       let res = this.body[i].execute();
       if (res == 'return') return 'return';
     }
     const res = this.returnExpression ? this.returnExpression.execute() : "void"
+    globalAstScopeStack.disposeScope();
     // debug("AstBlock result:", res)
     return res;
   }
@@ -245,6 +248,15 @@ export class AstFunctionCall extends AstStatement {
       return res == 'return' ? globalReturnResult : res;
     }
   };
+  // codegen() {
+  //   const calleeF = module.getFunction(this.funDecl.id); 
+  //   if (!calleeF) throw new Error();
+
+  //   if (calleeF.arg_size() != this.funDecl.params.length) throw new Error();
+
+  //   const args = this.funDecl.params.map(p => p.codegen());
+  //   return builder.CreateCall(calleeF, args, "calltmp");
+  // }
 }
 
 export class AstIf extends AstStatement {
