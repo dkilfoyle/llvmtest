@@ -103,6 +103,14 @@
 // x[2]=5;
 // print("x[2]=",x[2]);
 
+// printf
+printf("Hello there\n");
 int x;
-x = 2 + 3;
-return x;
+x=3;
+printf("x=%i", x);
+
+// int x;
+// x = 2 + 3;
+// printf("")
+// printf("printf: x=%i", x);
+// return x;

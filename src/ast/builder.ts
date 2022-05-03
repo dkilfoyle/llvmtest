@@ -1,8 +1,8 @@
 import { ParserRuleContext } from "antlr4ts/ParserRuleContext";
 import { AbstractParseTreeVisitor } from "antlr4ts/tree/AbstractParseTreeVisitor";
-import { AddExpressionContext, AndExpressionContext, AssignmentContext, BoolExpressionContext, BracketExpressionContext, CaseStatementContext, CompExpressionContext, CompoundStatementContext, ConstantValueContext, EqExpressionContext, ExpressionContext, ForStatementContext, FunctionCallContext, FunctionDeclContext, IfStatementContext, MultExpressionContext, NotExpressionContext, NullExpressionContext, NumberExpressionContext, OrExpressionContext, ParamContext, ParseContext, PowerExpressionContext, ReplContext, ReturnBlockContext, ReturnStatementContext, StatementContext, StatementsContext, StringExpressionContext, SwitchStatementContext, UnaryMinusExpressionContext, VariableDeclarationContext, VariableExpressionContext, WhileStatementContext } from "../antlr/SimpleParser";
+import { AssignmentContext, BinaryExpressionContext, BoolExpressionContext, BracketExpressionContext, CompoundStatementContext, ConstantValueContext, ExpressionContext, ForStatementContext, FunctionCallContext, FunctionDeclContext, IfStatementContext, NullExpressionContext, NumberExpressionContext, ParamContext, ParseContext, PrintfStatementContext, ReplContext, ReturnBlockContext, ReturnStatementContext, StatementContext, StatementsContext, StringExpressionContext, SwitchStatementContext, TernaryExpressionContext, UnaryExpressionContext, VariableDeclarationContext, VariableExpressionContext, WhileStatementContext } from "../antlr/SimpleParser";
 import { SimpleVisitor } from "../antlr/SimpleVisitor";
-import { AstArrayDeclaration, AstAssignment, AstBinaryExpression, AstBlock, AstCase, AstConstExpression, AstError, AstErrorExpression, AstExpression, AstFor, AstFunctionCall, AstFunctionDeclaration, AstIdentifierDeclaration, AstIf, AstNode, AstNull, AstRepl, AstReturn, AstStatement, AstSwitch, AstUnaryExpression, AstUndeclaredError, AstVariableDeclaration, AstVariableExpression, AstWhile } from "./nodes";
+import { AstArrayDeclaration, AstAssignment, AstBinaryExpression, AstBlock, AstCase, AstConstExpression, AstError, AstErrorExpression, AstExpression, AstFor, AstFunctionCall, AstFunctionDeclaration, AstIdentifierDeclaration, AstIf, AstNode, AstNull, AstPrintf, AstRepl, AstReturn, AstStatement, AstSwitch, AstTernaryExpression, AstUnaryExpression, AstUndeclaredError, AstVariableDeclaration, AstVariableExpression, AstWhile } from "./nodes";
 import { ScopeStack } from "./scopeStack";
 import { AllowedTypes } from "./signature";
 
@@ -48,6 +48,7 @@ export class AstBuilder extends AbstractParseTreeVisitor<AstNode> implements Sim
     const functions = [
       this.createStdLibFunction(ctx, "assert", [new AstVariableDeclaration(ctx, "test", "bool")]),
       this.createStdLibFunction(ctx, "print", [new AstVariableDeclaration(ctx, "msg", "string"), new AstVariableDeclaration(ctx, "val", "int")]),
+      this.createStdLibFunction(ctx, "printf", [new AstVariableDeclaration(ctx, "format", "string")]), //, new AstVariableDeclaration(ctx, "val", "int")]),
       ...ctx.functionDecl().map(decl => this.visitFunctionDecl(decl)),
       this.createMainFunction(ctx.statements(), this.visitStatements(ctx.statements()))
     ];
@@ -85,51 +86,24 @@ export class AstBuilder extends AbstractParseTreeVisitor<AstNode> implements Sim
     return ctx.accept(this) as AstConstExpression;
   }
 
-  visitUnaryMinusExpression(ctx: UnaryMinusExpressionContext) {
+  visitUnaryExpression(ctx: UnaryExpressionContext) {
     const rhs = this.visitExpression(ctx.expression());
     const op = ctx._op.text;
     return new AstUnaryExpression(ctx, op, rhs);
   }
 
-  visitNotExpression(ctx: NotExpressionContext) {
-    const rhs = this.visitExpression(ctx.expression());
-    const op = ctx._op.text;
-    return new AstUnaryExpression(ctx, op, rhs);
-  }
-
-  createBinaryExpression(ctx: AddExpressionContext | MultExpressionContext | CompExpressionContext | EqExpressionContext | AndExpressionContext | OrExpressionContext) {
+  visitBinaryExpression(ctx: BinaryExpressionContext) {
     const lhs = this.visitExpression(ctx.expression(0) as ExpressionContext);
     const rhs = this.visitExpression(ctx.expression(1) as ExpressionContext);
     const op = ctx._op.text;
     return new AstBinaryExpression(ctx, op, lhs, rhs);
   }
 
-  visitPowerExpression(ctx: PowerExpressionContext) {
-    return this.createBinaryExpression(ctx);
-  }
-
-  visitAddExpression(ctx: AddExpressionContext) {
-    return this.createBinaryExpression(ctx);
-  }
-
-  visitMultExpression(ctx: MultExpressionContext) {
-    return this.createBinaryExpression(ctx);
-  }
-
-  visitCompExpression(ctx: CompExpressionContext) {
-    return this.createBinaryExpression(ctx);
-  }
-
-  visitEqExpression(ctx: EqExpressionContext) {
-    return this.createBinaryExpression(ctx);
-  }
-
-  visitAndExpression(ctx: AndExpressionContext) {
-    return this.createBinaryExpression(ctx);
-  }
-
-  visitOrExpression(ctx: OrExpressionContext) {
-    return this.createBinaryExpression(ctx);
+  visitTernaryExpression(ctx: TernaryExpressionContext) {
+    const ifE = this.visitExpression(ctx.expression(0) as ExpressionContext);
+    const thenE = this.visitExpression(ctx.expression(1) as ExpressionContext);
+    const elseE = this.visitExpression(ctx.expression(2) as ExpressionContext);
+    return new AstTernaryExpression(ctx, ifE, thenE, elseE);
   }
 
   visitVariableExpression(ctx: VariableExpressionContext) {
@@ -257,6 +231,11 @@ export class AstBuilder extends AbstractParseTreeVisitor<AstNode> implements Sim
       testExpression.returnType() == 'bool' ? testExpression : new AstErrorExpression(ctx.expression(), "for test expression must return bool"),
       block
     );
+  }
+
+  visitPrintfStatement(ctx: PrintfStatementContext) {
+    const format = ctx.String().text;
+    return new AstPrintf(ctx, format.substring(1,format.length-1), ctx.expression().map(e => this.visitExpression(e)));
   }
 
   // Functions

@@ -3,15 +3,8 @@
 
 import { ParseTreeListener } from "antlr4ts/tree/ParseTreeListener";
 
-import { UnaryMinusExpressionContext } from "./SimpleParser";
-import { NotExpressionContext } from "./SimpleParser";
-import { PowerExpressionContext } from "./SimpleParser";
-import { MultExpressionContext } from "./SimpleParser";
-import { AddExpressionContext } from "./SimpleParser";
-import { CompExpressionContext } from "./SimpleParser";
-import { EqExpressionContext } from "./SimpleParser";
-import { AndExpressionContext } from "./SimpleParser";
-import { OrExpressionContext } from "./SimpleParser";
+import { UnaryExpressionContext } from "./SimpleParser";
+import { BinaryExpressionContext } from "./SimpleParser";
 import { TernaryExpressionContext } from "./SimpleParser";
 import { ConstantExpressionContext } from "./SimpleParser";
 import { FunctionCallExpressionContext } from "./SimpleParser";
@@ -48,6 +41,7 @@ import { BreakStatementContext } from "./SimpleParser";
 import { ForStatementContext } from "./SimpleParser";
 import { ForInitialContext } from "./SimpleParser";
 import { WhileStatementContext } from "./SimpleParser";
+import { PrintfStatementContext } from "./SimpleParser";
 import { IdListContext } from "./SimpleParser";
 import { ExprListContext } from "./SimpleParser";
 import { ExpressionContext } from "./SimpleParser";
@@ -62,121 +56,30 @@ import { IndexesContext } from "./SimpleParser";
  */
 export interface SimpleListener extends ParseTreeListener {
 	/**
-	 * Enter a parse tree produced by the `unaryMinusExpression`
+	 * Enter a parse tree produced by the `unaryExpression`
 	 * labeled alternative in `SimpleParser.expression`.
 	 * @param ctx the parse tree
 	 */
-	enterUnaryMinusExpression?: (ctx: UnaryMinusExpressionContext) => void;
+	enterUnaryExpression?: (ctx: UnaryExpressionContext) => void;
 	/**
-	 * Exit a parse tree produced by the `unaryMinusExpression`
+	 * Exit a parse tree produced by the `unaryExpression`
 	 * labeled alternative in `SimpleParser.expression`.
 	 * @param ctx the parse tree
 	 */
-	exitUnaryMinusExpression?: (ctx: UnaryMinusExpressionContext) => void;
+	exitUnaryExpression?: (ctx: UnaryExpressionContext) => void;
 
 	/**
-	 * Enter a parse tree produced by the `notExpression`
+	 * Enter a parse tree produced by the `binaryExpression`
 	 * labeled alternative in `SimpleParser.expression`.
 	 * @param ctx the parse tree
 	 */
-	enterNotExpression?: (ctx: NotExpressionContext) => void;
+	enterBinaryExpression?: (ctx: BinaryExpressionContext) => void;
 	/**
-	 * Exit a parse tree produced by the `notExpression`
+	 * Exit a parse tree produced by the `binaryExpression`
 	 * labeled alternative in `SimpleParser.expression`.
 	 * @param ctx the parse tree
 	 */
-	exitNotExpression?: (ctx: NotExpressionContext) => void;
-
-	/**
-	 * Enter a parse tree produced by the `powerExpression`
-	 * labeled alternative in `SimpleParser.expression`.
-	 * @param ctx the parse tree
-	 */
-	enterPowerExpression?: (ctx: PowerExpressionContext) => void;
-	/**
-	 * Exit a parse tree produced by the `powerExpression`
-	 * labeled alternative in `SimpleParser.expression`.
-	 * @param ctx the parse tree
-	 */
-	exitPowerExpression?: (ctx: PowerExpressionContext) => void;
-
-	/**
-	 * Enter a parse tree produced by the `multExpression`
-	 * labeled alternative in `SimpleParser.expression`.
-	 * @param ctx the parse tree
-	 */
-	enterMultExpression?: (ctx: MultExpressionContext) => void;
-	/**
-	 * Exit a parse tree produced by the `multExpression`
-	 * labeled alternative in `SimpleParser.expression`.
-	 * @param ctx the parse tree
-	 */
-	exitMultExpression?: (ctx: MultExpressionContext) => void;
-
-	/**
-	 * Enter a parse tree produced by the `addExpression`
-	 * labeled alternative in `SimpleParser.expression`.
-	 * @param ctx the parse tree
-	 */
-	enterAddExpression?: (ctx: AddExpressionContext) => void;
-	/**
-	 * Exit a parse tree produced by the `addExpression`
-	 * labeled alternative in `SimpleParser.expression`.
-	 * @param ctx the parse tree
-	 */
-	exitAddExpression?: (ctx: AddExpressionContext) => void;
-
-	/**
-	 * Enter a parse tree produced by the `compExpression`
-	 * labeled alternative in `SimpleParser.expression`.
-	 * @param ctx the parse tree
-	 */
-	enterCompExpression?: (ctx: CompExpressionContext) => void;
-	/**
-	 * Exit a parse tree produced by the `compExpression`
-	 * labeled alternative in `SimpleParser.expression`.
-	 * @param ctx the parse tree
-	 */
-	exitCompExpression?: (ctx: CompExpressionContext) => void;
-
-	/**
-	 * Enter a parse tree produced by the `eqExpression`
-	 * labeled alternative in `SimpleParser.expression`.
-	 * @param ctx the parse tree
-	 */
-	enterEqExpression?: (ctx: EqExpressionContext) => void;
-	/**
-	 * Exit a parse tree produced by the `eqExpression`
-	 * labeled alternative in `SimpleParser.expression`.
-	 * @param ctx the parse tree
-	 */
-	exitEqExpression?: (ctx: EqExpressionContext) => void;
-
-	/**
-	 * Enter a parse tree produced by the `andExpression`
-	 * labeled alternative in `SimpleParser.expression`.
-	 * @param ctx the parse tree
-	 */
-	enterAndExpression?: (ctx: AndExpressionContext) => void;
-	/**
-	 * Exit a parse tree produced by the `andExpression`
-	 * labeled alternative in `SimpleParser.expression`.
-	 * @param ctx the parse tree
-	 */
-	exitAndExpression?: (ctx: AndExpressionContext) => void;
-
-	/**
-	 * Enter a parse tree produced by the `orExpression`
-	 * labeled alternative in `SimpleParser.expression`.
-	 * @param ctx the parse tree
-	 */
-	enterOrExpression?: (ctx: OrExpressionContext) => void;
-	/**
-	 * Exit a parse tree produced by the `orExpression`
-	 * labeled alternative in `SimpleParser.expression`.
-	 * @param ctx the parse tree
-	 */
-	exitOrExpression?: (ctx: OrExpressionContext) => void;
+	exitBinaryExpression?: (ctx: BinaryExpressionContext) => void;
 
 	/**
 	 * Enter a parse tree produced by the `ternaryExpression`
@@ -591,6 +494,17 @@ export interface SimpleListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	exitWhileStatement?: (ctx: WhileStatementContext) => void;
+
+	/**
+	 * Enter a parse tree produced by `SimpleParser.printfStatement`.
+	 * @param ctx the parse tree
+	 */
+	enterPrintfStatement?: (ctx: PrintfStatementContext) => void;
+	/**
+	 * Exit a parse tree produced by `SimpleParser.printfStatement`.
+	 * @param ctx the parse tree
+	 */
+	exitPrintfStatement?: (ctx: PrintfStatementContext) => void;
 
 	/**
 	 * Enter a parse tree produced by `SimpleParser.idList`.

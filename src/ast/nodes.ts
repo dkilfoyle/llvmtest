@@ -1,6 +1,7 @@
 import { ParserRuleContext } from "antlr4ts";
 import { ScopeStack } from "./scopeStack";
 import { AllowedTypes, ArraySignature, FunctionSignature, Signature, VariableSignature } from "./signature";
+import { sprintf } from "sprintf-js";
 
 export const errorNodes: AstNode[] = [];
 let globalReturnResult: string | number | boolean; // todo better method
@@ -229,6 +230,10 @@ export class AstFunctionCall extends AstStatement {
       // debug("AstFunctionCall result: ", res)
       return res;
     }
+    else if (this.funDecl.id == 'printf') {
+      console.log("stdout: ", this.params[0].execute());
+      return 'void'
+    }
     else if (this.funDecl.id == 'print') {
       console.log("stdout: ", this.params[0].execute(), this.params[1].execute());
       return 'void'
@@ -402,6 +407,24 @@ export class AstReturn extends AstStatement {
   }
 }
 
+export class AstPrintf extends AstStatement {
+  format:string;
+  args: AstExpression[];
+  constructor(ctx: ParserRuleContext, format: string, args: AstExpression[]) {
+    super(ctx);
+    this.format = format;
+    this.args = args;
+  }
+  toString(indent = 0) {
+    return this.indent(indent,
+      `printf("${this.format}", ${this.args.map(arg => arg.toString()).join(",")}`);
+  }
+  execute() {
+    console.log(sprintf(this.format, this.args.map(arg => arg.execute())));
+    return "void";
+  }
+}
+
 // =============== Expression nodes
 
 export class AstExpression extends AstNode {
@@ -488,6 +511,28 @@ export class AstBinaryExpression extends AstExpression {
   }
 }
 
+export class AstTernaryExpression extends AstExpression {
+  ifE: AstExpression;
+  thenE: AstExpression;
+  elseE: AstExpression;
+  constructor(ctx: ParserRuleContext, ifE: AstExpression, thenE: AstExpression, elseE: AstExpression) {
+    super(ctx);
+    this.ifE = ifE;
+    this.thenE = thenE;
+    this.elseE = elseE;
+  }
+  toString(indent: number = 0) {
+    return this.indent(indent, `?(${this.ifE.toString()} ? ${this.thenE.toString()} : ${this.elseE.toString()})`);
+  }
+  returnType() {
+    return this.thenE.returnType();
+  }
+  execute() {
+    const test = this.ifE.execute();
+    return test ? this.thenE.execute() : this.elseE.execute();
+  }
+}
+
 export class AstConstExpression extends AstExpression {
   value;
   valueType;
@@ -537,7 +582,8 @@ export class AstVariableExpression extends AstExpression {
   setValue(newValue : string | number | boolean) {
     if (this.indexExpressions) {
       this.declaration.getInstance().setValue(newValue, this.getIndexValues()[0])
-    }
+    } else
+      this.declaration.getInstance().setValue(newValue);
   }
   execute() {
     if (this.indexExpressions) return this.declaration.getInstance().getValue(this.getIndexValues()[0]);

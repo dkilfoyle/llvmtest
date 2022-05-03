@@ -3,15 +3,8 @@
 
 import { ParseTreeVisitor } from "antlr4ts/tree/ParseTreeVisitor";
 
-import { UnaryMinusExpressionContext } from "./SimpleParser";
-import { NotExpressionContext } from "./SimpleParser";
-import { PowerExpressionContext } from "./SimpleParser";
-import { MultExpressionContext } from "./SimpleParser";
-import { AddExpressionContext } from "./SimpleParser";
-import { CompExpressionContext } from "./SimpleParser";
-import { EqExpressionContext } from "./SimpleParser";
-import { AndExpressionContext } from "./SimpleParser";
-import { OrExpressionContext } from "./SimpleParser";
+import { UnaryExpressionContext } from "./SimpleParser";
+import { BinaryExpressionContext } from "./SimpleParser";
 import { TernaryExpressionContext } from "./SimpleParser";
 import { ConstantExpressionContext } from "./SimpleParser";
 import { FunctionCallExpressionContext } from "./SimpleParser";
@@ -48,6 +41,7 @@ import { BreakStatementContext } from "./SimpleParser";
 import { ForStatementContext } from "./SimpleParser";
 import { ForInitialContext } from "./SimpleParser";
 import { WhileStatementContext } from "./SimpleParser";
+import { PrintfStatementContext } from "./SimpleParser";
 import { IdListContext } from "./SimpleParser";
 import { ExprListContext } from "./SimpleParser";
 import { ExpressionContext } from "./SimpleParser";
@@ -65,76 +59,20 @@ import { IndexesContext } from "./SimpleParser";
  */
 export interface SimpleVisitor<Result> extends ParseTreeVisitor<Result> {
 	/**
-	 * Visit a parse tree produced by the `unaryMinusExpression`
+	 * Visit a parse tree produced by the `unaryExpression`
 	 * labeled alternative in `SimpleParser.expression`.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	visitUnaryMinusExpression?: (ctx: UnaryMinusExpressionContext) => Result;
+	visitUnaryExpression?: (ctx: UnaryExpressionContext) => Result;
 
 	/**
-	 * Visit a parse tree produced by the `notExpression`
+	 * Visit a parse tree produced by the `binaryExpression`
 	 * labeled alternative in `SimpleParser.expression`.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	visitNotExpression?: (ctx: NotExpressionContext) => Result;
-
-	/**
-	 * Visit a parse tree produced by the `powerExpression`
-	 * labeled alternative in `SimpleParser.expression`.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	visitPowerExpression?: (ctx: PowerExpressionContext) => Result;
-
-	/**
-	 * Visit a parse tree produced by the `multExpression`
-	 * labeled alternative in `SimpleParser.expression`.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	visitMultExpression?: (ctx: MultExpressionContext) => Result;
-
-	/**
-	 * Visit a parse tree produced by the `addExpression`
-	 * labeled alternative in `SimpleParser.expression`.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	visitAddExpression?: (ctx: AddExpressionContext) => Result;
-
-	/**
-	 * Visit a parse tree produced by the `compExpression`
-	 * labeled alternative in `SimpleParser.expression`.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	visitCompExpression?: (ctx: CompExpressionContext) => Result;
-
-	/**
-	 * Visit a parse tree produced by the `eqExpression`
-	 * labeled alternative in `SimpleParser.expression`.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	visitEqExpression?: (ctx: EqExpressionContext) => Result;
-
-	/**
-	 * Visit a parse tree produced by the `andExpression`
-	 * labeled alternative in `SimpleParser.expression`.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	visitAndExpression?: (ctx: AndExpressionContext) => Result;
-
-	/**
-	 * Visit a parse tree produced by the `orExpression`
-	 * labeled alternative in `SimpleParser.expression`.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	visitOrExpression?: (ctx: OrExpressionContext) => Result;
+	visitBinaryExpression?: (ctx: BinaryExpressionContext) => Result;
 
 	/**
 	 * Visit a parse tree produced by the `ternaryExpression`
@@ -396,6 +334,13 @@ export interface SimpleVisitor<Result> extends ParseTreeVisitor<Result> {
 	 * @return the visitor result
 	 */
 	visitWhileStatement?: (ctx: WhileStatementContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by `SimpleParser.printfStatement`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitPrintfStatement?: (ctx: PrintfStatementContext) => Result;
 
 	/**
 	 * Visit a parse tree produced by `SimpleParser.idList`.

@@ -10,6 +10,8 @@ param: varType Identifier;
 paramList: param (',' param)*;
 returnBlock: statement* ('return' expression ';')?;
 
+// Statements
+
 statement:
 	variableDeclaration ';'
 	| assignment ';'
@@ -19,6 +21,7 @@ statement:
 	| forStatement
 	| whileStatement
 	| compoundStatement
+	| printfStatement
 	| returnStatement;
 
 compoundStatement: '{' statements '}';
@@ -52,19 +55,23 @@ forInitial: variableDeclaration | assignment;
 
 whileStatement: 'while' '(' expression ')' statement;
 
+printfStatement: 'printf' '(' String (',' expression)* ')' ';';
+
+// Expressions
+
 idList: Identifier ( ',' Identifier)*;
 exprList: expression ( ',' expression)*;
 
 expression:
-	op = '-' expression										# unaryMinusExpression
-	| op = '!' expression									# notExpression
-	| <assoc = right> expression op = '^' expression		# powerExpression
-	| expression op = ('*' | '/' | '%') expression			# multExpression
-	| expression op = ('+' | '-') expression				# addExpression
-	| expression op = ('>=' | '<=' | '>' | '<') expression	# compExpression
-	| expression op = ('==' | '!=') expression				# eqExpression
-	| expression op = '&&' expression						# andExpression
-	| expression op = '||' expression						# orExpression
+	op = '-' expression										# unaryExpression
+	| op = '!' expression									# unaryExpression
+	| <assoc = right> expression op = '^' expression		# binaryExpression
+	| expression op = ('*' | '/' | '%') expression			# binaryExpression
+	| expression op = ('+' | '-') expression				# binaryExpression
+	| expression op = ('>=' | '<=' | '>' | '<') expression	# binaryExpression
+	| expression op = ('==' | '!=') expression				# binaryExpression
+	| expression op = '&&' expression						# binaryExpression
+	| expression op = '||' expression						# binaryExpression
 	| expression op = '?' expression ':' expression			# ternaryExpression
 	| constantValue											# constantExpression
 	| functionCall											# functionCallExpression
