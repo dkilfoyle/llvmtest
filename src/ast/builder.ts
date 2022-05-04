@@ -23,6 +23,8 @@ export class AstBuilder extends AbstractParseTreeVisitor<AstNode> implements Sim
   }
 
   createMainFunction(ctx: ParserRuleContext, body:AstBlock) {
+    if (!(body.body[body.body.length-1] instanceof AstReturn))
+      body.body.push(new AstReturn(ctx, new AstConstExpression(ctx, 0, "int")));
     const main = new AstFunctionDeclaration(ctx, "int", "main", [], body);
     this.scopeStack.setSymbol("main", main);
     return main;

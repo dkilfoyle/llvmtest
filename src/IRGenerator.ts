@@ -1,7 +1,7 @@
 import { ParserRuleContext } from "antlr4ts";
 import llvm from "llvm-bindings";
 import { threadId } from "worker_threads";
-import { AstAssignment, AstBinaryExpression, AstBlock, AstConstExpression, AstExpression, AstFunctionCall, AstFunctionDeclaration, AstNode, AstPrintf, AstRepl, AstReturn, AstStatement, AstVariableDeclaration, AstVariableExpression } from "./ast/nodes";
+import { AstAssignment, AstBinaryExpression, AstBlock, AstConstExpression, AstExpression, AstFunctionCall, AstFunctionDeclaration, AstIf, AstNode, AstPrintf, AstRepl, AstReturn, AstStatement, AstVariableDeclaration, AstVariableExpression } from "./ast/nodes";
 import { ScopeStack } from "./ast/scopeStack";
 
 export class IRGenerator {
@@ -9,13 +9,17 @@ export class IRGenerator {
   module: llvm.Module;
   builder: llvm.IRBuilder;
   scopes: ScopeStack<llvm.Value, llvm.BasicBlock>;
+  currentFunction: llvm.Function;
+
   constructor() {
   }
+  
   reset() {
     this.context = new llvm.LLVMContext();
     this.module = new llvm.Module('demo', this.context);
     this.builder = new llvm.IRBuilder(this.context);
   }
+
   codegen(root:AstNode) {
     if (!(root instanceof AstRepl)) throw new Error();
     this.reset();
@@ -25,17 +29,7 @@ export class IRGenerator {
     return this.module.print();
   }
 
-  createBlock(parent:llvm.Function) {
-    const block = llvm.BasicBlock.Create(this.context, "entry", parent);
-    this.builder.SetInsertPoint(block);
-    this.scopes.enterScope("block", block);
-    return block;
-  }
-
-  printf(format:string, ...args: any[]) {
-    // const argsv = args.map(arg => this.builder.getIntPtrTy)
-  }
-
+  
   getLLVMType(type: string) {
     switch (type) {
       case "int" : return this.builder.getInt32Ty();
@@ -44,6 +38,19 @@ export class IRGenerator {
       case "string" : return this.builder.getInt8PtrTy();
       default: throw new Error("Unsupported type");
     }
+  }
+
+  createEntryBlockAlloca(type: llvm.Type, name: string) {
+    const builder = new llvm.IRBuilder(this.currentFunction.getEntryBlock());
+    const arraySize = undefined;
+    return builder.CreateAlloca(type, null, name);
+  }
+
+  createBlock(parent:llvm.Function, name:string="entry") {
+    const block = llvm.BasicBlock.Create(this.context, name, parent);
+    this.builder.SetInsertPoint(block);
+    this.scopes.enterScope("block", block);
+    return block;
   }
 
   visitRepl(node: AstRepl) {
@@ -67,6 +74,8 @@ export class IRGenerator {
 
     const funType = llvm.FunctionType.get(funReturnType, args, false);
     const fun = llvm.Function.Create(funType, llvm.Function.LinkageTypes.ExternalLinkage, node.id, this.module);
+    this.currentFunction = fun;
+
     const block = this.createBlock(fun);
     const res = this.visitBlock(node.body);
     this.scopes.disposeScope();
@@ -93,6 +102,10 @@ export class IRGenerator {
       return this.visitFunctionCall(node);
     else if (node instanceof AstPrintf)
       return this.visitPrintf(node);
+    else if (node instanceof AstIf)
+      return this.visitIf(node);
+    else if (node instanceof AstBlock)
+      return this.visitBlock(node);
     else throw new Error();
   }
 
@@ -103,8 +116,9 @@ export class IRGenerator {
   }
 
   visitVariableDeclaration(node: AstVariableDeclaration) {
+    // todo: Re SSA should be 
     const type = this.getLLVMType(node.signature.returnType);
-    const alloc = this.builder.CreateAlloca(type, null, node.id);
+    const alloc = this.createEntryBlockAlloca(type, node.id);
     this.scopes.newSymbol(node.id, alloc);
     if (node.initialExpression)
       this.visitAssignment(
@@ -136,8 +150,27 @@ export class IRGenerator {
 
   visitPrintf(node: AstPrintf) {
     const vargs = node.args.map(arg => this.visitExpression(arg));
-    this.builder.CreateCall(this.module.getFunction("printf"), [this.builder.CreateGlobalStringPtr(node.format), ...vargs], "printfcall")
+    this.builder.CreateCall(this.module.getFunction("printf"), [this.builder.CreateGlobalStringPtr(node.format.replace("\\n", "\x0a")), ...vargs], "printfcall")
   }
+
+  visitIfBranch(node: AstStatement, destination: llvm.BasicBlock, continuation: llvm.BasicBlock) {
+    this.builder.SetInsertPoint(destination);
+    if (node) this.visitStatement(node);
+    if (!this.builder.GetInsertBlock().getTerminator()) this.builder.CreateBr(continuation);
+  }
+
+  visitIf(node: AstIf) {
+    const condition = this.visitExpression(node.ifExpression);
+    const thenBlock = llvm.BasicBlock.Create(this.context, "then", this.currentFunction);
+    const elseBlock = llvm.BasicBlock.Create(this.context, "else", this.currentFunction);
+    const endBlock = llvm.BasicBlock.Create(this.context, "endif", this.currentFunction);
+    this.builder.CreateCondBr(condition, thenBlock, elseBlock);
+    this.visitIfBranch(node.thenBlock, thenBlock, endBlock);
+    this.visitIfBranch(node.elseBlock, elseBlock, endBlock);
+    this.builder.SetInsertPoint(endBlock);
+  }
+
+  // Expressions
 
   visitExpression(node: AstExpression) {
     if (node instanceof AstConstExpression)
@@ -154,17 +187,22 @@ export class IRGenerator {
     if (node.returnType() == "int")
       return this.builder.getInt32(node.value);
     else if (node.returnType() == "string") {
-      const ptr = this.builder.CreateGlobalStringPtr(node.value) as llvm.Constant;
+      const str = node.value as string;
+      const ptr = this.builder.CreateGlobalStringPtr(str+"\\00") as llvm.Constant;
       const length = llvm.ConstantInt.get(this.context, node.value.length);
-      // return llvm.ConstantStruct.get(getStringType(this.context), [ptr, length]);
     }
   }
 
   visitBinaryExpression(node: AstBinaryExpression) {
     switch (node.op) {
       case "+" : return this.builder.CreateAdd(this.visitExpression(node.lhs), this.visitExpression(node.rhs));
+      case "-" : return this.builder.CreateSub(this.visitExpression(node.lhs), this.visitExpression(node.rhs));
+      case "==": return this.builder.CreateICmpEQ(this.visitExpression(node.lhs), this.visitExpression(node.rhs));
+      case "<" : return this.builder.CreateICmpSLT(this.visitExpression(node.lhs), this.visitExpression(node.rhs));
+      case "<=": return this.builder.CreateICmpSLE(this.visitExpression(node.lhs), this.visitExpression(node.rhs));
+      case ">" : return this.builder.CreateICmpSGT(this.visitExpression(node.lhs), this.visitExpression(node.rhs));
+      case ">=": return this.builder.CreateICmpSGE(this.visitExpression(node.lhs), this.visitExpression(node.rhs));
       default: throw new Error();
     }
   }
 }
-

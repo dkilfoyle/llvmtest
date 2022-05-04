@@ -104,10 +104,12 @@
 // print("x[2]=",x[2]);
 
 // printf
-printf("Hello there\n");
 int x;
 x=3;
-printf("x=%i", x);
+if (x==4)
+  printf("x is 3\n");
+else
+  printf("x is not 3\n");
 
 // int x;
 // x = 2 + 3;
