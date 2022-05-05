@@ -1,27 +1,29 @@
 ; ModuleID = 'demo'
 source_filename = "demo"
 
-@0 = private unnamed_addr constant [8 x i8] c"x is 3\0A\00", align 1
-@1 = private unnamed_addr constant [12 x i8] c"x is not 3\0A\00", align 1
+@0 = private unnamed_addr constant [8 x i8] c"x = %i\0A\00", align 1
 
 declare i32 @printf(i8*, ...)
 
 define i32 @main() {
 entry:
   %x = alloca i32, align 4
-  store i32 3, i32* %x, align 4
+  store i32 0, i32* %x, align 4
+  br label %while.cond
+
+while.cond:                                       ; preds = %while.body, %entry
   %0 = load i32, i32* %x, align 4
-  %1 = icmp eq i32 %0, 4
-  br i1 %1, label %then, label %else
+  %1 = icmp slt i32 %0, 5
+  br i1 %1, label %while.body, label %while.end
 
-then:                                             ; preds = %entry
-  %printfcall = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([8 x i8], [8 x i8]* @0, i32 0, i32 0))
-  br label %endif
+while.body:                                       ; preds = %while.cond
+  %2 = load i32, i32* %x, align 4
+  %printfcall = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([8 x i8], [8 x i8]* @0, i32 0, i32 0), i32 %2)
+  %3 = load i32, i32* %x, align 4
+  %4 = add i32 %3, 1
+  store i32 %4, i32* %x, align 4
+  br label %while.cond
 
-else:                                             ; preds = %entry
-  %printfcall1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @1, i32 0, i32 0))
-  br label %endif
-
-endif:                                            ; preds = %else, %then
+while.end:                                        ; preds = %while.cond
   ret i32 0
 }

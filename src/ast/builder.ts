@@ -151,7 +151,7 @@ export class AstBuilder extends AbstractParseTreeVisitor<AstNode> implements Sim
 
   visitVariableDeclaration(ctx: VariableDeclarationContext) {
     const varType = ctx.varType().text;
-    const body: AstNode[] = [];
+    const body: AstStatement[] = [];
     ctx.initDeclaratorList().initDeclarator().forEach(idctx => {
       const id = idctx.Identifier().text;
       const node = idctx.dimensions().length ?
@@ -218,12 +218,24 @@ export class AstBuilder extends AbstractParseTreeVisitor<AstNode> implements Sim
     const updateAssignment = this.visitAssignment(ctx.assignment());
     const block = this.visitStatement(ctx.statement());
     this.scopeStack.disposeScope();
-    return new AstFor(ctx,
+
+    return new AstBlock(ctx, [
       initialStatement,
-      testExpression.returnType() == 'bool' ? testExpression : new AstErrorExpression(ctx.expression(), "for test expression must return bool"),
-      updateAssignment,
-      block
-    );
+      new AstWhile(ctx, 
+        testExpression.returnType() == 'bool' ? testExpression : new AstErrorExpression(ctx.expression(), "for test expression must return bool"),
+        new AstBlock(ctx, [
+          block,
+          updateAssignment
+        ])
+      )
+    ]);
+
+    // return new AstFor(ctx,
+    //   initialStatement,
+    //   testExpression.returnType() == 'bool' ? testExpression : new AstErrorExpression(ctx.expression(), "for test expression must return bool"),
+    //   updateAssignment,
+    //   block
+    // );
   }
 
   visitWhileStatement(ctx: WhileStatementContext) {

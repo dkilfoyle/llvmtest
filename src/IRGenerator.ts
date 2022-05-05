@@ -1,7 +1,7 @@
 import { ParserRuleContext } from "antlr4ts";
 import llvm from "llvm-bindings";
 import { threadId } from "worker_threads";
-import { AstAssignment, AstBinaryExpression, AstBlock, AstConstExpression, AstExpression, AstFunctionCall, AstFunctionDeclaration, AstIf, AstNode, AstPrintf, AstRepl, AstReturn, AstStatement, AstVariableDeclaration, AstVariableExpression } from "./ast/nodes";
+import { AstAssignment, AstBinaryExpression, AstBlock, AstConstExpression, AstExpression, AstFunctionCall, AstFunctionDeclaration, AstIf, AstNode, AstPrintf, AstRepl, AstReturn, AstStatement, AstVariableDeclaration, AstVariableExpression, AstWhile } from "./ast/nodes";
 import { ScopeStack } from "./ast/scopeStack";
 
 export class IRGenerator {
@@ -106,13 +106,15 @@ export class IRGenerator {
       return this.visitIf(node);
     else if (node instanceof AstBlock)
       return this.visitBlock(node);
+    else if (node instanceof AstWhile)
+      return this.visitWhile(node);
     else throw new Error();
   }
 
   visitFunctionCall(node: AstFunctionCall) {
     // const params = node.params.map
     // if (node.funDecl.id == "printf") return this.printf("hello");
-    console.error("IRGenerator.visitFunctionCall not implemented")
+    console.error("IRthis.visitFunctionCall not implemented")
   }
 
   visitVariableDeclaration(node: AstVariableDeclaration) {
@@ -123,8 +125,8 @@ export class IRGenerator {
     if (node.initialExpression)
       this.visitAssignment(
         new AstAssignment(
-          new ParserRuleContext(),
-          new AstVariableExpression(new ParserRuleContext(), node),
+          null,
+          new AstVariableExpression(null, node),
           node.initialExpression
         )
       );
@@ -168,6 +170,29 @@ export class IRGenerator {
     this.visitIfBranch(node.thenBlock, thenBlock, endBlock);
     this.visitIfBranch(node.elseBlock, elseBlock, endBlock);
     this.builder.SetInsertPoint(endBlock);
+  }
+
+  visitWhile(node: AstWhile) {
+    const condition = llvm.BasicBlock.Create(this.context, "while.cond", this.currentFunction);
+    const body = llvm.BasicBlock.Create(this.context, "while.body");
+    const end = llvm.BasicBlock.Create(this.context, "while.end");
+
+    this.builder.CreateBr(condition);
+    this.builder.SetInsertPoint(condition);
+    const conditionValue = this.visitExpression(node.testExpression);
+    this.builder.CreateCondBr(conditionValue, body, end);
+
+    this.currentFunction.addBasicBlock(body);
+    this.builder.SetInsertPoint(body);
+
+    this.visitBlock(node.block);
+
+    if (!this.builder.GetInsertBlock().getTerminator()) {
+      this.builder.CreateBr(condition);
+    }
+
+    this.currentFunction.addBasicBlock(end);
+    this.builder.SetInsertPoint(end);
   }
 
   // Expressions
