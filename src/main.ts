@@ -4,7 +4,8 @@ import { SimpleLexer } from "./antlr/SimpleLexer";
 import { SimpleParser } from './antlr/SimpleParser';
 import { AstBuilder } from './ast/builder';
 import { errorNodes } from "./ast/nodes";
-import { IRGenerator } from './IRGenerator';
+import { IRGenerator } from './compilers/llvm/IRGenerator';
+import { ASMGenerator } from './compilers/riscv/ASMGenerator';
 
 function main(): void {
   const fs = require("fs");
@@ -23,8 +24,11 @@ function main(): void {
   console.log("AST execute:");
   console.log(ast.execute());
 
-  const ir = new IRGenerator();
-  console.log(ir.codegen(ast));
+  // const ir = new IRGenerator();
+  // console.log(ir.codegen(ast));
+
+  const compiler = new ASMGenerator();
+  console.log(compiler.codegen(ast));
 
 }
 

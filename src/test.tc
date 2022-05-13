@@ -104,11 +104,19 @@
 // print("x[2]=",x[2]);
 
 // printf
-for (int x = 0; x < 5; x=x+1)
-  printf("x = %i\n", x);
+// for (int x = 0; x < 5; x=x+1)
+//   printf("x = %i\n", x);
 
 // int x;
 // x = 2 + 3;
 // printf("")
 // printf("printf: x=%i", x);
 // return x;
+
+int sum(int a, int b) {
+  return a+b;
+}
+
+int main() {
+  return sum(4,3);
+}

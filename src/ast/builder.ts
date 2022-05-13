@@ -264,11 +264,13 @@ export class AstBuilder extends AbstractParseTreeVisitor<AstNode> implements Sim
     const funType = ctx.funType().text as AllowedTypes;
     const id = ctx.Identifier().text;
 
-    const params = ctx.paramList().param().map(param => this.visitParam(param));
-    if (params.length) {
+    let params;
+    if (ctx.paramList()) {
+      params = ctx.paramList().param().map(param => this.visitParam(param));
       this.scopeStack.enterScope(`fun(${id})`);
       params.forEach(param => this.scopeStack.setSymbol(param.id, param))
     }
+    else params = [];
 
     // push declaration onto the scope stack to allow for recursive calling within the body
     const funcDecl = new AstFunctionDeclaration(ctx, funType, id, params);
