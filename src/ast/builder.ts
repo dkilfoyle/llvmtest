@@ -51,9 +51,11 @@ export class AstBuilder extends AbstractParseTreeVisitor<AstNode> implements Sim
       this.createStdLibFunction(ctx, "assert", [new AstVariableDeclaration(ctx, "test", "bool")]),
       this.createStdLibFunction(ctx, "print", [new AstVariableDeclaration(ctx, "msg", "string"), new AstVariableDeclaration(ctx, "val", "int")]),
       this.createStdLibFunction(ctx, "printf", [new AstVariableDeclaration(ctx, "format", "string")]), //, new AstVariableDeclaration(ctx, "val", "int")]),
-      ...ctx.functionDecl().map(decl => this.visitFunctionDecl(decl)),
-      this.createMainFunction(ctx.statements(), this.visitStatements(ctx.statements()))
+      ...ctx.functionDecl().map(decl => this.visitFunctionDecl(decl))
     ];
+
+    if (ctx.statements().childCount)
+      functions.push(this.createMainFunction(ctx.statements(), this.visitStatements(ctx.statements())));
 
     return new AstRepl(ctx, functions);
   }

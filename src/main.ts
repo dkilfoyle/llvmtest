@@ -28,7 +28,8 @@ function main(): void {
   // console.log(ir.codegen(ast));
 
   const compiler = new ASMGenerator();
-  console.log(compiler.codegen(ast));
+  const asm = compiler.codegen(ast);
+  fs.writeFileSync("test.S", asm);
 
 }
 

@@ -61,6 +61,9 @@ export class RiscvEmmiter {
     else
       this.emit("  " + instruction);
   }
+  emitComment(comment:string) {
+    this.emitIns("", comment);
+  }
   
   emitLocalLabel(label:string, comment?:string) {
     if (comment)
@@ -108,10 +111,10 @@ export class RiscvEmmiter {
   }
 
   emitLW(rd:R, rs:R, imm:number|null, comment?:string) {
-    if (imm)
-      this.emitIns(`lw ${rd}, ${imm}(${rs})`, comment)
+    if (imm==null)
+      this.emitIns(`lw ${rd}, ${rs}`, comment)
     else
-     this.emitIns(`lw ${rd}, ${rs}`, comment)
+      this.emitIns(`lw ${rd}, ${imm}(${rs})`, comment)
   }
   emitSW(rs2:R, rs1:R, imm:number, comment?:string) {
     this.emitIns(`sw ${rs2}, ${imm}(${rs1})`, comment);

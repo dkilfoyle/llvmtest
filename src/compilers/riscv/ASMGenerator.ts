@@ -67,7 +67,7 @@ export class ASMGenerator {
     this.visitFunctionDeclaration(topLevelMain);
 
     // all the others
-    node.functions.slice(0, node.functions.length-2).forEach(funDecl => this.visitFunctionDeclaration(funDecl));
+    node.functions.slice(0, node.functions.length-1).forEach(funDecl => this.visitFunctionDeclaration(funDecl));
   }
 
   visitFunctionDeclaration(node: AstFunctionDeclaration) {
@@ -83,9 +83,9 @@ export class ASMGenerator {
     this.emitter.emitMV(R.FP, R.SP, "set FP = top of current AR")
     this.pushStack(R.RA, "push RA to stack, completing the AR");
 
-    this.emitter.emitLocalLabel("body", `${node.id} function body`);
+    this.emitter.emitComment(`${node.id} body`);
     this.visitBlock(node.body);
-    this.emitter.emitLocalLabel("epilogue", `${node.id} function epilogue`);
+    this.emitter.emitComment(`${node.id} epilogue`);
 
     this.emitter.emitLW(R.RA, R.SP, 4, "load saved RA");
     this.emitter.emitADDI(R.SP, R.SP, sizeAR, "pop AR off stack");
@@ -119,6 +119,7 @@ export class ASMGenerator {
   }
 
   visitFunctionCall(node: AstFunctionCall) {
+    this.emitter.emitComment(`call ${node.funDecl.id}`);
     // FP = top of the Activation Record (AR). Contents is the RA
                     
     // Caller's AR  ============
@@ -225,13 +226,15 @@ export class ASMGenerator {
       return this.visitBinaryExpression(node);
     else if (node instanceof AstVariableExpression)
       return this.visitVariableExpression(node);
+    else if (node instanceof AstFunctionCall)
+      return this.visitFunctionCall(node);
     else throw new Error();
   }
 
   visitConstExpression(node: AstConstExpression) {
     // return llvm.ConstantInt.get(this.context, node.value);
     if (node.returnType() == "int")
-      this.emitter.emitLI(R.A0, node.value);
+      this.emitter.emitLI(R.A0, node.value, `Load constant ${node.value} to a0`);
     else if (node.returnType() == "string") {
       throw new Error("String type not implemented")
     }
@@ -245,14 +248,12 @@ export class ASMGenerator {
   visitBinaryExpression(node: AstBinaryExpression) {
     
     this.visitExpression(node.lhs);  // accumulator will be saved to a0 = result of LHS
-    this.emitter.emitSW(R.A0, R.SP, 0, "push a0 onto stack");
+    this.emitter.emitSW(R.A0, R.SP, 0, "push a0 (LHS result) onto stack");
     this.emitter.emitADDI(R.SP, R.SP, -4, "new stack slot");
     
-    this.visitExpression(node.lhs);  // accumulator will be saved to a0 = result of RHS
+    this.visitExpression(node.rhs);  // accumulator will be saved to a0 = result of RHS
     this.emitter.emitLW(R.T1, R.SP, 4, "t1 = saved LHS");
 
-    this.emitter.emitADD(R.A0, R.T1, R.A0, "a0 = a0 (rhs) + t1 (lhs)");
-    
     switch (node.op) {
       case "+" : this.emitter.emitADD(R.A0, R.T1, R.A0, "a0 = t1 (lhs) + a0 (rhs)"); break;
       case "-" : this.emitter.emitSUB(R.A0, R.T1, R.A0, "a0 = t1 (lhs) - a0 (rhs)"); break;
