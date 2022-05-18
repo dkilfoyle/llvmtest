@@ -114,7 +114,9 @@
 // return x;
 
 int sum(int a, int b) {
-  return a+b;
+  int x=6;
+  int y=7;
+  return a+b+x+y;
 }
 
 int main() {

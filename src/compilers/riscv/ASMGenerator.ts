@@ -12,6 +12,7 @@ export class ASMGenerator {
   emitter: RiscvEmmiter;
   labelCount: number = 0;
   currentFunction: AstFunctionDeclaration;
+  locals: Record<string,number>;
 
   constructor() {
     this.emitter = new RiscvEmmiter();
@@ -76,6 +77,8 @@ export class ASMGenerator {
       return;
     }
 
+    this.locals = {};
+
     this.currentFunction = node;
 
     const sizeAR = (2 + node.params.length) * 4;
@@ -87,11 +90,16 @@ export class ASMGenerator {
     this.visitBlock(node.body);
     this.emitter.emitComment(`${node.id} epilogue`);
 
+    const nLocals = Object.keys(this.locals).length;
+    this.emitter.emitADDI(R.SP, R.SP, 4*nLocals, `pop ${nLocals} locals off the stack`);
+
     this.emitter.emitLW(R.RA, R.SP, 4, "load saved RA");
     this.emitter.emitADDI(R.SP, R.SP, sizeAR, "pop AR off stack");
     this.emitter.emitLW(R.FP, R.SP, 0, "restore callers FP");
 
     this.emitter.emitJR(R.RA, "jump back to caller (RA)");
+
+    this.locals = {};
   }
 
   // =================================================================================================================
@@ -120,19 +128,16 @@ export class ASMGenerator {
 
   visitFunctionCall(node: AstFunctionCall) {
     this.emitter.emitComment(`call ${node.funDecl.id}`);
-    // FP = top of the Activation Record (AR). Contents is the RA
                     
-    // Caller's AR  ============
-    // 
-    //              RA
-    // Callee's AR  ============
-    //              Caller's FP   }
-    //              A3            }
-    //              A2            }
-    //              A1            } Set by caller
-    //              RA            = FP (RA must be saved by callee as value is not set until after JAL)
-    //                            = SP (free slot)
-    // const params = node.params.map
+    //  AR Start:   Caller's FP   } Set by caller
+    //              A3            } "
+    //              A2            } "
+    //              A1            } "
+    //    FP -->    RA            Set by callee (RA is not set until after JAL)
+    //    SP -->
+
+    // Function argument[n] can be retrieved from (4*(n+1))(FP)
+    // eg LW a0, 4(FP) => a0 = arg[0]
 
     this.pushStack(R.FP, "save caller FP on stack");
 
@@ -158,17 +163,21 @@ export class ASMGenerator {
   }
 
   visitVariableDeclaration(node: AstVariableDeclaration) {
-
+    // locals grow down from FP
+    this.locals[node.id] = Object.keys(this.locals).length * -4;
+    if (node.initialExpression) {
+      this.visitExpression(node.initialExpression);
+      this.pushStack(R.A0, `push local var ${node.id} to stack and init value`);
+    } else
+      this.pushStack(R.ZERO, `push local var ${node.id} to stack and init to 0`);
   }
 
-  // visitAssignment(node: AstAssignment) {
-  //   let [found, x] = this.scopes.getSymbol(node.lhsVariable.declaration.id);
-  //   if (!found) throw new Error();
-  //   const rhs = this.visitExpression(node.rhsExpression);
-  //   return this.builder.CreateStore(rhs, x);
-  // }
-
-
+  visitAssignment(node: AstAssignment) {
+    this.visitExpression(node.rhsExpression);
+    const lhsID = node.lhsVariable.declaration.id
+    const fpOffset = this.locals[lhsID] || this.currentFunction.params.findIndex(p => p.id == lhsID);
+    this.emitter.emitSW(R.A0, R.FP, fpOffset, "save RHS to variable on stack")
+  }
 
   // visitPrintf(node: AstPrintf) {
   //   const vargs = node.args.map(arg => this.visitExpression(arg));
@@ -241,8 +250,13 @@ export class ASMGenerator {
   }
 
   visitVariableExpression(node: AstVariableExpression) {
-    const argIndex = this.currentFunction.params.findIndex(p => node.declaration.id == p.id) + 1;
-    this.emitter.emitLW(R.A0, R.FP, 4*argIndex);
+    const id = node.declaration.id;
+    if (typeof this.locals[id] != "undefined")
+      this.emitter.emitLW(R.A0, R.FP, -4+this.locals[id], `retrieve local variable ${node.declaration.id}`);
+    else {
+      const argIndex = this.currentFunction.params.findIndex(p => id == p.id) + 1;
+      this.emitter.emitLW(R.A0, R.FP, 4*argIndex, `retrieve param variable ${node.declaration.id}`);
+    }
   }
 
   visitBinaryExpression(node: AstBinaryExpression) {
