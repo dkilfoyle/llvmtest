@@ -1,6 +1,7 @@
 // adapted from Chocopy
 
 import { ParserRuleContext } from "antlr4ts";
+import { threadId } from "worker_threads";
 import { AstAssignment, AstBinaryExpression, AstBlock, AstConstExpression, AstExpression, AstFunctionCall, AstFunctionDeclaration, AstIf, AstNode, AstPrintf, AstRepl, AstReturn, AstStatement, AstVariableDeclaration, AstVariableExpression, AstWhile } from "../../ast/nodes";
 import { ScopeStack } from "../../ast/scopeStack";
 import { R, RiscvEmmiter } from "./emitter";
@@ -125,8 +126,8 @@ export class ASMGenerator {
       return this.visitFunctionCall(node);
     else if (node instanceof AstBlock)
       return this.visitBlock(node);
-    // else if (node instanceof AstAssignment)
-    //   return this.visitAssignment(node);
+    else if (node instanceof AstAssignment)
+      return this.visitAssignment(node);
     else if (node instanceof AstVariableDeclaration)
       return this.visitVariableDeclaration(node)
     else if (node instanceof AstReturn)
@@ -135,8 +136,8 @@ export class ASMGenerator {
     //   return this.visitPrintf(node);
     else if (node instanceof AstIf)
       return this.visitIf(node);
-    // else if (node instanceof AstWhile)
-    //   return this.visitWhile(node);
+    else if (node instanceof AstWhile)
+      return this.visitWhile(node);
     else throw new Error();
   }
 
@@ -154,11 +155,13 @@ export class ASMGenerator {
     // eg LW a0, 4(FP) => a0 = arg[0]
 
     // push params onto AR in reverse order
-    this.emitter.emitADDI(R.SP, R.SP, -node.params.length*WORD_SIZE, `make stack space for ${node.funDecl.id} arguments`);
-    node.params.reverse().forEach((p,i) => {
-      this.visitExpression(p);
-      this.emitter.emitSW(R.A0, R.SP, i*WORD_SIZE, `save function param ${i}:${node.funDecl.params[i].id} to stack`);
-    });
+    if (node.params.length) {
+      this.emitter.emitADDI(R.SP, R.SP, -node.params.length*WORD_SIZE, `make stack space for ${node.funDecl.id} arguments`);
+      node.params.reverse().forEach((p,i) => {
+        this.visitExpression(p);
+        this.emitter.emitSW(R.A0, R.SP, i*WORD_SIZE, `save function param ${i}:${node.funDecl.params[i].id} to stack`);
+      });
+    }
 
     this.emitter.emitJAL(node.funDecl.id);
   }
@@ -214,28 +217,19 @@ export class ASMGenerator {
     this.emitter.emitLocalLabel(exitLabel);
   }
 
-  // visitWhile(node: AstWhile) {
-  //   const condition = llvm.BasicBlock.Create(this.context, "while.cond", this.currentFunction);
-  //   const body = llvm.BasicBlock.Create(this.context, "while.body");
-  //   const end = llvm.BasicBlock.Create(this.context, "while.end");
+  visitWhile(node: AstWhile) {
+    const testLabel = this.newLabel("whiletest");
+    const exitLabel = this.newLabel("exitwhile");
 
-  //   this.builder.CreateBr(condition);
-  //   this.builder.SetInsertPoint(condition);
-  //   const conditionValue = this.visitExpression(node.testExpression);
-  //   this.builder.CreateCondBr(conditionValue, body, end);
+    this.emitter.emitLocalLabel(testLabel);
+    this.visitExpression(node.testExpression);
+    this.emitter.emitBEQZ(R.A0, exitLabel, "if not true exit loop");
 
-  //   this.currentFunction.addBasicBlock(body);
-  //   this.builder.SetInsertPoint(body);
+    this.visitBlock(node.block);
+    this.emitter.emitJ(testLabel, "loop back to test");
 
-  //   this.visitBlock(node.block);
-
-  //   if (!this.builder.GetInsertBlock().getTerminator()) {
-  //     this.builder.CreateBr(condition);
-  //   }
-
-  //   this.currentFunction.addBasicBlock(end);
-  //   this.builder.SetInsertPoint(end);
-  // }
+    this.emitter.emitLocalLabel(exitLabel);
+  }
 
   // =================================================================================================================
   // EXPRESSION nodes

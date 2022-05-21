@@ -113,12 +113,16 @@
 // printf("printf: x=%i", x);
 // return x;
 
-int sum(int a, int b) {
-  int x=6;
-  int y=7;
-  return a+b+x+y;
+int sum() {
+  int i = 0;
+  int x = 0;
+  while (i < 10) {
+    x = x + 1;
+    i = i + 1;
+  }
+  return x;
 }
 
 int main() {
-  return sum(4,3);
+  return sum();
 }

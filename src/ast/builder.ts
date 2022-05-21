@@ -181,7 +181,10 @@ export class AstBuilder extends AbstractParseTreeVisitor<AstNode> implements Sim
 
     const funDecl = decl as AstFunctionDeclaration;
 
-    const params = ctx.exprList().expression().map(expr => this.visit(expr) as AstExpression);
+    const params = ctx.exprList() ?
+      ctx.exprList().expression().map(expr => this.visit(expr) as AstExpression) :
+      [];
+
     if (params.length != funDecl.signature.paramTypes.length) return new AstError(ctx, `function ${id} incorrect number of params`);
     const matches = params.every((param, i) => {
       console.log(i, param)
