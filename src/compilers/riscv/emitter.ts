@@ -73,7 +73,6 @@ export class RiscvEmmiter {
   }
   emitGlobalLabel(label:string) {
     this.emit(`\n.globl ${label}`);
-    this.emit(`${label}:`)
   }
 
   emitLI(rd:R, imm:number, comment?:string) {

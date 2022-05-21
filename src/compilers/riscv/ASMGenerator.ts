@@ -27,15 +27,19 @@ export class ASMGenerator {
     this.labelCount = this.labelCount + 1;
     return stub+this.labelCount;
   }
+
+  // RiscV convention
+  // Stack grows downwards (smaller memory addresses)
+  // Stack pointer is full (points to the last occupied slot)
   
   pushStack(rs:R, comment?:string) {
-    this.emitter.emitSW(rs, R.SP, 0, comment);
     this.emitter.emitADDI(R.SP, R.SP, -4), "grow stack";
+    this.emitter.emitSW(rs, R.SP, 0, comment);
   }
   
   popStack(comment: string="pop top of stack to A0") {
-    this.emitter.emitLW(R.A0, R.SP, 0, comment);
     this.emitter.emitADDI(R.SP, R.SP, 4), "shrink stack";
+    this.emitter.emitLW(R.A0, R.SP, 0, comment);
   }
 
   codegen(root:AstNode) {
@@ -77,25 +81,35 @@ export class ASMGenerator {
       return;
     }
 
+    this.emitter.emitLocalLabel(node.id);
     this.locals = {};
-
     this.currentFunction = node;
 
-    const sizeAR = (2 + node.params.length) * 4;
-    this.emitter.emitLocalLabel(node.id + "_entry");
-    this.emitter.emitMV(R.FP, R.SP, "set FP = top of current AR")
-    this.pushStack(R.RA, "push RA to stack, completing the AR");
+    // preface: the caller will have resulted in state
+    // Arg1  <--- Caller FP
+    // ....
+    // Arg3
+    // Arg2
+    // Arg1  <--- SP
+
+    // prolog: now becomes
+    // Arg1  <--- old SP             ====> new FP (args will be at 0(FP), 4(FP), 8(FP)... )
+    // RA                            
+    // Caller FP = dynamic link      ====> new SP
+    this.emitter.emitADDI(R.SP, R.SP, -2 * WORD_SIZE, "Make space for start of AR");
+    this.emitter.emitSW(R.FP, R.SP, 0, "Save caller's FP");
+    this.emitter.emitSW(R.RA, R.SP, WORD_SIZE, "Save caller's RA");
+    this.emitter.emitADDI(R.FP, R.SP, 2 * WORD_SIZE, "New FP is at old SP");
 
     this.emitter.emitComment(`${node.id} body`);
     this.visitBlock(node.body);
     this.emitter.emitComment(`${node.id} epilogue`);
 
-    const nLocals = Object.keys(this.locals).length;
-    this.emitter.emitADDI(R.SP, R.SP, 4*nLocals, `pop ${nLocals} locals off the stack`);
-
-    this.emitter.emitLW(R.RA, R.SP, 4, "load saved RA");
-    this.emitter.emitADDI(R.SP, R.SP, sizeAR, "pop AR off stack");
-    this.emitter.emitLW(R.FP, R.SP, 0, "restore callers FP");
+    // Epilog
+    this.emitter.emitLW(R.RA, R.FP, -1 * WORD_SIZE, "load saved RA");
+    this.emitter.emitMV(R.T0, R.FP, "temp current FP (also = old SP)")
+    this.emitter.emitLW(R.FP, R.FP, -2 * WORD_SIZE, "restore callers FP");
+    this.emitter.emitMV(R.SP, R.T0, "restore caller's SP, deleting the callee AR")
 
     this.emitter.emitJR(R.RA, "jump back to caller (RA)");
 
@@ -132,22 +146,21 @@ export class ASMGenerator {
     //  AR Start:   Caller's FP   } Set by caller
     //              A3            } "
     //              A2            } "
-    //              A1            } "
-    //    FP -->    RA            Set by callee (RA is not set until after JAL)
-    //    SP -->
+    //    FP -->    A1            } "
+    //              RA            ] Set by callee (RA is not set until after JAL)
+    //    SP -->    Caller FP     ] "
 
     // Function argument[n] can be retrieved from (4*(n+1))(FP)
     // eg LW a0, 4(FP) => a0 = arg[0]
 
-    this.pushStack(R.FP, "save caller FP on stack");
-
     // push params onto AR in reverse order
-    node.params.slice().reverse().forEach((p,i) => {
+    this.emitter.emitADDI(R.SP, R.SP, -node.params.length*WORD_SIZE, `make stack space for ${node.funDecl.id} arguments`);
+    node.params.reverse().forEach((p,i) => {
       this.visitExpression(p);
-      this.pushStack(R.A0, `push function param ${i}:${node.funDecl.params[i].id} to stack`);
+      this.emitter.emitSW(R.A0, R.SP, i*WORD_SIZE, `save function param ${i}:${node.funDecl.params[i].id} to stack`);
     });
 
-    this.emitter.emitJAL(node.funDecl.id+"_entry");
+    this.emitter.emitJAL(node.funDecl.id);
   }
 
   visitReturn(node: AstReturn) {
@@ -163,8 +176,8 @@ export class ASMGenerator {
   }
 
   visitVariableDeclaration(node: AstVariableDeclaration) {
-    // locals grow down from FP
-    this.locals[node.id] = Object.keys(this.locals).length * -4;
+    // locals grow down from FP + 8 (to skip RA and CL)
+    this.locals[node.id] = -3 * WORD_SIZE + Object.keys(this.locals).length * -4;
     if (node.initialExpression) {
       this.visitExpression(node.initialExpression);
       this.pushStack(R.A0, `push local var ${node.id} to stack and init value`);
@@ -252,21 +265,20 @@ export class ASMGenerator {
   visitVariableExpression(node: AstVariableExpression) {
     const id = node.declaration.id;
     if (typeof this.locals[id] != "undefined")
-      this.emitter.emitLW(R.A0, R.FP, -4+this.locals[id], `retrieve local variable ${node.declaration.id}`);
+      this.emitter.emitLW(R.A0, R.FP, this.locals[id], `retrieve local variable ${node.declaration.id}`);
     else {
-      const argIndex = this.currentFunction.params.findIndex(p => id == p.id) + 1;
-      this.emitter.emitLW(R.A0, R.FP, 4*argIndex, `retrieve param variable ${node.declaration.id}`);
+      const argIndex = this.currentFunction.params.findIndex(p => id == p.id);
+      this.emitter.emitLW(R.A0, R.FP, argIndex * WORD_SIZE, `retrieve param variable ${node.declaration.id}`);
     }
   }
 
   visitBinaryExpression(node: AstBinaryExpression) {
     
     this.visitExpression(node.lhs);  // accumulator will be saved to a0 = result of LHS
-    this.emitter.emitSW(R.A0, R.SP, 0, "push a0 (LHS result) onto stack");
-    this.emitter.emitADDI(R.SP, R.SP, -4, "new stack slot");
+    this.pushStack(R.A0, "push a0 (LHS result) onto stack");
     
     this.visitExpression(node.rhs);  // accumulator will be saved to a0 = result of RHS
-    this.emitter.emitLW(R.T1, R.SP, 4, "t1 = saved LHS");
+    this.emitter.emitLW(R.T1, R.SP, 0, "t1 = saved LHS");
 
     switch (node.op) {
       case "+" : this.emitter.emitADD(R.A0, R.T1, R.A0, "a0 = t1 (lhs) + a0 (rhs)"); break;
