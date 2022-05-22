@@ -1,22 +1,55 @@
 // adapted from Chocopy
 
 import { ParserRuleContext } from "antlr4ts";
+import { EventEmitter } from "stream";
 import { threadId } from "worker_threads";
-import { AstAssignment, AstBinaryExpression, AstBlock, AstConstExpression, AstExpression, AstFunctionCall, AstFunctionDeclaration, AstIf, AstNode, AstPrintf, AstRepl, AstReturn, AstStatement, AstVariableDeclaration, AstVariableExpression, AstWhile } from "../../ast/nodes";
-import { ScopeStack } from "../../ast/scopeStack";
+import { AstArrayDeclaration, AstAssignment, AstBinaryExpression, AstBlock, AstConstExpression, AstExpression, AstFunctionCall, AstFunctionDeclaration, AstIdentifierDeclaration, AstIf, AstNode, AstPrintf, AstRepl, AstReturn, AstStatement, AstVariableDeclaration, AstVariableExpression, AstWhile } from "../../ast/nodes";
+import { Scope, ScopeStack } from "../../ast/scopeStack";
 import { R, RiscvEmmiter } from "./emitter";
 
 const WORD_SIZE = 4;
+
+interface LocalVariable {
+  offset: number
+}
+
+interface LocalScope {
+  SP: number, // positive or negative offset from FP
+  // if the scope is at function level then
+  // a. stack grows positive from 0(FP) for function arguments
+  // b. stack grows negative from -8(FP) for function locals
+  // otherwise stack grows negative from 0(FP) 
+}
+
+class LocalScopeStack extends ScopeStack<LocalVariable, LocalScope> {
+  addFunctionParams(node: AstFunctionDeclaration) {
+    node.params.forEach((p,i) => {
+      this.newSymbol(p.id, { offset: this.top().context.SP + i*WORD_SIZE})
+    })
+  }
+  newLocal(node: AstIdentifierDeclaration) {
+    const top = this.top();
+    top.context.SP -= node.signature.getByteSize();
+    const localVar = { offset: top.context.SP } 
+    this.newSymbol(node.id, localVar);
+  }
+  getLocalVarOffset(id:string) {
+    const [found, localVar] = this.getSymbol(id);
+    if (!found) throw new Error();
+    return localVar.offset;
+  }
+}
 
 export class ASMGenerator {
   scopes: ScopeStack<llvm.Value, llvm.BasicBlock>;
   emitter: RiscvEmmiter;
   labelCount: number = 0;
   currentFunction: AstFunctionDeclaration;
-  locals: Record<string,number>;
+  scopeStack: LocalScopeStack;
 
   constructor() {
     this.emitter = new RiscvEmmiter();
+    this.scopeStack = new LocalScopeStack();
   }
   
   reset() {
@@ -82,8 +115,13 @@ export class ASMGenerator {
       return;
     }
 
+    // add a new scope for the function. SP starts at -2*WORD_SIZE to accomodate saved FP and RA
+    const scope = this.scopeStack.enterScope(`function ${node.id}`, {SP:-2*WORD_SIZE});
+
+    // add function parameters to function scope
+    this.scopeStack.addFunctionParams(node);
+
     this.emitter.emitLocalLabel(node.id);
-    this.locals = {};
     this.currentFunction = node;
 
     // preface: the caller will have resulted in state
@@ -103,7 +141,7 @@ export class ASMGenerator {
     this.emitter.emitADDI(R.FP, R.SP, 2 * WORD_SIZE, "New FP is at old SP");
 
     this.emitter.emitComment(`${node.id} body`);
-    this.visitBlock(node.body);
+    this.visitBlock(node.body, `${node.id} body`, scope);
     this.emitter.emitComment(`${node.id} epilogue`);
 
     // Epilog
@@ -114,7 +152,6 @@ export class ASMGenerator {
 
     this.emitter.emitJR(R.RA, "jump back to caller (RA)");
 
-    this.locals = {};
   }
 
   // =================================================================================================================
@@ -123,21 +160,23 @@ export class ASMGenerator {
 
   visitStatement(node: AstStatement) {
     if (node instanceof AstFunctionCall)
-      return this.visitFunctionCall(node);
+      this.visitFunctionCall(node);
     else if (node instanceof AstBlock)
-      return this.visitBlock(node);
+      this.visitBlock(node);
     else if (node instanceof AstAssignment)
-      return this.visitAssignment(node);
+      this.visitAssignment(node);
     else if (node instanceof AstVariableDeclaration)
-      return this.visitVariableDeclaration(node)
+      this.visitVariableDeclaration(node)
+    // else if (node instanceof AstArrayDeclaration)
+    //   this.visitArrayDeclaration(node)
     else if (node instanceof AstReturn)
-      return this.visitReturn(node);
+      this.visitReturn(node);
     // else if (node instanceof AstPrintf)
     //   return this.visitPrintf(node);
     else if (node instanceof AstIf)
-      return this.visitIf(node);
+      this.visitIf(node);
     else if (node instanceof AstWhile)
-      return this.visitWhile(node);
+      this.visitWhile(node);
     else throw new Error();
   }
 
@@ -170,29 +209,57 @@ export class ASMGenerator {
     this.visitExpression(node.returnExpression);
   }
 
-  visitBlock(node: AstBlock) {
-    let res;
-    for (let i = 0; i < node.body.length; i++) {
-      res = this.visitStatement(node.body[i]);
+  visitBlock(node: AstBlock, label: string="", functionScope?: Scope<LocalVariable, LocalScope>) {
+    if (!functionScope) this.scopeStack.enterScope(label, {SP:0});
+   
+    // preprocess all local variable declarations to build scope
+    for (let statement of node.body) {
+      if (statement instanceof AstVariableDeclaration) {
+        this.scopeStack.newLocal(statement); 
+      }
     }
-    return res;
+    
+    // grow the stack to make space for the locals
+    const scope = this.scopeStack.top();
+    if (Object.keys(scope.entries).length) {
+      this.emitter.emitADDI(R.SP, R.FP, scope.context.SP, "reserve stack space for locals");
+    }
+
+    for (let statement of node.body) {
+      this.visitStatement(statement);
+    }
+
+    this.emitter.emitADDI(R.SP, R.SP, this.scopeStack.top().context.SP, `pop all ${label} locals off stack`);
+    this.scopeStack.disposeScope();
   }
 
   visitVariableDeclaration(node: AstVariableDeclaration) {
-    // locals grow down from FP + 8 (to skip RA and CL)
-    this.locals[node.id] = -3 * WORD_SIZE + Object.keys(this.locals).length * -4;
+    // get offset from scope
+    const offset = this.scopeStack.getLocalVarOffset(node.id);
+
     if (node.initialExpression) {
       this.visitExpression(node.initialExpression);
-      this.pushStack(R.A0, `push local var ${node.id} to stack and init value`);
+      this.emitter.emitSW(R.A0, R.FP, offset, `push local var ${node.id} to stack and init value`);
     } else
-      this.pushStack(R.ZERO, `push local var ${node.id} to stack and init to 0`);
+      this.emitter.emitSW(R.ZERO, R.FP, offset, `push local var ${node.id} to stack and init to 0`);
   }
+
+  // visitArrayDeclaration(node: AstArrayDeclaration) {
+  //   // locals grow down from FP + 8 (to skip RA and CL)
+  //   this.locals[node.id] = -3 * WORD_SIZE + Object.keys(this.locals).length * -4;
+  //   if (node.initialExpression) {
+  //     this.visitExpression(node.initialExpression);
+  //     this.pushStack(R.A0, `push local var ${node.id} to stack and init value`);
+  //   } else
+  //     this.pushStack(R.ZERO, `push local var ${node.id} to stack and init to 0`);
+  // }
 
   visitAssignment(node: AstAssignment) {
     this.visitExpression(node.rhsExpression);
     const lhsID = node.lhsVariable.declaration.id
-    const fpOffset = this.locals[lhsID] || this.currentFunction.params.findIndex(p => p.id == lhsID);
-    this.emitter.emitSW(R.A0, R.FP, fpOffset, "save RHS to variable on stack")
+    // const fpOffset = this.locals[lhsID] || this.currentFunction.params.findIndex(p => p.id == lhsID);
+    const offset = this.scopeStack.getLocalVarOffset(lhsID);
+    this.emitter.emitSW(R.A0, R.FP, offset, "save RHS to variable on stack")
   }
 
   // visitPrintf(node: AstPrintf) {
@@ -208,11 +275,11 @@ export class ASMGenerator {
     this.emitter.emitBNEZ(R.A0, thenLabel, "if true jump to then");
 
     this.emitter.emitLocalLabel(this.newLabel("else"), "else label");
-    this.visitBlock(node.elseBlock);
+    this.visitBlock(node.elseBlock, "if else");
     this.emitter.emitJ(exitLabel, "jump to exit if");
 
     this.emitter.emitLocalLabel(thenLabel);
-    this.visitBlock(node.thenBlock);
+    this.visitBlock(node.thenBlock, "if then");
 
     this.emitter.emitLocalLabel(exitLabel);
   }
@@ -225,7 +292,7 @@ export class ASMGenerator {
     this.visitExpression(node.testExpression);
     this.emitter.emitBEQZ(R.A0, exitLabel, "if not true exit loop");
 
-    this.visitBlock(node.block);
+    this.visitBlock(node.block, "while block");
     this.emitter.emitJ(testLabel, "loop back to test");
 
     this.emitter.emitLocalLabel(exitLabel);
@@ -258,12 +325,13 @@ export class ASMGenerator {
 
   visitVariableExpression(node: AstVariableExpression) {
     const id = node.declaration.id;
-    if (typeof this.locals[id] != "undefined")
-      this.emitter.emitLW(R.A0, R.FP, this.locals[id], `retrieve local variable ${node.declaration.id}`);
-    else {
-      const argIndex = this.currentFunction.params.findIndex(p => id == p.id);
-      this.emitter.emitLW(R.A0, R.FP, argIndex * WORD_SIZE, `retrieve param variable ${node.declaration.id}`);
-    }
+    this.emitter.emitLW(R.A0, R.FP, this.scopeStack.getLocalVarOffset(id), `retrieve local variable ${node.declaration.id}`);
+    // if (typeof this.locals[id] != "undefined")
+    //   this.emitter.emitLW(R.A0, R.FP, this.locals[id], `retrieve local variable ${node.declaration.id}`);
+    // else {
+    //   const argIndex = this.currentFunction.params.findIndex(p => id == p.id);
+    //   this.emitter.emitLW(R.A0, R.FP, argIndex * WORD_SIZE, `retrieve param variable ${node.declaration.id}`);
+    // }
   }
 
   visitBinaryExpression(node: AstBinaryExpression) {

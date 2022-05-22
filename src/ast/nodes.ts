@@ -159,7 +159,7 @@ export class AstRepl extends AstNode {
 // ============= statement nodes
 
 export class AstBlock extends AstNode {
-  body;
+  body: AstStatement[];
   returnExpression;
   constructor(ctx: ParserRuleContext, body: AstStatement[], returnExpression?: AstExpression) {
     super(ctx);

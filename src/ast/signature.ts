@@ -7,6 +7,7 @@ export class Signature {
   constructor(returnType: AllowedTypes) {
     this.returnType = returnType;
   }
+  getByteSize() { return 0};
 }
 
 export class VariableSignature extends Signature {
@@ -14,12 +15,18 @@ export class VariableSignature extends Signature {
     super(returnType);
     if (returnType == "void") throw new Error("Void is not a valid variable type");
   }
+  getByteSize() {
+    return 4;
+  }
 }
 
 export class ArraySignature extends VariableSignature {
   constructor(returnType: AllowedTypes, dimensions: number[]) {
     super(returnType);
     this.dimensions = dimensions;
+  }
+  getByteSize() {
+    return 4 * this.dimensions.reduce((cur, prev) => cur*prev, 1);
   }
 }
 

@@ -16,6 +16,7 @@ export class ScopeStack<NodeT, ContextT> {
   }
   enterScope(name: string = "noname", context?: ContextT) {
     this.scopes.push({ name, context, entries: {} });
+    return this.scopes[this.scopes.length-1]
   }
   currentStack() {
     return this.scopes.slice().reverse();

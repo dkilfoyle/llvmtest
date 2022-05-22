@@ -157,7 +157,7 @@ export class AstBuilder extends AbstractParseTreeVisitor<AstNode> implements Sim
     ctx.initDeclaratorList().initDeclarator().forEach(idctx => {
       const id = idctx.Identifier().text;
       const node = idctx.dimensions().length ?
-         new AstArrayDeclaration(idctx, id, varType as AllowedTypes, idctx.dimensions().map(dimCtx => Number(dimCtx.Number().text))) :
+         new AstArrayDeclaration(idctx, id, varType as AllowedTypes, idctx.dimensions().map(dimCtx => dimCtx.Number() ? Number(dimCtx.Number().text):-1)) :
          new AstVariableDeclaration(idctx, id, varType as AllowedTypes, idctx.expression() ? this.visitExpression(idctx.expression()) : undefined);
       this.scopeStack.setSymbol(id, node);
       body.push(node);
