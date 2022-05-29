@@ -1,20 +1,24 @@
 // adapted from Chocopy
 
 import { ParserRuleContext } from "antlr4ts";
-import { EventEmitter } from "stream";
-import { threadId } from "worker_threads";
 import { AstArrayDeclaration, AstAssignment, AstBinaryExpression, AstBlock, AstConstExpression, AstExpression, AstFunctionCall, AstFunctionDeclaration, AstIdentifierDeclaration, AstIf, AstNode, AstPrintf, AstRepl, AstReturn, AstStatement, AstVariableDeclaration, AstVariableExpression, AstWhile } from "../../ast/nodes";
 import { Scope, ScopeStack } from "../../ast/scopeStack";
 import { R, RiscvEmmiter } from "./emitter";
 
+// Optimisations?
+// 1. for leaf functions (do not call other functions) pass parameters as registers and no prolog/epilog
+// 
+
 const WORD_SIZE = 4;
 
 interface LocalVariable {
-  offset: number
+  spoffset?: number,
+  fpoffset: number
 }
 
 interface LocalScope {
-  SP: number, // positive or negative offset from FP
+  FP: number, // the SP at the entry point of the block
+  SP: number, // positive or negative offset from *local* FP
   // if the scope is at function level then
   // a. stack grows positive from 0(FP) for function arguments
   // b. stack grows negative from -8(FP) for function locals
@@ -23,20 +27,48 @@ interface LocalScope {
 
 class LocalScopeStack extends ScopeStack<LocalVariable, LocalScope> {
   addFunctionParams(node: AstFunctionDeclaration) {
+    // FP+8    Arg2
+    // FP+4    Arg1
+    // FP+0 -> Arg0
     node.params.forEach((p,i) => {
-      this.newSymbol(p.id, { offset: this.top().context.SP + i*WORD_SIZE})
+      this.newSymbol(p.id, { fpoffset: i*WORD_SIZE })
     })
   }
-  newLocal(node: AstIdentifierDeclaration) {
+  addLocal(varnode: AstIdentifierDeclaration) {
+    // myfun() {
+    //   int x = 10;
+    //   int y = 5;
+    //   while (x>0) {
+    //     int z = 2;
+    //     x = x - 1;
+    //     print_int(x);
+    //   }
+    // }
+    // FP+0  Arg0
+    // FP-4  CallerFP
+    // FP-8  RA             BlockFP =-8 (enterFunction FP=-8)
+    // FP-12 Local0         BlockSP =-4  offset=-8-4=-12           int x = 10;
+    // FP-16 Local1         BlockSP =-8  offset=-8-8=-16           int y = 5;
+    //                        BlockFP = -16 (enterBlock FP = topFP + topSP = -8 + -8 = -16)
+    // FP-20   Local0         BlockSP = -4  offset=-16-4=-20       int z = 2;
     const top = this.top();
-    top.context.SP -= node.signature.getByteSize();
-    const localVar = { offset: top.context.SP } 
-    this.newSymbol(node.id, localVar);
+    top.context.SP -= varnode.signature.getByteSize();
+    const localVar = { spoffset: top.context.SP, fpoffset: top.context.FP + top.context.SP } 
+    this.newSymbol(varnode.id, localVar);
   }
   getLocalVarOffset(id:string) {
     const [found, localVar] = this.getSymbol(id);
     if (!found) throw new Error();
-    return localVar.offset;
+    return localVar
+  }
+  enterFunction(name:string) {
+    // FP: is the SP (relative to function FP) at block entry.
+    // It will be -2*WORD_SIZE after the AR has been pushed
+    return this.enterScope(`function ${name}`, { FP: -2*WORD_SIZE, SP: 0 });
+  }
+  enterBlock(name:string) {
+    const parentContext = this.top().context;
+    this.enterScope(name, { FP:parentContext.FP + parentContext.SP, SP:0 });
   }
 }
 
@@ -109,6 +141,7 @@ export class ASMGenerator {
     node.functions.slice(0, node.functions.length-1).forEach(funDecl => this.visitFunctionDeclaration(funDecl));
   }
 
+
   visitFunctionDeclaration(node: AstFunctionDeclaration) {
     if (!node.body) {
       // TODO: extern function
@@ -116,7 +149,7 @@ export class ASMGenerator {
     }
 
     // add a new scope for the function. SP starts at -2*WORD_SIZE to accomodate saved FP and RA
-    const scope = this.scopeStack.enterScope(`function ${node.id}`, {SP:-2*WORD_SIZE});
+    const scope = this.scopeStack.enterFunction(node.id);
 
     // add function parameters to function scope
     this.scopeStack.addFunctionParams(node);
@@ -181,6 +214,15 @@ export class ASMGenerator {
   }
 
   visitFunctionCall(node: AstFunctionCall) {
+
+    if (node.funDecl.id == "print_int") {
+      this.visitExpression(node.params[0]);
+      this.emitter.emitMV(R.A1, R.A0, "Move A0 to A1 to be argument for print_int ecall");
+      this.emitter.emitLI(R.A0, 1, "print_int ecall");
+      this.emitter.emitECALL();
+      return;
+    }
+
     this.emitter.emitComment(`call ${node.funDecl.id}`);
                     
     //  AR Start:   Caller's FP   } Set by caller
@@ -210,19 +252,19 @@ export class ASMGenerator {
   }
 
   visitBlock(node: AstBlock, label: string="", functionScope?: Scope<LocalVariable, LocalScope>) {
-    if (!functionScope) this.scopeStack.enterScope(label, {SP:0});
+    if (!functionScope) this.scopeStack.enterBlock(label);
    
-    // preprocess all local variable declarations to build scope
+    // preprocess all block level local variable declarations to build scope
     for (let statement of node.body) {
       if (statement instanceof AstVariableDeclaration) {
-        this.scopeStack.newLocal(statement); 
+        this.scopeStack.addLocal(statement); 
       }
     }
     
     // grow the stack to make space for the locals
     const scope = this.scopeStack.top();
     if (Object.keys(scope.entries).length) {
-      this.emitter.emitADDI(R.SP, R.FP, scope.context.SP, "reserve stack space for locals");
+      this.emitter.emitADDI(R.SP, R.SP, scope.context.SP, `reserve stack space for ${Object.keys(scope.entries).length} locals ${Object.keys(scope.entries)}`);
     }
 
     for (let statement of node.body) {
@@ -239,9 +281,9 @@ export class ASMGenerator {
 
     if (node.initialExpression) {
       this.visitExpression(node.initialExpression);
-      this.emitter.emitSW(R.A0, R.FP, offset, `push local var ${node.id} to stack and init value`);
+      this.emitter.emitSW(R.A0, R.FP, offset.fpoffset, `push local var ${node.id} to stack and init value`);
     } else
-      this.emitter.emitSW(R.ZERO, R.FP, offset, `push local var ${node.id} to stack and init to 0`);
+      this.emitter.emitSW(R.ZERO, R.FP, offset.fpoffset, `push local var ${node.id} to stack and init to 0`);
   }
 
   // visitArrayDeclaration(node: AstArrayDeclaration) {
@@ -259,7 +301,7 @@ export class ASMGenerator {
     const lhsID = node.lhsVariable.declaration.id
     // const fpOffset = this.locals[lhsID] || this.currentFunction.params.findIndex(p => p.id == lhsID);
     const offset = this.scopeStack.getLocalVarOffset(lhsID);
-    this.emitter.emitSW(R.A0, R.FP, offset, "save RHS to variable on stack")
+    this.emitter.emitSW(R.A0, R.FP, offset.fpoffset, "save RHS to variable on stack")
   }
 
   // visitPrintf(node: AstPrintf) {
@@ -325,7 +367,7 @@ export class ASMGenerator {
 
   visitVariableExpression(node: AstVariableExpression) {
     const id = node.declaration.id;
-    this.emitter.emitLW(R.A0, R.FP, this.scopeStack.getLocalVarOffset(id), `retrieve local variable ${node.declaration.id}`);
+    this.emitter.emitLW(R.A0, R.FP, this.scopeStack.getLocalVarOffset(id).fpoffset, `retrieve local variable ${node.declaration.id}`);
     // if (typeof this.locals[id] != "undefined")
     //   this.emitter.emitLW(R.A0, R.FP, this.locals[id], `retrieve local variable ${node.declaration.id}`);
     // else {

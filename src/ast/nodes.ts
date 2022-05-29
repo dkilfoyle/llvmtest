@@ -687,7 +687,7 @@ ${this.body ? this.body.toString(2) : '  StdLib'}
   }
   getInstance() { return new ErrorInstance() }
   execute() {
-    return this.body.execute();
+    if (this.body) return this.body.execute();
   }
 }
 

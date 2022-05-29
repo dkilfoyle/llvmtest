@@ -137,4 +137,8 @@ export class RiscvEmmiter {
     this.emitIns(`not ${rd} ${rs}`, comment);
   }
 
+  emitECALL() {
+    this.emitIns('ecall');
+  }
+
 }
