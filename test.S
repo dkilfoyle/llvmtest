@@ -1,6 +1,4 @@
 
-.data
-
 .text
 
 .globl main
@@ -10,23 +8,38 @@ main:
   sw ra, 4(sp)                            # Save caller's RA
   addi s0, sp, 8                          # New FP is at old SP
                                           # main body
-  addi sp, sp, -8                         # reserve stack space for 2 locals answer,answer2
+  addi sp, sp, -16                        # reserve stack space for 4 locals a,b,c,d
+  li a0, 10                               # Load constant 10 to a0
+  sw a0, -12(s0)                          # push local var a to stack and init value
+  li a0, 200                              # Load constant 200 to a0
+  sw a0, -16(s0)                          # push local var b to stack and init value
+  li a0, 3000                             # Load constant 3000 to a0
+  sw a0, -20(s0)                          # push local var c to stack and init value
+  li a0, 40000                            # Load constant 40000 to a0
+  sw a0, -24(s0)                          # push local var d to stack and init value
                                           # call sum
+  addi sp, sp, -8                         # make stack space for sum arguments
+  lw a0, -16(s0)                          # retrieve func param b
+  sw a0, 0(sp)                            # save function param 0:x to stack
+  lw a0, -12(s0)                          # retrieve func param a
+  sw a0, 4(sp)                            # save function param 1:y to stack
   jal sum
-  sw a0, -12(s0)                          # push local var answer to stack and init value
-  lw a0, -12(s0)                          # retrieve local variable answer
+  addi sp, sp, -4
+  sw a0, 0(sp)                            # push a0 (LHS result) onto stack as LHSTemp3 -36
+                                          # call sum
+  addi sp, sp, -8                         # make stack space for sum arguments
+  lw a0, -24(s0)                          # retrieve func param d
+  sw a0, 0(sp)                            # save function param 0:x to stack
+  lw a0, -20(s0)                          # retrieve func param c
+  sw a0, 4(sp)                            # save function param 1:y to stack
+  jal sum
+  lw t1, -36(s0)                          # t1 = saved LHS (LHSTemp3)
+  add a0, t1, a0                          # a0 = t1 (lhs) + a0 (rhs)
+  addi sp, sp, 4                          # pop lhs off stack
   mv a1, a0                               # Move A0 to A1 to be argument for print_int ecall
   li a0, 1                                # print_int ecall
   ecall
-                                          # call sum2
-  jal sum2
-  sw a0, -16(s0)                          # push local var answer2 to stack and init value
-  lw a0, -16(s0)                          # retrieve local variable answer2
-  mv a1, a0                               # Move A0 to A1 to be argument for print_int ecall
-  li a0, 1                                # print_int ecall
-  ecall
-  li a0, 0                                # Load constant 0 to a0
-  addi sp, sp, -8                         # pop all main body locals off stack
+  addi sp, s0, -8                         # pop all main body locals off stack by setting SP to FP (SP at block start)
                                           # main epilogue
   lw ra, -4(s0)                           # load saved RA
   mv t0, s0                               # temp current FP (also = old SP)
@@ -39,94 +52,20 @@ sum:
   sw ra, 4(sp)                            # Save caller's RA
   addi s0, sp, 8                          # New FP is at old SP
                                           # sum body
-  addi sp, sp, -8                         # reserve stack space for 2 locals i,x
-  li a0, 0                                # Load constant 0 to a0
-  sw a0, -12(s0)                          # push local var i to stack and init value
-  li a0, 0                                # Load constant 0 to a0
-  sw a0, -16(s0)                          # push local var x to stack and init value
-whiletest1:
-  lw a0, -12(s0)                          # retrieve local variable i
+                                          # no locals to reserve stack for
+  lw a0, 0(s0)                            # retrieve func param x
   addi sp, sp, -4
-  sw a0, 0(sp)                            # push a0 (LHS result) onto stack
-  li a0, 10                               # Load constant 10 to a0
-  lw t1, 0(sp)                            # t1 = saved LHS
-  slt a0 t1 a0                            # a0 = t1 (lhs) < a0 (rhs)
-  addi sp, sp, 4                          # pop lhs off stack
-  beqz a0, exitwhile2                     # if not true exit loop
-  lw a0, -16(s0)                          # retrieve local variable x
-  addi sp, sp, -4
-  sw a0, 0(sp)                            # push a0 (LHS result) onto stack
-  li a0, 1                                # Load constant 1 to a0
-  lw t1, 0(sp)                            # t1 = saved LHS
+  sw a0, 0(sp)                            # push a0 (LHS result) onto stack as LHSTemp6 -12
+  lw a0, 4(s0)                            # retrieve local variable y
+  lw t1, -12(s0)                          # t1 = saved LHS (LHSTemp6)
   add a0, t1, a0                          # a0 = t1 (lhs) + a0 (rhs)
   addi sp, sp, 4                          # pop lhs off stack
-  sw a0, -16(s0)                          # save RHS to variable on stack
-  lw a0, -12(s0)                          # retrieve local variable i
-  addi sp, sp, -4
-  sw a0, 0(sp)                            # push a0 (LHS result) onto stack
-  li a0, 1                                # Load constant 1 to a0
-  lw t1, 0(sp)                            # t1 = saved LHS
-  add a0, t1, a0                          # a0 = t1 (lhs) + a0 (rhs)
-  addi sp, sp, 4                          # pop lhs off stack
-  sw a0, -12(s0)                          # save RHS to variable on stack
-  addi sp, sp, 0                          # pop all while block locals off stack
-  j whiletest1                            # loop back to test
-exitwhile2:
-  lw a0, -16(s0)                          # retrieve local variable x
-  addi sp, sp, -8                         # pop all sum body locals off stack
+  addi sp, s0, -8                         # pop all sum body locals off stack by setting SP to FP (SP at block start)
                                           # sum epilogue
   lw ra, -4(s0)                           # load saved RA
   mv t0, s0                               # temp current FP (also = old SP)
   lw s0, -8(s0)                           # restore callers FP
   mv sp, t0                               # restore caller's SP, deleting the callee AR
   jr ra                                   # jump back to caller (RA)
-sum2:
-  addi sp, sp, -8                         # Make space for start of AR
-  sw s0, 0(sp)                            # Save caller's FP
-  sw ra, 4(sp)                            # Save caller's RA
-  addi s0, sp, 8                          # New FP is at old SP
-                                          # sum2 body
-  addi sp, sp, -4                         # reserve stack space for 1 locals x
-  li a0, 0                                # Load constant 0 to a0
-  sw a0, -12(s0)                          # push local var x to stack and init value
-  addi sp, sp, -4                         # reserve stack space for 1 locals i
-  li a0, 0                                # Load constant 0 to a0
-  sw a0, -16(s0)                          # push local var i to stack and init value
-whiletest3:
-  lw a0, -16(s0)                          # retrieve local variable i
-  addi sp, sp, -4
-  sw a0, 0(sp)                            # push a0 (LHS result) onto stack
-  li a0, 10                               # Load constant 10 to a0
-  lw t1, 0(sp)                            # t1 = saved LHS
-  slt a0 t1 a0                            # a0 = t1 (lhs) < a0 (rhs)
-  addi sp, sp, 4                          # pop lhs off stack
-  beqz a0, exitwhile4                     # if not true exit loop
-  lw a0, -12(s0)                          # retrieve local variable x
-  addi sp, sp, -4
-  sw a0, 0(sp)                            # push a0 (LHS result) onto stack
-  li a0, 1                                # Load constant 1 to a0
-  lw t1, 0(sp)                            # t1 = saved LHS
-  add a0, t1, a0                          # a0 = t1 (lhs) + a0 (rhs)
-  addi sp, sp, 4                          # pop lhs off stack
-  sw a0, -12(s0)                          # save RHS to variable on stack
-  addi sp, sp, 0                          # pop all  locals off stack
-  lw a0, -16(s0)                          # retrieve local variable i
-  addi sp, sp, -4
-  sw a0, 0(sp)                            # push a0 (LHS result) onto stack
-  li a0, 1                                # Load constant 1 to a0
-  lw t1, 0(sp)                            # t1 = saved LHS
-  add a0, t1, a0                          # a0 = t1 (lhs) + a0 (rhs)
-  addi sp, sp, 4                          # pop lhs off stack
-  sw a0, -16(s0)                          # save RHS to variable on stack
-  addi sp, sp, 0                          # pop all while block locals off stack
-  j whiletest3                            # loop back to test
-exitwhile4:
-  addi sp, sp, -4                         # pop all  locals off stack
-  lw a0, -12(s0)                          # retrieve local variable x
-  addi sp, sp, -4                         # pop all sum2 body locals off stack
-                                          # sum2 epilogue
-  lw ra, -4(s0)                           # load saved RA
-  mv t0, s0                               # temp current FP (also = old SP)
-  lw s0, -8(s0)                           # restore callers FP
-  mv sp, t0                               # restore caller's SP, deleting the callee AR
-  jr ra                                   # jump back to caller (RA)
+
+.data

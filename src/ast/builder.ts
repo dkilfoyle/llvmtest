@@ -52,6 +52,7 @@ export class AstBuilder extends AbstractParseTreeVisitor<AstNode> implements Sim
       this.createStdLibFunction(ctx, "print", [new AstVariableDeclaration(ctx, "msg", "string"), new AstVariableDeclaration(ctx, "val", "int")]),
       this.createStdLibFunction(ctx, "printf", [new AstVariableDeclaration(ctx, "format", "string")]), //, new AstVariableDeclaration(ctx, "val", "int")]),
       this.createStdLibFunction(ctx, "print_int", [new AstVariableDeclaration(ctx, "value", "int")]), //, new AstVariableDeclaration(ctx, "val", "int")]),
+      this.createStdLibFunction(ctx, "print_string", [new AstVariableDeclaration(ctx, "value", "string")]), //, new AstVariableDeclaration(ctx, "val", "int")]),
       ...ctx.functionDecl().map(decl => this.visitFunctionDecl(decl))
     ];
 
@@ -135,7 +136,7 @@ export class AstBuilder extends AbstractParseTreeVisitor<AstNode> implements Sim
 
   visitStringExpression(ctx: StringExpressionContext) {
     const s = ctx.String().text;
-    return new AstConstExpression(ctx, s, "string");
+    return new AstConstExpression(ctx, s.slice(1, s.length-1), "string");
   }
 
   visitNullExpression(ctx: NullExpressionContext) {

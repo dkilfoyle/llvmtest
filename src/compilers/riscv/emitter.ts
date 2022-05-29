@@ -75,6 +75,10 @@ export class RiscvEmmiter {
     this.emit(`\n.globl ${label}`);
   }
 
+  emitGlobalVar(label:string, type:string, value:string) {
+    this.emit(`${label}: .${type} "${value}"`)
+  }
+
   emitLI(rd:R, imm:number, comment?:string) {
     this.emitIns(`li ${rd}, ${imm}`, comment);
   }
@@ -117,6 +121,10 @@ export class RiscvEmmiter {
   }
   emitSW(rs2:R, rs1:R, imm:number, comment?:string) {
     this.emitIns(`sw ${rs2}, ${imm}(${rs1})`, comment);
+  }
+
+  emitLA(rd:R, label:string, comment?:string) {
+    this.emitIns(`la ${rd}, ${label}`, comment);
   }
 
   emitBEQZ(rs:R, label:string, comment?:string) {

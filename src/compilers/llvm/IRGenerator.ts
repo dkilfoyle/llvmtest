@@ -185,7 +185,10 @@ export class IRGenerator {
     this.currentFunction.addBasicBlock(body);
     this.builder.SetInsertPoint(body);
 
-    this.visitBlock(node.block);
+    if (node.block instanceof AstBlock)
+      this.visitBlock(node.block);
+    else
+      this.visitStatement(node.block);
 
     if (!this.builder.GetInsertBlock().getTerminator()) {
       this.builder.CreateBr(condition);

@@ -160,7 +160,7 @@ export class AstRepl extends AstNode {
 
 export class AstBlock extends AstNode {
   body: AstStatement[];
-  returnExpression;
+  returnExpression:AstExpression;
   constructor(ctx: ParserRuleContext, body: AstStatement[], returnExpression?: AstExpression) {
     super(ctx);
     this.body = body;
@@ -265,9 +265,9 @@ export class AstFunctionCall extends AstStatement {
 }
 
 export class AstIf extends AstStatement {
-  ifExpression;
-  thenBlock;
-  elseBlock;
+  ifExpression:AstExpression;
+  thenBlock:AstStatement;
+  elseBlock:AstStatement;
   constructor(ctx: ParserRuleContext, ifExpression: AstExpression, thenBlock: AstStatement, elseBlock?: AstStatement) {
     super(ctx);
     this.ifExpression = ifExpression;
@@ -289,9 +289,9 @@ ${this.thenBlock.toString(2)}
 }
 
 export class AstCase extends AstNode {
-  caseConstant;
-  statements;
-  hasBreak;
+  caseConstant:AstConstExpression;
+  statements:AstBlock;
+  hasBreak:boolean;
   constructor(ctx: ParserRuleContext, caseConstant: AstConstExpression, statements: AstBlock, hasBreak: boolean) {
     super(ctx);
     this.caseConstant = caseConstant;
@@ -309,9 +309,9 @@ export class AstCase extends AstNode {
 }
 
 export class AstSwitch extends AstStatement {
-  switchExpression;
-  cases;
-  defaultStatements;
+  switchExpression:AstExpression;
+  cases: AstCase[];
+  defaultStatements:AstBlock;
   constructor(ctx: ParserRuleContext, switchExpression: AstExpression, cases: AstCase[], defaultStatements?: AstBlock) {
     super(ctx);
     this.switchExpression = switchExpression;
@@ -372,7 +372,7 @@ ${this.block.toString(2)}`);
 
 export class AstWhile extends AstStatement {
   testExpression: AstExpression;
-  block;
+  block:AstStatement;
   constructor(ctx: ParserRuleContext, testExpression: AstExpression, block: AstStatement) {
     super(ctx);
     this.testExpression = testExpression;
