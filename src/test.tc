@@ -88,23 +88,23 @@
 // assert(squared(squared(squared(2))) == ((2^2)^2)^2);
 
 // recursive calls
-// int fib(int n)
-// {
-//   // 0 1 (0 + 1)
-//   if (n < 2)
-//     return n;
-//   else
-//     return fib(n - 2) + fib(n - 1);
-// }
+int fib(int n)
+{
+  // 0 1 (0 + 1)
+  if (n < 2)
+    return n;
+  else
+    return fib(n - 2) + fib(n - 1);
+}
 
-// int main()
-// {
-//   for (int i = 0; i < 10; i = i + 1)
-//   {
-//     print_int(fib(i));
-//     print_string("\n");
-//   }
-// }
+int main()
+{
+  for (int i = 0; i < 10; i = i + 1)
+  {
+    print_int(fib(i));
+    print_string("\n");
+  }
+}
 
 // int x[10];
 // x[2]=5;
@@ -161,16 +161,16 @@
 //   return 0;
 // }
 
-int sum(int x, int y)
-{
-  return x + y;
-}
+// int sum(int x, int y)
+// {
+//   return x + y;
+// }
 
-int main()
-{
-  int a = 10;
-  int b = 200;
-  int c = 3000;
-  int d = 40000;
-  print_int(sum(a, b) + sum(c, d));
-}
+// int main()
+// {
+//   int a = 10;
+//   int b = 200;
+//   int c = 3000;
+//   int d = 40000;
+//   print_int(sum(a, b) + sum(c, d));
+// }

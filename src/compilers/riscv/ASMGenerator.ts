@@ -13,7 +13,8 @@ const WORD_SIZE = 4;
 
 interface LocalVariable {
   spoffset?: number,
-  fpoffset: number
+  fpoffset: number,
+  size: number
 }
 
 interface LocalScope {
@@ -26,15 +27,15 @@ interface LocalScope {
 }
 
 class LocalScopeStack extends ScopeStack<LocalVariable, LocalScope> {
-  addFunctionParams(node: AstFunctionDeclaration) {
+  pushFunctionParams(node: AstFunctionDeclaration) {
     // FP+8    Arg2
     // FP+4    Arg1
     // FP+0 -> Arg0
     node.params.forEach((p,i) => {
-      this.newSymbol(p.id, { fpoffset: i*WORD_SIZE })
+      this.newSymbol(p.id, { fpoffset: i*WORD_SIZE, size: WORD_SIZE })
     })
   }
-  addLocal(name:string, size:number) {
+  pushLocal(name:string, size:number) {
     // myfun() {
     //   int x = 10;
     //   int y = 5;
@@ -53,9 +54,15 @@ class LocalScopeStack extends ScopeStack<LocalVariable, LocalScope> {
     // FP-20   Local0         BlockSP = -4  offset=-16-4=-20       int z = 2;
     const top = this.top();
     top.context.SP -= size;
-    const localVar = { spoffset: top.context.SP, fpoffset: top.context.FP + top.context.SP } 
+    const localVar = { spoffset: top.context.SP, fpoffset: top.context.FP + top.context.SP, size } 
     this.newSymbol(name, localVar);
     return localVar;
+  }
+  popLocal() {
+    const top = this.top();
+    const lastKey = Object.keys(top.entries)[Object.keys(top.entries).length-1];
+    top.context.SP += this.getLocalVarOffset(lastKey).size;
+    delete top.entries[lastKey];
   }
   getLocalVarOffset(id:string) {
     const [found, localVar] = this.getSymbol(id);
@@ -161,7 +168,7 @@ export class ASMGenerator {
     const scope = this.scopeStack.enterFunction(node.id);
 
     // add function parameters to function scope
-    this.scopeStack.addFunctionParams(node);
+    this.scopeStack.pushFunctionParams(node);
 
     this.emitter.emitLocalLabel(node.id);
     this.currentFunction = node;
@@ -240,7 +247,7 @@ export class ASMGenerator {
       return;
     }
 
-    this.emitter.emitComment(`call ${node.funDecl.id}`);
+    this.emitter.emitComment(`call ${node.toCode()}`);
                     
     //  AR Start:   Caller's FP   } Set by caller
     //              A3            } "
@@ -254,11 +261,12 @@ export class ASMGenerator {
 
     // push params onto AR in reverse order
     if (node.params.length) {
-      this.emitter.emitADDI(R.SP, R.SP, -node.params.length*WORD_SIZE, `make stack space for ${node.funDecl.id} arguments`);
+      // this.emitter.emitADDI(R.SP, R.SP, -node.params.length*WORD_SIZE, `make stack space for ${node.funDecl.id} ${-node.params.length*WORD_SIZE} arguments`);
       node.params.reverse().forEach((p,i) => {
         this.visitExpression(p);
-        this.scopeStack.addLocal(this.newLabel("param"), 4);
-        this.emitter.emitSW(R.A0, R.SP, i*WORD_SIZE, `save function param ${i}:${node.funDecl.params[i].id} to stack`);
+        this.scopeStack.pushLocal(this.newLabel("param"), 4);
+        this.pushStack(R.A0,  `save function param ${i}:${node.funDecl.params[i].id} to stack`);
+        // this.emitter.emitSW(R.A0, R.SP, i*WORD_SIZE, `save function param ${i}:${node.funDecl.params[i].id} to stack`);
       });
     }
 
@@ -275,7 +283,7 @@ export class ASMGenerator {
     // preprocess all block level local variable declarations to build scope
     for (let statement of node.body) {
       if (statement instanceof AstVariableDeclaration) {
-        this.scopeStack.addLocal(statement.id, statement.signature.getByteSize()); 
+        this.scopeStack.pushLocal(statement.id, statement.signature.getByteSize()); 
       }
     }
     
@@ -417,8 +425,8 @@ export class ASMGenerator {
     // compute LHS, save result to stack
     this.visitExpression(node.lhs);  // accumulator will be saved to a0 = result of LHS
     const lhsTempLabel = this.newLabel("LHSTemp")
-    const offset = this.scopeStack.addLocal(lhsTempLabel, 4);
-    this.pushStack(R.A0, `push a0 (LHS result) onto stack as ${lhsTempLabel} ${offset.fpoffset}`);
+    const offset = this.scopeStack.pushLocal(lhsTempLabel, 4);
+    this.pushStack(R.A0, `push a0 (LHS result of ${node.lhs.toCode()}) onto stack as ${lhsTempLabel} ${offset.fpoffset}`);
 
     // compute RHS, result in A0
     this.visitExpression(node.rhs);  // accumulator will be saved to a0 = result of RHS
@@ -427,28 +435,29 @@ export class ASMGenerator {
     this.emitter.emitLW(R.T1, R.FP, this.scopeStack.getLocalVarOffset(lhsTempLabel).fpoffset, `t1 = saved LHS (${lhsTempLabel})`);
 
     switch (node.op) {
-      case "+" : this.emitter.emitADD(R.A0, R.T1, R.A0, "a0 = t1 (lhs) + a0 (rhs)"); break;
-      case "-" : this.emitter.emitSUB(R.A0, R.T1, R.A0, "a0 = t1 (lhs) - a0 (rhs)"); break;
+      case "+" : this.emitter.emitADD(R.A0, R.T1, R.A0, `a0 = t1 + a0 (${node.lhs.toCode()}) + ${node.rhs.toCode()})`); break;
+      case "-" : this.emitter.emitSUB(R.A0, R.T1, R.A0, `a0 = t1 - a0 (${node.lhs.toCode()}) - ${node.rhs.toCode()})`); break;
       case "==":
-        this.emitter.emitSUB(R.A0, R.T1, R.A0, "a0 = t1 (lhs) - a0 (rhs)");
+        this.emitter.emitSUB(R.A0, R.T1, R.A0, `a0 = t1 - a0 (${node.lhs.toCode()}) - ${node.rhs.toCode()})`);
         this.emitter.emitSEQZ(R.A0, R.A0, "a0 = a0 (lhs-rhs) == 0");
         break;
       case "<":
-        this.emitter.emitSLT(R.A0, R.T1, R.A0, "a0 = t1 (lhs) < a0 (rhs)");
+        this.emitter.emitSLT(R.A0, R.T1, R.A0, `a0 = t1 < a0 (${node.lhs.toCode()} < ${node.rhs.toCode()})`);
         break;
       case ">=":
-        this.emitter.emitSLT(R.A0, R.T1, R.A0, "a0 = t1 (lhs) < a0 (rhs)");
+        this.emitter.emitSLT(R.A0, R.T1, R.A0, `a0 = t1 < a0 (${node.lhs.toCode()} < ${node.rhs.toCode()})`);
         this.emitter.emitNOT(R.A0, R.A0, "A0 = !A0 because >= is !<");
         break;
       case ">" :
-        this.emitter.emitSLT(R.A0, R.A0, R.T1, "a0 = a0 (rhs) < t1 (lhs)");
+        this.emitter.emitSLT(R.A0, R.A0, R.T1, `a0 = a0 < t1 (equiv a0 > t1) (${node.lhs.toCode()} > ${node.rhs.toCode()})`);
         break;
       case "<=":
-        this.emitter.emitSLT(R.A0, R.A0, R.T1, "a0 = a0 (rhs) < t1 (lhs)");
+        this.emitter.emitSLT(R.A0, R.A0, R.T1, `a0 = a0 (rhs: ${node.rhs.toCode()}) < t1 (lhs: ${node.lhs.toCode()})`);
         this.emitter.emitNOT(R.A0, R.A0, "A0 = !A0 because <= is !>");
         break;
       default: throw new Error();
     }
-    this.emitter.emitADDI(R.SP, R.SP, 4, "pop lhs off stack");
+    this.emitter.emitADDI(R.SP, R.SP, 4, `pop lhs temporary ${lhsTempLabel} off stack`);
+    this.scopeStack.popLocal();
   }
 }

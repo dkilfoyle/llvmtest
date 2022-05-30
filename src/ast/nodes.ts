@@ -98,6 +98,9 @@ export class AstNode {
   toString(indent: number = 0) {
     return this.indent(indent, "AstNode(unimpl)");
   }
+  toCode() {
+    return "toCode unimplemented"
+  }
   isNull() {
     return false;
   }
@@ -129,6 +132,9 @@ export class AstError extends AstNode {
   toString(indent = 0) {
     return this.indent(indent, `Error(${this.errorMsg})`);
   }
+  toCode() {
+    return "error"
+  }
   execute() {
     // debug("AstError...")
     return "error";
@@ -143,6 +149,9 @@ export class AstRepl extends AstNode {
   }
   toString() {
     return this.functions.map(funct => funct.toString()).join('\n') + "\n" + this.getMainFunction().body.toString();
+  }
+  toCode() {
+    return "repl.toCode unimplemented"
   }
   getMainFunction() {
     return this.functions[this.functions.length-1];
@@ -173,6 +182,9 @@ ${this.body.map(node => node.toString(2)).join('\n')}
 ${this.returnExpression ? '  return ' + this.returnExpression.toString() : ""}
 )`);
   }
+  toCode() {
+    return "block.toCode unimplemented";
+  }
   execute() {
     // debug("AstBlock...")
     globalAstScopeStack.enterScope("block");
@@ -201,6 +213,9 @@ export class AstAssignment extends AstStatement {
   toString(indent: number) {
     return this.indent(indent, `Assignment(${this.lhsVariable.toString()} = ${this.rhsExpression.toString()})`);
   }
+  toCode() {
+    return `${this.lhsVariable.toCode()} = ${this.rhsExpression.toCode()}`;
+  }
   execute() {
     // debug("AstAssignment...")
     this.lhsVariable.setValue(this.rhsExpression.execute());
@@ -218,6 +233,9 @@ export class AstFunctionCall extends AstStatement {
   }
   toString(indent = 0) {
     return this.indent(indent, `Call(${this.funDecl.id}, ${this.params.map(param => param.toString()).join(',')})`);
+  }
+  toCode() {
+    return `${this.funDecl.id}(${this.params.map(param => param.toCode()).join(',')})`;
   }
   returnType() {
     return this.funDecl.signature.returnType;
@@ -280,6 +298,9 @@ export class AstIf extends AstStatement {
 ${this.thenBlock.toString(2)}
 }`);
   }
+  toCode(indent = 0, isElse = false) {
+    return `if (${this.ifExpression.toCode()})`;
+  }
   execute() {
     const test = this.ifExpression.execute();
     return test ?
@@ -301,6 +322,9 @@ export class AstCase extends AstNode {
   toString(indent = 0) {
     return this.indent(indent,
       `case ${this.caseConstant.toString()} : ${this.statements.toString()}`)
+  }
+  toCode() {
+    return "";
   }
   execute() {
     this.statements.execute();
@@ -325,6 +349,9 @@ ${this.cases.map(c => c.toString(2) + "\n").join("\n")}
   default: ${this.defaultStatements ? this.defaultStatements.toString() : 'none'}
 }
 `);
+  }
+  toCode() {
+    return `switch (${this.switchExpression.toCode()})`;
   }
   execute() {
     const lhs = this.switchExpression.execute();
@@ -360,6 +387,9 @@ export class AstFor extends AstStatement {
       `for (${this.initialAssignment.toString()} ; ${this.testExpression.toString()} ; ${this.updateAssignement.toString()} )
 ${this.block.toString(2)}`);
   }
+  toCode() {
+    return `for (${this.initialAssignment.toCode()} ; ${this.testExpression.toCode()} ; ${this.updateAssignement.toCode()} )`;
+  }
   execute() {
     this.initialAssignment.execute();
     while (this.testExpression.execute()) {
@@ -383,6 +413,9 @@ export class AstWhile extends AstStatement {
       `while (${this.testExpression.toString()})
 ${this.block.toString(2)}`);
   }
+  toCode() {
+    return `while (${this.testExpression.toCode()}`
+  }
   execute() {
     while (this.testExpression.execute()) {
       this.block.execute();
@@ -401,6 +434,9 @@ export class AstReturn extends AstStatement {
     return this.indent(indent,
       `return ${this.returnExpression.toString()}`);
   }
+  toCode() {
+    return `return ${this.returnExpression.toString()}`;
+  }
   execute() {
     globalReturnResult = this.returnExpression.execute();
     return "return";
@@ -418,6 +454,9 @@ export class AstPrintf extends AstStatement {
   toString(indent = 0) {
     return this.indent(indent,
       `printf("${this.format}", ${this.args.map(arg => arg.toString()).join(",")}`);
+  }
+  toCode() {
+    return `printf("${this.format}", ${this.args.map(arg => arg.toString()).join(",")}`;
   }
   execute() {
     console.log(sprintf(this.format, this.args.map(arg => arg.execute())));
@@ -452,6 +491,9 @@ export class AstUnaryExpression extends AstExpression {
   toString(indent: number = 0) {
     return this.indent(indent, `Op(${this.op} ${this.rhs.toString()})`);
   }
+  toCode() {
+    return `${this.op}${this.rhs.toCode()}`;
+  }
   returnType() {
     if (this.op == "-") return "int";
     if (this.op == "!") return "bool";
@@ -482,6 +524,9 @@ export class AstBinaryExpression extends AstExpression {
   }
   toString(indent: number = 0) {
     return this.indent(indent, `Op(${this.lhs.toString()} ${this.op} ${this.rhs.toString()})`);
+  }
+  toCode() {
+    return `${this.lhs.toCode()} ${this.op} ${this.rhs.toCode()}`;
   }
   returnType() {
     if (["+", "-", "*", "/", "%", "^"].includes(this.op)) return "int"; // TODO - should check type of LHS and RHS to see if int or float
@@ -524,6 +569,9 @@ export class AstTernaryExpression extends AstExpression {
   toString(indent: number = 0) {
     return this.indent(indent, `?(${this.ifE.toString()} ? ${this.thenE.toString()} : ${this.elseE.toString()})`);
   }
+  toCode() {
+    return `?(${this.ifE.toCode()} ? ${this.thenE.toCode()} : ${this.elseE.toCode()})`;
+  }
   returnType() {
     return this.thenE.returnType();
   }
@@ -543,6 +591,9 @@ export class AstConstExpression extends AstExpression {
   }
   toString() {
     return `Const(${this.value})`;
+  }
+  toCode() {
+    return `${this.value}`;
   }
   returnType() { return this.valueType };
   execute() {
@@ -564,6 +615,9 @@ export class AstVariableExpression extends AstExpression {
   }
   toString(indent = 0) {
     return this.indent(indent, `Variable(${this.declaration.id + this.getIndexString()})`);
+  }
+  toCode() {
+    return this.declaration.id;
   }
   returnType() {
     return this.declaration.signature.returnType;
@@ -600,6 +654,9 @@ export class AstBracketExpression extends AstExpression {
   toString(indent = 0) {
     return this.indent(indent, `Bracket(${this.expr.toString()})`);
   }
+  toCode() {
+    return `(${this.expr.toCode()})`;
+  }
   returnType() {
     return this.expr.returnType();
   }
@@ -628,6 +685,10 @@ export class AstVariableDeclaration extends AstIdentifierDeclaration {
   }
   toString(indent: number = 0) {
     return this.indent(indent, `VariableDeclaration(${this.signature.returnType}: ${this.id})`);
+  }
+  toCode() {
+    const initstr = this.initialExpression ? ` = ${this.initialExpression.toCode()}` : "";
+    return `${this.signature.returnType} ${this.id}${initstr}`;
   }
   getInstance() {
     const [found, x] = globalAstScopeStack.getSymbol(this.id);
