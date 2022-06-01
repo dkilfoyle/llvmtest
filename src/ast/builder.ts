@@ -1,12 +1,12 @@
 import { ParserRuleContext } from "antlr4ts/ParserRuleContext";
 import { AbstractParseTreeVisitor } from "antlr4ts/tree/AbstractParseTreeVisitor";
-import { AssignmentContext, BinaryExpressionContext, BoolExpressionContext, BracketExpressionContext, CompoundStatementContext, ConstantValueContext, ExpressionContext, ForStatementContext, FunctionCallContext, FunctionDeclContext, IfStatementContext, NullExpressionContext, NumberExpressionContext, ParamContext, ParseContext, PrintfStatementContext, ReplContext, ReturnBlockContext, ReturnStatementContext, StatementContext, StatementsContext, StringExpressionContext, SwitchStatementContext, TernaryExpressionContext, UnaryExpressionContext, VariableDeclarationContext, VariableExpressionContext, WhileStatementContext } from "../antlr/SimpleParser";
-import { SimpleVisitor } from "../antlr/SimpleVisitor";
+import { AssignmentContext, BinaryExpressionContext, BoolExpressionContext, BracketExpressionContext, CompoundStatementContext, ConstantValueContext, ExpressionContext, ForStatementContext, FunctionCallContext, FunctionDeclContext, IfStatementContext, NullExpressionContext, NumberExpressionContext, ParamContext, ParseContext, PrintfStatementContext, ReplContext, ReturnBlockContext, ReturnStatementContext, StatementContext, StatementsContext, StringExpressionContext, SwitchStatementContext, TernaryExpressionContext, UnaryExpressionContext, VariableDeclarationContext, VariableExpressionContext, WhileStatementContext } from "../antlr/SimpleCParser";
+import { SimpleCVisitor } from "../antlr/SimpleCVisitor";
 import { AstArrayDeclaration, AstAssignment, AstBinaryExpression, AstBlock, AstCase, AstConstExpression, AstError, AstErrorExpression, AstExpression, AstFor, AstFunctionCall, AstFunctionDeclaration, AstIdentifierDeclaration, AstIf, AstNode, AstNull, AstPrintf, AstRepl, AstReturn, AstStatement, AstSwitch, AstTernaryExpression, AstUnaryExpression, AstUndeclaredError, AstVariableDeclaration, AstVariableExpression, AstWhile } from "./nodes";
 import { ScopeStack } from "./scopeStack";
 import { AllowedTypes } from "./signature";
 
-export class AstBuilder extends AbstractParseTreeVisitor<AstNode> implements SimpleVisitor<AstNode> {
+export class AstBuilder extends AbstractParseTreeVisitor<AstNode> implements SimpleCVisitor<AstNode> {
 
   scopeStack: ScopeStack<AstIdentifierDeclaration, void>;
   anonMax: number = 0;

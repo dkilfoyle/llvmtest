@@ -1,7 +1,7 @@
 import llvm from 'llvm-bindings';
 import { ANTLRInputStream, CommonTokenStream, Lexer, Parser, ParserRuleContext } from 'antlr4ts';
-import { SimpleLexer } from "./antlr/SimpleLexer";
-import { SimpleParser } from './antlr/SimpleParser';
+import { SimpleCLexer } from "./antlr/SimpleCLexer";
+import { SimpleCParser } from './antlr/SimpleCParser';
 import { AstBuilder } from './ast/builder';
 import { errorNodes } from "./ast/nodes";
 import { IRGenerator } from './compilers/llvm/IRGenerator';
@@ -12,9 +12,9 @@ function main(): void {
   const buffer = fs.readFileSync("src/test.tc");
   // Create the lexer and parser
   let inputStream = new ANTLRInputStream(buffer.toString());
-  let lexer = new SimpleLexer(inputStream);
+  let lexer = new SimpleCLexer(inputStream);
   let tokenStream = new CommonTokenStream(lexer);
-  let parser = new SimpleParser(tokenStream);
+  let parser = new SimpleCParser(tokenStream);
   let tree = parser.parse();
   const astBuilder = new AstBuilder()
   const ast = astBuilder.visit(tree);

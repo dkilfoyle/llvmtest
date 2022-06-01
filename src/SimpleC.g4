@@ -1,4 +1,4 @@
-grammar Simple;
+grammar SimpleC;
 
 parse: repl EOF;
 repl: functionDecl* statements;

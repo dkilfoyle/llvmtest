@@ -1,4 +1,4 @@
-// Generated from /home/dkilfoyle/llvmtest/src/Simple.g4 by ANTLR 4.7.3-SNAPSHOT
+// Generated from /home/dkilfoyle/llvmtest/src/SimpleC.g4 by ANTLR 4.7.3-SNAPSHOT
 
 
 import { ATN } from "antlr4ts/atn/ATN";
@@ -15,7 +15,7 @@ import { VocabularyImpl } from "antlr4ts/VocabularyImpl";
 import * as Utils from "antlr4ts/misc/Utils";
 
 
-export class SimpleLexer extends Lexer {
+export class SimpleCLexer extends Lexer {
 	public static readonly T__0 = 1;
 	public static readonly T__1 = 2;
 	public static readonly T__2 = 3;
@@ -98,35 +98,35 @@ export class SimpleLexer extends Lexer {
 		undefined, undefined, undefined, undefined, undefined, undefined, "Bool", 
 		"Number", "Identifier", "String", "Comment", "Space",
 	];
-	public static readonly VOCABULARY: Vocabulary = new VocabularyImpl(SimpleLexer._LITERAL_NAMES, SimpleLexer._SYMBOLIC_NAMES, []);
+	public static readonly VOCABULARY: Vocabulary = new VocabularyImpl(SimpleCLexer._LITERAL_NAMES, SimpleCLexer._SYMBOLIC_NAMES, []);
 
 	// @Override
 	// @NotNull
 	public get vocabulary(): Vocabulary {
-		return SimpleLexer.VOCABULARY;
+		return SimpleCLexer.VOCABULARY;
 	}
 	// tslint:enable:no-trailing-whitespace
 
 
 	constructor(input: CharStream) {
 		super(input);
-		this._interp = new LexerATNSimulator(SimpleLexer._ATN, this);
+		this._interp = new LexerATNSimulator(SimpleCLexer._ATN, this);
 	}
 
 	// @Override
-	public get grammarFileName(): string { return "Simple.g4"; }
+	public get grammarFileName(): string { return "SimpleC.g4"; }
 
 	// @Override
-	public get ruleNames(): string[] { return SimpleLexer.ruleNames; }
+	public get ruleNames(): string[] { return SimpleCLexer.ruleNames; }
 
 	// @Override
-	public get serializedATN(): string { return SimpleLexer._serializedATN; }
+	public get serializedATN(): string { return SimpleCLexer._serializedATN; }
 
 	// @Override
-	public get channelNames(): string[] { return SimpleLexer.channelNames; }
+	public get channelNames(): string[] { return SimpleCLexer.channelNames; }
 
 	// @Override
-	public get modeNames(): string[] { return SimpleLexer.modeNames; }
+	public get modeNames(): string[] { return SimpleCLexer.modeNames; }
 
 	public static readonly _serializedATN: string =
 		"\x03\uC91D\uCABA\u058D\uAFBA\u4F53\u0607\uEA8B\uC241\x020\u0147\b\x01" +
@@ -277,11 +277,11 @@ export class SimpleLexer extends Lexer {
 		"\u0143\x03\b\x02\x02";
 	public static __ATN: ATN;
 	public static get _ATN(): ATN {
-		if (!SimpleLexer.__ATN) {
-			SimpleLexer.__ATN = new ATNDeserializer().deserialize(Utils.toCharArray(SimpleLexer._serializedATN));
+		if (!SimpleCLexer.__ATN) {
+			SimpleCLexer.__ATN = new ATNDeserializer().deserialize(Utils.toCharArray(SimpleCLexer._serializedATN));
 		}
 
-		return SimpleLexer.__ATN;
+		return SimpleCLexer.__ATN;
 	}
 
 }

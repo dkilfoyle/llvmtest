@@ -1,4 +1,4 @@
-// Generated from /home/dkilfoyle/llvmtest/src/Simple.g4 by ANTLR 4.7.3-SNAPSHOT
+// Generated from /home/dkilfoyle/llvmtest/src/SimpleC.g4 by ANTLR 4.7.3-SNAPSHOT
 
 
 import { ATN } from "antlr4ts/atn/ATN";
@@ -23,11 +23,11 @@ import { VocabularyImpl } from "antlr4ts/VocabularyImpl";
 
 import * as Utils from "antlr4ts/misc/Utils";
 
-import { SimpleListener } from "./SimpleListener";
-import { SimpleVisitor } from "./SimpleVisitor";
+import { SimpleCListener } from "./SimpleCListener";
+import { SimpleCVisitor } from "./SimpleCVisitor";
 
 
-export class SimpleParser extends Parser {
+export class SimpleCParser extends Parser {
 	public static readonly T__0 = 1;
 	public static readonly T__1 = 2;
 	public static readonly T__2 = 3;
@@ -135,39 +135,39 @@ export class SimpleParser extends Parser {
 		undefined, undefined, undefined, undefined, undefined, undefined, "Bool", 
 		"Number", "Identifier", "String", "Comment", "Space",
 	];
-	public static readonly VOCABULARY: Vocabulary = new VocabularyImpl(SimpleParser._LITERAL_NAMES, SimpleParser._SYMBOLIC_NAMES, []);
+	public static readonly VOCABULARY: Vocabulary = new VocabularyImpl(SimpleCParser._LITERAL_NAMES, SimpleCParser._SYMBOLIC_NAMES, []);
 
 	// @Override
 	// @NotNull
 	public get vocabulary(): Vocabulary {
-		return SimpleParser.VOCABULARY;
+		return SimpleCParser.VOCABULARY;
 	}
 	// tslint:enable:no-trailing-whitespace
 
 	// @Override
-	public get grammarFileName(): string { return "Simple.g4"; }
+	public get grammarFileName(): string { return "SimpleC.g4"; }
 
 	// @Override
-	public get ruleNames(): string[] { return SimpleParser.ruleNames; }
+	public get ruleNames(): string[] { return SimpleCParser.ruleNames; }
 
 	// @Override
-	public get serializedATN(): string { return SimpleParser._serializedATN; }
+	public get serializedATN(): string { return SimpleCParser._serializedATN; }
 
 	constructor(input: TokenStream) {
 		super(input);
-		this._interp = new ParserATNSimulator(SimpleParser._ATN, this);
+		this._interp = new ParserATNSimulator(SimpleCParser._ATN, this);
 	}
 	// @RuleVersion(0)
 	public parse(): ParseContext {
 		let _localctx: ParseContext = new ParseContext(this._ctx, this.state);
-		this.enterRule(_localctx, 0, SimpleParser.RULE_parse);
+		this.enterRule(_localctx, 0, SimpleCParser.RULE_parse);
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
 			this.state = 68;
 			this.repl();
 			this.state = 69;
-			this.match(SimpleParser.EOF);
+			this.match(SimpleCParser.EOF);
 			}
 		}
 		catch (re) {
@@ -187,7 +187,7 @@ export class SimpleParser extends Parser {
 	// @RuleVersion(0)
 	public repl(): ReplContext {
 		let _localctx: ReplContext = new ReplContext(this._ctx, this.state);
-		this.enterRule(_localctx, 2, SimpleParser.RULE_repl);
+		this.enterRule(_localctx, 2, SimpleCParser.RULE_repl);
 		try {
 			let _alt: number;
 			this.enterOuterAlt(_localctx, 1);
@@ -229,24 +229,24 @@ export class SimpleParser extends Parser {
 	// @RuleVersion(0)
 	public funType(): FunTypeContext {
 		let _localctx: FunTypeContext = new FunTypeContext(this._ctx, this.state);
-		this.enterRule(_localctx, 4, SimpleParser.RULE_funType);
+		this.enterRule(_localctx, 4, SimpleCParser.RULE_funType);
 		try {
 			this.state = 81;
 			this._errHandler.sync(this);
 			switch (this._input.LA(1)) {
-			case SimpleParser.T__8:
-			case SimpleParser.T__9:
+			case SimpleCParser.T__8:
+			case SimpleCParser.T__9:
 				this.enterOuterAlt(_localctx, 1);
 				{
 				this.state = 79;
 				this.varType();
 				}
 				break;
-			case SimpleParser.T__0:
+			case SimpleCParser.T__0:
 				this.enterOuterAlt(_localctx, 2);
 				{
 				this.state = 80;
-				this.match(SimpleParser.T__0);
+				this.match(SimpleCParser.T__0);
 				}
 				break;
 			default:
@@ -270,7 +270,7 @@ export class SimpleParser extends Parser {
 	// @RuleVersion(0)
 	public functionDecl(): FunctionDeclContext {
 		let _localctx: FunctionDeclContext = new FunctionDeclContext(this._ctx, this.state);
-		this.enterRule(_localctx, 6, SimpleParser.RULE_functionDecl);
+		this.enterRule(_localctx, 6, SimpleCParser.RULE_functionDecl);
 		let _la: number;
 		try {
 			this.enterOuterAlt(_localctx, 1);
@@ -278,13 +278,13 @@ export class SimpleParser extends Parser {
 			this.state = 83;
 			this.funType();
 			this.state = 84;
-			this.match(SimpleParser.Identifier);
+			this.match(SimpleCParser.Identifier);
 			this.state = 85;
-			this.match(SimpleParser.T__1);
+			this.match(SimpleCParser.T__1);
 			this.state = 87;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			if (_la === SimpleParser.T__8 || _la === SimpleParser.T__9) {
+			if (_la === SimpleCParser.T__8 || _la === SimpleCParser.T__9) {
 				{
 				this.state = 86;
 				this.paramList();
@@ -292,13 +292,13 @@ export class SimpleParser extends Parser {
 			}
 
 			this.state = 89;
-			this.match(SimpleParser.T__2);
+			this.match(SimpleCParser.T__2);
 			this.state = 90;
-			this.match(SimpleParser.T__3);
+			this.match(SimpleCParser.T__3);
 			this.state = 91;
 			this.returnBlock();
 			this.state = 92;
-			this.match(SimpleParser.T__4);
+			this.match(SimpleCParser.T__4);
 			}
 		}
 		catch (re) {
@@ -318,14 +318,14 @@ export class SimpleParser extends Parser {
 	// @RuleVersion(0)
 	public param(): ParamContext {
 		let _localctx: ParamContext = new ParamContext(this._ctx, this.state);
-		this.enterRule(_localctx, 8, SimpleParser.RULE_param);
+		this.enterRule(_localctx, 8, SimpleCParser.RULE_param);
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
 			this.state = 94;
 			this.varType();
 			this.state = 95;
-			this.match(SimpleParser.Identifier);
+			this.match(SimpleCParser.Identifier);
 			}
 		}
 		catch (re) {
@@ -345,7 +345,7 @@ export class SimpleParser extends Parser {
 	// @RuleVersion(0)
 	public paramList(): ParamListContext {
 		let _localctx: ParamListContext = new ParamListContext(this._ctx, this.state);
-		this.enterRule(_localctx, 10, SimpleParser.RULE_paramList);
+		this.enterRule(_localctx, 10, SimpleCParser.RULE_paramList);
 		let _la: number;
 		try {
 			this.enterOuterAlt(_localctx, 1);
@@ -355,11 +355,11 @@ export class SimpleParser extends Parser {
 			this.state = 102;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			while (_la === SimpleParser.T__5) {
+			while (_la === SimpleCParser.T__5) {
 				{
 				{
 				this.state = 98;
-				this.match(SimpleParser.T__5);
+				this.match(SimpleCParser.T__5);
 				this.state = 99;
 				this.param();
 				}
@@ -387,7 +387,7 @@ export class SimpleParser extends Parser {
 	// @RuleVersion(0)
 	public returnBlock(): ReturnBlockContext {
 		let _localctx: ReturnBlockContext = new ReturnBlockContext(this._ctx, this.state);
-		this.enterRule(_localctx, 12, SimpleParser.RULE_returnBlock);
+		this.enterRule(_localctx, 12, SimpleCParser.RULE_returnBlock);
 		let _la: number;
 		try {
 			let _alt: number;
@@ -412,14 +412,14 @@ export class SimpleParser extends Parser {
 			this.state = 115;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			if (_la === SimpleParser.T__6) {
+			if (_la === SimpleCParser.T__6) {
 				{
 				this.state = 111;
-				this.match(SimpleParser.T__6);
+				this.match(SimpleCParser.T__6);
 				this.state = 112;
 				this.expression(0);
 				this.state = 113;
-				this.match(SimpleParser.T__7);
+				this.match(SimpleCParser.T__7);
 				}
 			}
 
@@ -442,7 +442,7 @@ export class SimpleParser extends Parser {
 	// @RuleVersion(0)
 	public statement(): StatementContext {
 		let _localctx: StatementContext = new StatementContext(this._ctx, this.state);
-		this.enterRule(_localctx, 14, SimpleParser.RULE_statement);
+		this.enterRule(_localctx, 14, SimpleCParser.RULE_statement);
 		try {
 			this.state = 133;
 			this._errHandler.sync(this);
@@ -453,7 +453,7 @@ export class SimpleParser extends Parser {
 				this.state = 117;
 				this.variableDeclaration();
 				this.state = 118;
-				this.match(SimpleParser.T__7);
+				this.match(SimpleCParser.T__7);
 				}
 				break;
 
@@ -463,7 +463,7 @@ export class SimpleParser extends Parser {
 				this.state = 120;
 				this.assignment();
 				this.state = 121;
-				this.match(SimpleParser.T__7);
+				this.match(SimpleCParser.T__7);
 				}
 				break;
 
@@ -473,7 +473,7 @@ export class SimpleParser extends Parser {
 				this.state = 123;
 				this.functionCall();
 				this.state = 124;
-				this.match(SimpleParser.T__7);
+				this.match(SimpleCParser.T__7);
 				}
 				break;
 
@@ -551,16 +551,16 @@ export class SimpleParser extends Parser {
 	// @RuleVersion(0)
 	public compoundStatement(): CompoundStatementContext {
 		let _localctx: CompoundStatementContext = new CompoundStatementContext(this._ctx, this.state);
-		this.enterRule(_localctx, 16, SimpleParser.RULE_compoundStatement);
+		this.enterRule(_localctx, 16, SimpleCParser.RULE_compoundStatement);
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
 			this.state = 135;
-			this.match(SimpleParser.T__3);
+			this.match(SimpleCParser.T__3);
 			this.state = 136;
 			this.statements();
 			this.state = 137;
-			this.match(SimpleParser.T__4);
+			this.match(SimpleCParser.T__4);
 			}
 		}
 		catch (re) {
@@ -580,7 +580,7 @@ export class SimpleParser extends Parser {
 	// @RuleVersion(0)
 	public statements(): StatementsContext {
 		let _localctx: StatementsContext = new StatementsContext(this._ctx, this.state);
-		this.enterRule(_localctx, 18, SimpleParser.RULE_statements);
+		this.enterRule(_localctx, 18, SimpleCParser.RULE_statements);
 		let _la: number;
 		try {
 			this.enterOuterAlt(_localctx, 1);
@@ -588,7 +588,7 @@ export class SimpleParser extends Parser {
 			this.state = 142;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			while ((((_la) & ~0x1F) === 0 && ((1 << _la) & ((1 << SimpleParser.T__1) | (1 << SimpleParser.T__3) | (1 << SimpleParser.T__6) | (1 << SimpleParser.T__8) | (1 << SimpleParser.T__9) | (1 << SimpleParser.T__13) | (1 << SimpleParser.T__15) | (1 << SimpleParser.T__20) | (1 << SimpleParser.T__21) | (1 << SimpleParser.T__22) | (1 << SimpleParser.T__23) | (1 << SimpleParser.T__24))) !== 0) || ((((_la - 40)) & ~0x1F) === 0 && ((1 << (_la - 40)) & ((1 << (SimpleParser.T__39 - 40)) | (1 << (SimpleParser.Bool - 40)) | (1 << (SimpleParser.Number - 40)) | (1 << (SimpleParser.Identifier - 40)) | (1 << (SimpleParser.String - 40)))) !== 0)) {
+			while ((((_la) & ~0x1F) === 0 && ((1 << _la) & ((1 << SimpleCParser.T__1) | (1 << SimpleCParser.T__3) | (1 << SimpleCParser.T__6) | (1 << SimpleCParser.T__8) | (1 << SimpleCParser.T__9) | (1 << SimpleCParser.T__13) | (1 << SimpleCParser.T__15) | (1 << SimpleCParser.T__20) | (1 << SimpleCParser.T__21) | (1 << SimpleCParser.T__22) | (1 << SimpleCParser.T__23) | (1 << SimpleCParser.T__24))) !== 0) || ((((_la - 40)) & ~0x1F) === 0 && ((1 << (_la - 40)) & ((1 << (SimpleCParser.T__39 - 40)) | (1 << (SimpleCParser.Bool - 40)) | (1 << (SimpleCParser.Number - 40)) | (1 << (SimpleCParser.Identifier - 40)) | (1 << (SimpleCParser.String - 40)))) !== 0)) {
 				{
 				{
 				this.state = 139;
@@ -618,17 +618,17 @@ export class SimpleParser extends Parser {
 	// @RuleVersion(0)
 	public returnStatement(): ReturnStatementContext {
 		let _localctx: ReturnStatementContext = new ReturnStatementContext(this._ctx, this.state);
-		this.enterRule(_localctx, 20, SimpleParser.RULE_returnStatement);
+		this.enterRule(_localctx, 20, SimpleCParser.RULE_returnStatement);
 		let _la: number;
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
 			this.state = 145;
-			this.match(SimpleParser.T__6);
+			this.match(SimpleCParser.T__6);
 			this.state = 147;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			if ((((_la) & ~0x1F) === 0 && ((1 << _la) & ((1 << SimpleParser.T__1) | (1 << SimpleParser.T__23) | (1 << SimpleParser.T__24))) !== 0) || ((((_la - 40)) & ~0x1F) === 0 && ((1 << (_la - 40)) & ((1 << (SimpleParser.T__39 - 40)) | (1 << (SimpleParser.Bool - 40)) | (1 << (SimpleParser.Number - 40)) | (1 << (SimpleParser.Identifier - 40)) | (1 << (SimpleParser.String - 40)))) !== 0)) {
+			if ((((_la) & ~0x1F) === 0 && ((1 << _la) & ((1 << SimpleCParser.T__1) | (1 << SimpleCParser.T__23) | (1 << SimpleCParser.T__24))) !== 0) || ((((_la - 40)) & ~0x1F) === 0 && ((1 << (_la - 40)) & ((1 << (SimpleCParser.T__39 - 40)) | (1 << (SimpleCParser.Bool - 40)) | (1 << (SimpleCParser.Number - 40)) | (1 << (SimpleCParser.Identifier - 40)) | (1 << (SimpleCParser.String - 40)))) !== 0)) {
 				{
 				this.state = 146;
 				this.expression(0);
@@ -636,7 +636,7 @@ export class SimpleParser extends Parser {
 			}
 
 			this.state = 149;
-			this.match(SimpleParser.T__7);
+			this.match(SimpleCParser.T__7);
 			}
 		}
 		catch (re) {
@@ -656,14 +656,14 @@ export class SimpleParser extends Parser {
 	// @RuleVersion(0)
 	public varType(): VarTypeContext {
 		let _localctx: VarTypeContext = new VarTypeContext(this._ctx, this.state);
-		this.enterRule(_localctx, 22, SimpleParser.RULE_varType);
+		this.enterRule(_localctx, 22, SimpleCParser.RULE_varType);
 		let _la: number;
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
 			this.state = 151;
 			_la = this._input.LA(1);
-			if (!(_la === SimpleParser.T__8 || _la === SimpleParser.T__9)) {
+			if (!(_la === SimpleCParser.T__8 || _la === SimpleCParser.T__9)) {
 			this._errHandler.recoverInline(this);
 			} else {
 				if (this._input.LA(1) === Token.EOF) {
@@ -692,7 +692,7 @@ export class SimpleParser extends Parser {
 	// @RuleVersion(0)
 	public variableDeclaration(): VariableDeclarationContext {
 		let _localctx: VariableDeclarationContext = new VariableDeclarationContext(this._ctx, this.state);
-		this.enterRule(_localctx, 24, SimpleParser.RULE_variableDeclaration);
+		this.enterRule(_localctx, 24, SimpleCParser.RULE_variableDeclaration);
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
@@ -719,7 +719,7 @@ export class SimpleParser extends Parser {
 	// @RuleVersion(0)
 	public initDeclaratorList(): InitDeclaratorListContext {
 		let _localctx: InitDeclaratorListContext = new InitDeclaratorListContext(this._ctx, this.state);
-		this.enterRule(_localctx, 26, SimpleParser.RULE_initDeclaratorList);
+		this.enterRule(_localctx, 26, SimpleCParser.RULE_initDeclaratorList);
 		let _la: number;
 		try {
 			this.enterOuterAlt(_localctx, 1);
@@ -729,11 +729,11 @@ export class SimpleParser extends Parser {
 			this.state = 161;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			while (_la === SimpleParser.T__5) {
+			while (_la === SimpleCParser.T__5) {
 				{
 				{
 				this.state = 157;
-				this.match(SimpleParser.T__5);
+				this.match(SimpleCParser.T__5);
 				this.state = 158;
 				this.initDeclarator();
 				}
@@ -761,17 +761,17 @@ export class SimpleParser extends Parser {
 	// @RuleVersion(0)
 	public initDeclarator(): InitDeclaratorContext {
 		let _localctx: InitDeclaratorContext = new InitDeclaratorContext(this._ctx, this.state);
-		this.enterRule(_localctx, 28, SimpleParser.RULE_initDeclarator);
+		this.enterRule(_localctx, 28, SimpleCParser.RULE_initDeclarator);
 		let _la: number;
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
 			this.state = 164;
-			this.match(SimpleParser.Identifier);
+			this.match(SimpleCParser.Identifier);
 			this.state = 168;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			while (_la === SimpleParser.T__11) {
+			while (_la === SimpleCParser.T__11) {
 				{
 				{
 				this.state = 165;
@@ -785,10 +785,10 @@ export class SimpleParser extends Parser {
 			this.state = 173;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			if (_la === SimpleParser.T__10) {
+			if (_la === SimpleCParser.T__10) {
 				{
 				this.state = 171;
-				this.match(SimpleParser.T__10);
+				this.match(SimpleCParser.T__10);
 				this.state = 172;
 				this.expression(0);
 				}
@@ -813,16 +813,16 @@ export class SimpleParser extends Parser {
 	// @RuleVersion(0)
 	public dimensions(): DimensionsContext {
 		let _localctx: DimensionsContext = new DimensionsContext(this._ctx, this.state);
-		this.enterRule(_localctx, 30, SimpleParser.RULE_dimensions);
+		this.enterRule(_localctx, 30, SimpleCParser.RULE_dimensions);
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
 			this.state = 175;
-			this.match(SimpleParser.T__11);
+			this.match(SimpleCParser.T__11);
 			this.state = 176;
-			this.match(SimpleParser.Number);
+			this.match(SimpleCParser.Number);
 			this.state = 177;
-			this.match(SimpleParser.T__12);
+			this.match(SimpleCParser.T__12);
 			}
 		}
 		catch (re) {
@@ -842,14 +842,14 @@ export class SimpleParser extends Parser {
 	// @RuleVersion(0)
 	public assignment(): AssignmentContext {
 		let _localctx: AssignmentContext = new AssignmentContext(this._ctx, this.state);
-		this.enterRule(_localctx, 32, SimpleParser.RULE_assignment);
+		this.enterRule(_localctx, 32, SimpleCParser.RULE_assignment);
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
 			this.state = 179;
 			this.expression(0);
 			this.state = 180;
-			this.match(SimpleParser.T__10);
+			this.match(SimpleCParser.T__10);
 			this.state = 181;
 			this.expression(0);
 			}
@@ -871,19 +871,19 @@ export class SimpleParser extends Parser {
 	// @RuleVersion(0)
 	public functionCall(): FunctionCallContext {
 		let _localctx: FunctionCallContext = new FunctionCallContext(this._ctx, this.state);
-		this.enterRule(_localctx, 34, SimpleParser.RULE_functionCall);
+		this.enterRule(_localctx, 34, SimpleCParser.RULE_functionCall);
 		let _la: number;
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
 			this.state = 183;
-			this.match(SimpleParser.Identifier);
+			this.match(SimpleCParser.Identifier);
 			this.state = 184;
-			this.match(SimpleParser.T__1);
+			this.match(SimpleCParser.T__1);
 			this.state = 186;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			if ((((_la) & ~0x1F) === 0 && ((1 << _la) & ((1 << SimpleParser.T__1) | (1 << SimpleParser.T__23) | (1 << SimpleParser.T__24))) !== 0) || ((((_la - 40)) & ~0x1F) === 0 && ((1 << (_la - 40)) & ((1 << (SimpleParser.T__39 - 40)) | (1 << (SimpleParser.Bool - 40)) | (1 << (SimpleParser.Number - 40)) | (1 << (SimpleParser.Identifier - 40)) | (1 << (SimpleParser.String - 40)))) !== 0)) {
+			if ((((_la) & ~0x1F) === 0 && ((1 << _la) & ((1 << SimpleCParser.T__1) | (1 << SimpleCParser.T__23) | (1 << SimpleCParser.T__24))) !== 0) || ((((_la - 40)) & ~0x1F) === 0 && ((1 << (_la - 40)) & ((1 << (SimpleCParser.T__39 - 40)) | (1 << (SimpleCParser.Bool - 40)) | (1 << (SimpleCParser.Number - 40)) | (1 << (SimpleCParser.Identifier - 40)) | (1 << (SimpleCParser.String - 40)))) !== 0)) {
 				{
 				this.state = 185;
 				this.exprList();
@@ -891,7 +891,7 @@ export class SimpleParser extends Parser {
 			}
 
 			this.state = 188;
-			this.match(SimpleParser.T__2);
+			this.match(SimpleCParser.T__2);
 			}
 		}
 		catch (re) {
@@ -911,18 +911,18 @@ export class SimpleParser extends Parser {
 	// @RuleVersion(0)
 	public ifStatement(): IfStatementContext {
 		let _localctx: IfStatementContext = new IfStatementContext(this._ctx, this.state);
-		this.enterRule(_localctx, 36, SimpleParser.RULE_ifStatement);
+		this.enterRule(_localctx, 36, SimpleCParser.RULE_ifStatement);
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
 			this.state = 190;
-			this.match(SimpleParser.T__13);
+			this.match(SimpleCParser.T__13);
 			this.state = 191;
-			this.match(SimpleParser.T__1);
+			this.match(SimpleCParser.T__1);
 			this.state = 192;
 			this.expression(0);
 			this.state = 193;
-			this.match(SimpleParser.T__2);
+			this.match(SimpleCParser.T__2);
 			this.state = 194;
 			this.statement();
 			this.state = 196;
@@ -954,12 +954,12 @@ export class SimpleParser extends Parser {
 	// @RuleVersion(0)
 	public elseStat(): ElseStatContext {
 		let _localctx: ElseStatContext = new ElseStatContext(this._ctx, this.state);
-		this.enterRule(_localctx, 38, SimpleParser.RULE_elseStat);
+		this.enterRule(_localctx, 38, SimpleCParser.RULE_elseStat);
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
 			this.state = 198;
-			this.match(SimpleParser.T__14);
+			this.match(SimpleCParser.T__14);
 			this.state = 199;
 			this.statement();
 			}
@@ -981,25 +981,25 @@ export class SimpleParser extends Parser {
 	// @RuleVersion(0)
 	public switchStatement(): SwitchStatementContext {
 		let _localctx: SwitchStatementContext = new SwitchStatementContext(this._ctx, this.state);
-		this.enterRule(_localctx, 40, SimpleParser.RULE_switchStatement);
+		this.enterRule(_localctx, 40, SimpleCParser.RULE_switchStatement);
 		let _la: number;
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
 			this.state = 201;
-			this.match(SimpleParser.T__15);
+			this.match(SimpleCParser.T__15);
 			this.state = 202;
-			this.match(SimpleParser.T__1);
+			this.match(SimpleCParser.T__1);
 			this.state = 203;
 			this.expression(0);
 			this.state = 204;
-			this.match(SimpleParser.T__2);
+			this.match(SimpleCParser.T__2);
 			this.state = 205;
-			this.match(SimpleParser.T__3);
+			this.match(SimpleCParser.T__3);
 			this.state = 209;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			while (_la === SimpleParser.T__16) {
+			while (_la === SimpleCParser.T__16) {
 				{
 				{
 				this.state = 206;
@@ -1013,7 +1013,7 @@ export class SimpleParser extends Parser {
 			this.state = 213;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			if (_la === SimpleParser.T__18) {
+			if (_la === SimpleCParser.T__18) {
 				{
 				this.state = 212;
 				this.defaultCase();
@@ -1021,7 +1021,7 @@ export class SimpleParser extends Parser {
 			}
 
 			this.state = 215;
-			this.match(SimpleParser.T__4);
+			this.match(SimpleCParser.T__4);
 			}
 		}
 		catch (re) {
@@ -1041,23 +1041,23 @@ export class SimpleParser extends Parser {
 	// @RuleVersion(0)
 	public caseStatement(): CaseStatementContext {
 		let _localctx: CaseStatementContext = new CaseStatementContext(this._ctx, this.state);
-		this.enterRule(_localctx, 42, SimpleParser.RULE_caseStatement);
+		this.enterRule(_localctx, 42, SimpleCParser.RULE_caseStatement);
 		let _la: number;
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
 			this.state = 217;
-			this.match(SimpleParser.T__16);
+			this.match(SimpleCParser.T__16);
 			this.state = 218;
 			this.constantValue();
 			this.state = 219;
-			this.match(SimpleParser.T__17);
+			this.match(SimpleCParser.T__17);
 			this.state = 220;
 			this.statements();
 			this.state = 222;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			if (_la === SimpleParser.T__19) {
+			if (_la === SimpleCParser.T__19) {
 				{
 				this.state = 221;
 				this.breakStatement();
@@ -1083,14 +1083,14 @@ export class SimpleParser extends Parser {
 	// @RuleVersion(0)
 	public defaultCase(): DefaultCaseContext {
 		let _localctx: DefaultCaseContext = new DefaultCaseContext(this._ctx, this.state);
-		this.enterRule(_localctx, 44, SimpleParser.RULE_defaultCase);
+		this.enterRule(_localctx, 44, SimpleCParser.RULE_defaultCase);
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
 			this.state = 224;
-			this.match(SimpleParser.T__18);
+			this.match(SimpleCParser.T__18);
 			this.state = 225;
-			this.match(SimpleParser.T__17);
+			this.match(SimpleCParser.T__17);
 			this.state = 226;
 			this.statements();
 			}
@@ -1112,12 +1112,12 @@ export class SimpleParser extends Parser {
 	// @RuleVersion(0)
 	public breakStatement(): BreakStatementContext {
 		let _localctx: BreakStatementContext = new BreakStatementContext(this._ctx, this.state);
-		this.enterRule(_localctx, 46, SimpleParser.RULE_breakStatement);
+		this.enterRule(_localctx, 46, SimpleCParser.RULE_breakStatement);
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
 			this.state = 228;
-			this.match(SimpleParser.T__19);
+			this.match(SimpleCParser.T__19);
 			}
 		}
 		catch (re) {
@@ -1137,26 +1137,26 @@ export class SimpleParser extends Parser {
 	// @RuleVersion(0)
 	public forStatement(): ForStatementContext {
 		let _localctx: ForStatementContext = new ForStatementContext(this._ctx, this.state);
-		this.enterRule(_localctx, 48, SimpleParser.RULE_forStatement);
+		this.enterRule(_localctx, 48, SimpleCParser.RULE_forStatement);
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
 			this.state = 230;
-			this.match(SimpleParser.T__20);
+			this.match(SimpleCParser.T__20);
 			this.state = 231;
-			this.match(SimpleParser.T__1);
+			this.match(SimpleCParser.T__1);
 			this.state = 232;
 			this.forInitial();
 			this.state = 233;
-			this.match(SimpleParser.T__7);
+			this.match(SimpleCParser.T__7);
 			this.state = 234;
 			this.expression(0);
 			this.state = 235;
-			this.match(SimpleParser.T__7);
+			this.match(SimpleCParser.T__7);
 			this.state = 236;
 			this.assignment();
 			this.state = 237;
-			this.match(SimpleParser.T__2);
+			this.match(SimpleCParser.T__2);
 			this.state = 238;
 			this.statement();
 			}
@@ -1178,27 +1178,27 @@ export class SimpleParser extends Parser {
 	// @RuleVersion(0)
 	public forInitial(): ForInitialContext {
 		let _localctx: ForInitialContext = new ForInitialContext(this._ctx, this.state);
-		this.enterRule(_localctx, 50, SimpleParser.RULE_forInitial);
+		this.enterRule(_localctx, 50, SimpleCParser.RULE_forInitial);
 		try {
 			this.state = 242;
 			this._errHandler.sync(this);
 			switch (this._input.LA(1)) {
-			case SimpleParser.T__8:
-			case SimpleParser.T__9:
+			case SimpleCParser.T__8:
+			case SimpleCParser.T__9:
 				this.enterOuterAlt(_localctx, 1);
 				{
 				this.state = 240;
 				this.variableDeclaration();
 				}
 				break;
-			case SimpleParser.T__1:
-			case SimpleParser.T__23:
-			case SimpleParser.T__24:
-			case SimpleParser.T__39:
-			case SimpleParser.Bool:
-			case SimpleParser.Number:
-			case SimpleParser.Identifier:
-			case SimpleParser.String:
+			case SimpleCParser.T__1:
+			case SimpleCParser.T__23:
+			case SimpleCParser.T__24:
+			case SimpleCParser.T__39:
+			case SimpleCParser.Bool:
+			case SimpleCParser.Number:
+			case SimpleCParser.Identifier:
+			case SimpleCParser.String:
 				this.enterOuterAlt(_localctx, 2);
 				{
 				this.state = 241;
@@ -1226,18 +1226,18 @@ export class SimpleParser extends Parser {
 	// @RuleVersion(0)
 	public whileStatement(): WhileStatementContext {
 		let _localctx: WhileStatementContext = new WhileStatementContext(this._ctx, this.state);
-		this.enterRule(_localctx, 52, SimpleParser.RULE_whileStatement);
+		this.enterRule(_localctx, 52, SimpleCParser.RULE_whileStatement);
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
 			this.state = 244;
-			this.match(SimpleParser.T__21);
+			this.match(SimpleCParser.T__21);
 			this.state = 245;
-			this.match(SimpleParser.T__1);
+			this.match(SimpleCParser.T__1);
 			this.state = 246;
 			this.expression(0);
 			this.state = 247;
-			this.match(SimpleParser.T__2);
+			this.match(SimpleCParser.T__2);
 			this.state = 248;
 			this.statement();
 			}
@@ -1259,25 +1259,25 @@ export class SimpleParser extends Parser {
 	// @RuleVersion(0)
 	public printfStatement(): PrintfStatementContext {
 		let _localctx: PrintfStatementContext = new PrintfStatementContext(this._ctx, this.state);
-		this.enterRule(_localctx, 54, SimpleParser.RULE_printfStatement);
+		this.enterRule(_localctx, 54, SimpleCParser.RULE_printfStatement);
 		let _la: number;
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
 			this.state = 250;
-			this.match(SimpleParser.T__22);
+			this.match(SimpleCParser.T__22);
 			this.state = 251;
-			this.match(SimpleParser.T__1);
+			this.match(SimpleCParser.T__1);
 			this.state = 252;
-			this.match(SimpleParser.String);
+			this.match(SimpleCParser.String);
 			this.state = 257;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			while (_la === SimpleParser.T__5) {
+			while (_la === SimpleCParser.T__5) {
 				{
 				{
 				this.state = 253;
-				this.match(SimpleParser.T__5);
+				this.match(SimpleCParser.T__5);
 				this.state = 254;
 				this.expression(0);
 				}
@@ -1287,9 +1287,9 @@ export class SimpleParser extends Parser {
 				_la = this._input.LA(1);
 			}
 			this.state = 260;
-			this.match(SimpleParser.T__2);
+			this.match(SimpleCParser.T__2);
 			this.state = 261;
-			this.match(SimpleParser.T__7);
+			this.match(SimpleCParser.T__7);
 			}
 		}
 		catch (re) {
@@ -1309,23 +1309,23 @@ export class SimpleParser extends Parser {
 	// @RuleVersion(0)
 	public idList(): IdListContext {
 		let _localctx: IdListContext = new IdListContext(this._ctx, this.state);
-		this.enterRule(_localctx, 56, SimpleParser.RULE_idList);
+		this.enterRule(_localctx, 56, SimpleCParser.RULE_idList);
 		let _la: number;
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
 			this.state = 263;
-			this.match(SimpleParser.Identifier);
+			this.match(SimpleCParser.Identifier);
 			this.state = 268;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			while (_la === SimpleParser.T__5) {
+			while (_la === SimpleCParser.T__5) {
 				{
 				{
 				this.state = 264;
-				this.match(SimpleParser.T__5);
+				this.match(SimpleCParser.T__5);
 				this.state = 265;
-				this.match(SimpleParser.Identifier);
+				this.match(SimpleCParser.Identifier);
 				}
 				}
 				this.state = 270;
@@ -1351,7 +1351,7 @@ export class SimpleParser extends Parser {
 	// @RuleVersion(0)
 	public exprList(): ExprListContext {
 		let _localctx: ExprListContext = new ExprListContext(this._ctx, this.state);
-		this.enterRule(_localctx, 58, SimpleParser.RULE_exprList);
+		this.enterRule(_localctx, 58, SimpleCParser.RULE_exprList);
 		let _la: number;
 		try {
 			this.enterOuterAlt(_localctx, 1);
@@ -1361,11 +1361,11 @@ export class SimpleParser extends Parser {
 			this.state = 276;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			while (_la === SimpleParser.T__5) {
+			while (_la === SimpleCParser.T__5) {
 				{
 				{
 				this.state = 272;
-				this.match(SimpleParser.T__5);
+				this.match(SimpleCParser.T__5);
 				this.state = 273;
 				this.expression(0);
 				}
@@ -1404,7 +1404,7 @@ export class SimpleParser extends Parser {
 		let _localctx: ExpressionContext = new ExpressionContext(this._ctx, _parentState);
 		let _prevctx: ExpressionContext = _localctx;
 		let _startState: number = 60;
-		this.enterRecursionRule(_localctx, 60, SimpleParser.RULE_expression, _p);
+		this.enterRecursionRule(_localctx, 60, SimpleCParser.RULE_expression, _p);
 		let _la: number;
 		try {
 			let _alt: number;
@@ -1420,7 +1420,7 @@ export class SimpleParser extends Parser {
 				_prevctx = _localctx;
 
 				this.state = 280;
-				(_localctx as UnaryExpressionContext)._op = this.match(SimpleParser.T__23);
+				(_localctx as UnaryExpressionContext)._op = this.match(SimpleCParser.T__23);
 				this.state = 281;
 				this.expression(14);
 				}
@@ -1432,7 +1432,7 @@ export class SimpleParser extends Parser {
 				this._ctx = _localctx;
 				_prevctx = _localctx;
 				this.state = 282;
-				(_localctx as UnaryExpressionContext)._op = this.match(SimpleParser.T__24);
+				(_localctx as UnaryExpressionContext)._op = this.match(SimpleCParser.T__24);
 				this.state = 283;
 				this.expression(13);
 				}
@@ -1464,7 +1464,7 @@ export class SimpleParser extends Parser {
 				this._ctx = _localctx;
 				_prevctx = _localctx;
 				this.state = 286;
-				this.match(SimpleParser.Identifier);
+				this.match(SimpleCParser.Identifier);
 				this.state = 288;
 				this._errHandler.sync(this);
 				switch ( this.interpreter.adaptivePredict(this._input, 21, this._ctx) ) {
@@ -1484,11 +1484,11 @@ export class SimpleParser extends Parser {
 				this._ctx = _localctx;
 				_prevctx = _localctx;
 				this.state = 290;
-				this.match(SimpleParser.T__1);
+				this.match(SimpleCParser.T__1);
 				this.state = 291;
 				this.expression(0);
 				this.state = 292;
-				this.match(SimpleParser.T__2);
+				this.match(SimpleCParser.T__2);
 				}
 				break;
 			}
@@ -1509,13 +1509,13 @@ export class SimpleParser extends Parser {
 					case 1:
 						{
 						_localctx = new BinaryExpressionContext(new ExpressionContext(_parentctx, _parentState));
-						this.pushNewRecursionContext(_localctx, _startState, SimpleParser.RULE_expression);
+						this.pushNewRecursionContext(_localctx, _startState, SimpleCParser.RULE_expression);
 						this.state = 296;
 						if (!(this.precpred(this._ctx, 12))) {
 							throw new FailedPredicateException(this, "this.precpred(this._ctx, 12)");
 						}
 						this.state = 297;
-						(_localctx as BinaryExpressionContext)._op = this.match(SimpleParser.T__25);
+						(_localctx as BinaryExpressionContext)._op = this.match(SimpleCParser.T__25);
 						this.state = 298;
 						this.expression(12);
 						}
@@ -1524,7 +1524,7 @@ export class SimpleParser extends Parser {
 					case 2:
 						{
 						_localctx = new BinaryExpressionContext(new ExpressionContext(_parentctx, _parentState));
-						this.pushNewRecursionContext(_localctx, _startState, SimpleParser.RULE_expression);
+						this.pushNewRecursionContext(_localctx, _startState, SimpleCParser.RULE_expression);
 						this.state = 299;
 						if (!(this.precpred(this._ctx, 11))) {
 							throw new FailedPredicateException(this, "this.precpred(this._ctx, 11)");
@@ -1532,7 +1532,7 @@ export class SimpleParser extends Parser {
 						this.state = 300;
 						(_localctx as BinaryExpressionContext)._op = this._input.LT(1);
 						_la = this._input.LA(1);
-						if (!((((_la) & ~0x1F) === 0 && ((1 << _la) & ((1 << SimpleParser.T__26) | (1 << SimpleParser.T__27) | (1 << SimpleParser.T__28))) !== 0))) {
+						if (!((((_la) & ~0x1F) === 0 && ((1 << _la) & ((1 << SimpleCParser.T__26) | (1 << SimpleCParser.T__27) | (1 << SimpleCParser.T__28))) !== 0))) {
 							(_localctx as BinaryExpressionContext)._op = this._errHandler.recoverInline(this);
 						} else {
 							if (this._input.LA(1) === Token.EOF) {
@@ -1550,7 +1550,7 @@ export class SimpleParser extends Parser {
 					case 3:
 						{
 						_localctx = new BinaryExpressionContext(new ExpressionContext(_parentctx, _parentState));
-						this.pushNewRecursionContext(_localctx, _startState, SimpleParser.RULE_expression);
+						this.pushNewRecursionContext(_localctx, _startState, SimpleCParser.RULE_expression);
 						this.state = 302;
 						if (!(this.precpred(this._ctx, 10))) {
 							throw new FailedPredicateException(this, "this.precpred(this._ctx, 10)");
@@ -1558,7 +1558,7 @@ export class SimpleParser extends Parser {
 						this.state = 303;
 						(_localctx as BinaryExpressionContext)._op = this._input.LT(1);
 						_la = this._input.LA(1);
-						if (!(_la === SimpleParser.T__23 || _la === SimpleParser.T__29)) {
+						if (!(_la === SimpleCParser.T__23 || _la === SimpleCParser.T__29)) {
 							(_localctx as BinaryExpressionContext)._op = this._errHandler.recoverInline(this);
 						} else {
 							if (this._input.LA(1) === Token.EOF) {
@@ -1576,7 +1576,7 @@ export class SimpleParser extends Parser {
 					case 4:
 						{
 						_localctx = new BinaryExpressionContext(new ExpressionContext(_parentctx, _parentState));
-						this.pushNewRecursionContext(_localctx, _startState, SimpleParser.RULE_expression);
+						this.pushNewRecursionContext(_localctx, _startState, SimpleCParser.RULE_expression);
 						this.state = 305;
 						if (!(this.precpred(this._ctx, 9))) {
 							throw new FailedPredicateException(this, "this.precpred(this._ctx, 9)");
@@ -1584,7 +1584,7 @@ export class SimpleParser extends Parser {
 						this.state = 306;
 						(_localctx as BinaryExpressionContext)._op = this._input.LT(1);
 						_la = this._input.LA(1);
-						if (!(((((_la - 31)) & ~0x1F) === 0 && ((1 << (_la - 31)) & ((1 << (SimpleParser.T__30 - 31)) | (1 << (SimpleParser.T__31 - 31)) | (1 << (SimpleParser.T__32 - 31)) | (1 << (SimpleParser.T__33 - 31)))) !== 0))) {
+						if (!(((((_la - 31)) & ~0x1F) === 0 && ((1 << (_la - 31)) & ((1 << (SimpleCParser.T__30 - 31)) | (1 << (SimpleCParser.T__31 - 31)) | (1 << (SimpleCParser.T__32 - 31)) | (1 << (SimpleCParser.T__33 - 31)))) !== 0))) {
 							(_localctx as BinaryExpressionContext)._op = this._errHandler.recoverInline(this);
 						} else {
 							if (this._input.LA(1) === Token.EOF) {
@@ -1602,7 +1602,7 @@ export class SimpleParser extends Parser {
 					case 5:
 						{
 						_localctx = new BinaryExpressionContext(new ExpressionContext(_parentctx, _parentState));
-						this.pushNewRecursionContext(_localctx, _startState, SimpleParser.RULE_expression);
+						this.pushNewRecursionContext(_localctx, _startState, SimpleCParser.RULE_expression);
 						this.state = 308;
 						if (!(this.precpred(this._ctx, 8))) {
 							throw new FailedPredicateException(this, "this.precpred(this._ctx, 8)");
@@ -1610,7 +1610,7 @@ export class SimpleParser extends Parser {
 						this.state = 309;
 						(_localctx as BinaryExpressionContext)._op = this._input.LT(1);
 						_la = this._input.LA(1);
-						if (!(_la === SimpleParser.T__34 || _la === SimpleParser.T__35)) {
+						if (!(_la === SimpleCParser.T__34 || _la === SimpleCParser.T__35)) {
 							(_localctx as BinaryExpressionContext)._op = this._errHandler.recoverInline(this);
 						} else {
 							if (this._input.LA(1) === Token.EOF) {
@@ -1628,13 +1628,13 @@ export class SimpleParser extends Parser {
 					case 6:
 						{
 						_localctx = new BinaryExpressionContext(new ExpressionContext(_parentctx, _parentState));
-						this.pushNewRecursionContext(_localctx, _startState, SimpleParser.RULE_expression);
+						this.pushNewRecursionContext(_localctx, _startState, SimpleCParser.RULE_expression);
 						this.state = 311;
 						if (!(this.precpred(this._ctx, 7))) {
 							throw new FailedPredicateException(this, "this.precpred(this._ctx, 7)");
 						}
 						this.state = 312;
-						(_localctx as BinaryExpressionContext)._op = this.match(SimpleParser.T__36);
+						(_localctx as BinaryExpressionContext)._op = this.match(SimpleCParser.T__36);
 						this.state = 313;
 						this.expression(8);
 						}
@@ -1643,13 +1643,13 @@ export class SimpleParser extends Parser {
 					case 7:
 						{
 						_localctx = new BinaryExpressionContext(new ExpressionContext(_parentctx, _parentState));
-						this.pushNewRecursionContext(_localctx, _startState, SimpleParser.RULE_expression);
+						this.pushNewRecursionContext(_localctx, _startState, SimpleCParser.RULE_expression);
 						this.state = 314;
 						if (!(this.precpred(this._ctx, 6))) {
 							throw new FailedPredicateException(this, "this.precpred(this._ctx, 6)");
 						}
 						this.state = 315;
-						(_localctx as BinaryExpressionContext)._op = this.match(SimpleParser.T__37);
+						(_localctx as BinaryExpressionContext)._op = this.match(SimpleCParser.T__37);
 						this.state = 316;
 						this.expression(7);
 						}
@@ -1658,17 +1658,17 @@ export class SimpleParser extends Parser {
 					case 8:
 						{
 						_localctx = new TernaryExpressionContext(new ExpressionContext(_parentctx, _parentState));
-						this.pushNewRecursionContext(_localctx, _startState, SimpleParser.RULE_expression);
+						this.pushNewRecursionContext(_localctx, _startState, SimpleCParser.RULE_expression);
 						this.state = 317;
 						if (!(this.precpred(this._ctx, 5))) {
 							throw new FailedPredicateException(this, "this.precpred(this._ctx, 5)");
 						}
 						this.state = 318;
-						(_localctx as TernaryExpressionContext)._op = this.match(SimpleParser.T__38);
+						(_localctx as TernaryExpressionContext)._op = this.match(SimpleCParser.T__38);
 						this.state = 319;
 						this.expression(0);
 						this.state = 320;
-						this.match(SimpleParser.T__17);
+						this.match(SimpleCParser.T__17);
 						this.state = 321;
 						this.expression(6);
 						}
@@ -1699,41 +1699,41 @@ export class SimpleParser extends Parser {
 	// @RuleVersion(0)
 	public constantValue(): ConstantValueContext {
 		let _localctx: ConstantValueContext = new ConstantValueContext(this._ctx, this.state);
-		this.enterRule(_localctx, 62, SimpleParser.RULE_constantValue);
+		this.enterRule(_localctx, 62, SimpleCParser.RULE_constantValue);
 		try {
 			this.state = 335;
 			this._errHandler.sync(this);
 			switch (this._input.LA(1)) {
-			case SimpleParser.Number:
+			case SimpleCParser.Number:
 				_localctx = new NumberExpressionContext(_localctx);
 				this.enterOuterAlt(_localctx, 1);
 				{
 				this.state = 328;
-				this.match(SimpleParser.Number);
+				this.match(SimpleCParser.Number);
 				}
 				break;
-			case SimpleParser.Bool:
+			case SimpleCParser.Bool:
 				_localctx = new BoolExpressionContext(_localctx);
 				this.enterOuterAlt(_localctx, 2);
 				{
 				this.state = 329;
-				this.match(SimpleParser.Bool);
+				this.match(SimpleCParser.Bool);
 				}
 				break;
-			case SimpleParser.T__39:
+			case SimpleCParser.T__39:
 				_localctx = new NullExpressionContext(_localctx);
 				this.enterOuterAlt(_localctx, 3);
 				{
 				this.state = 330;
-				this.match(SimpleParser.T__39);
+				this.match(SimpleCParser.T__39);
 				}
 				break;
-			case SimpleParser.String:
+			case SimpleCParser.String:
 				_localctx = new StringExpressionContext(_localctx);
 				this.enterOuterAlt(_localctx, 4);
 				{
 				this.state = 331;
-				this.match(SimpleParser.String);
+				this.match(SimpleCParser.String);
 				this.state = 333;
 				this._errHandler.sync(this);
 				switch ( this.interpreter.adaptivePredict(this._input, 25, this._ctx) ) {
@@ -1767,17 +1767,17 @@ export class SimpleParser extends Parser {
 	// @RuleVersion(0)
 	public list(): ListContext {
 		let _localctx: ListContext = new ListContext(this._ctx, this.state);
-		this.enterRule(_localctx, 64, SimpleParser.RULE_list);
+		this.enterRule(_localctx, 64, SimpleCParser.RULE_list);
 		let _la: number;
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
 			this.state = 337;
-			this.match(SimpleParser.T__11);
+			this.match(SimpleCParser.T__11);
 			this.state = 339;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			if ((((_la) & ~0x1F) === 0 && ((1 << _la) & ((1 << SimpleParser.T__1) | (1 << SimpleParser.T__23) | (1 << SimpleParser.T__24))) !== 0) || ((((_la - 40)) & ~0x1F) === 0 && ((1 << (_la - 40)) & ((1 << (SimpleParser.T__39 - 40)) | (1 << (SimpleParser.Bool - 40)) | (1 << (SimpleParser.Number - 40)) | (1 << (SimpleParser.Identifier - 40)) | (1 << (SimpleParser.String - 40)))) !== 0)) {
+			if ((((_la) & ~0x1F) === 0 && ((1 << _la) & ((1 << SimpleCParser.T__1) | (1 << SimpleCParser.T__23) | (1 << SimpleCParser.T__24))) !== 0) || ((((_la - 40)) & ~0x1F) === 0 && ((1 << (_la - 40)) & ((1 << (SimpleCParser.T__39 - 40)) | (1 << (SimpleCParser.Bool - 40)) | (1 << (SimpleCParser.Number - 40)) | (1 << (SimpleCParser.Identifier - 40)) | (1 << (SimpleCParser.String - 40)))) !== 0)) {
 				{
 				this.state = 338;
 				this.exprList();
@@ -1785,7 +1785,7 @@ export class SimpleParser extends Parser {
 			}
 
 			this.state = 341;
-			this.match(SimpleParser.T__12);
+			this.match(SimpleCParser.T__12);
 			}
 		}
 		catch (re) {
@@ -1805,7 +1805,7 @@ export class SimpleParser extends Parser {
 	// @RuleVersion(0)
 	public indexes(): IndexesContext {
 		let _localctx: IndexesContext = new IndexesContext(this._ctx, this.state);
-		this.enterRule(_localctx, 66, SimpleParser.RULE_indexes);
+		this.enterRule(_localctx, 66, SimpleCParser.RULE_indexes);
 		try {
 			let _alt: number;
 			this.enterOuterAlt(_localctx, 1);
@@ -1819,11 +1819,11 @@ export class SimpleParser extends Parser {
 					{
 					{
 					this.state = 343;
-					this.match(SimpleParser.T__11);
+					this.match(SimpleCParser.T__11);
 					this.state = 344;
 					this.expression(0);
 					this.state = 345;
-					this.match(SimpleParser.T__12);
+					this.match(SimpleCParser.T__12);
 					}
 					}
 					break;
@@ -2050,11 +2050,11 @@ export class SimpleParser extends Parser {
 		"\xF4\u0103\u010E\u0116\u0122\u0128\u0145\u0147\u014F\u0151\u0155\u015F";
 	public static __ATN: ATN;
 	public static get _ATN(): ATN {
-		if (!SimpleParser.__ATN) {
-			SimpleParser.__ATN = new ATNDeserializer().deserialize(Utils.toCharArray(SimpleParser._serializedATN));
+		if (!SimpleCParser.__ATN) {
+			SimpleCParser.__ATN = new ATNDeserializer().deserialize(Utils.toCharArray(SimpleCParser._serializedATN));
 		}
 
-		return SimpleParser.__ATN;
+		return SimpleCParser.__ATN;
 	}
 
 }
@@ -2063,26 +2063,26 @@ export class ParseContext extends ParserRuleContext {
 	public repl(): ReplContext {
 		return this.getRuleContext(0, ReplContext);
 	}
-	public EOF(): TerminalNode { return this.getToken(SimpleParser.EOF, 0); }
+	public EOF(): TerminalNode { return this.getToken(SimpleCParser.EOF, 0); }
 	constructor(parent: ParserRuleContext | undefined, invokingState: number) {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return SimpleParser.RULE_parse; }
+	public get ruleIndex(): number { return SimpleCParser.RULE_parse; }
 	// @Override
-	public enterRule(listener: SimpleListener): void {
+	public enterRule(listener: SimpleCListener): void {
 		if (listener.enterParse) {
 			listener.enterParse(this);
 		}
 	}
 	// @Override
-	public exitRule(listener: SimpleListener): void {
+	public exitRule(listener: SimpleCListener): void {
 		if (listener.exitParse) {
 			listener.exitParse(this);
 		}
 	}
 	// @Override
-	public accept<Result>(visitor: SimpleVisitor<Result>): Result {
+	public accept<Result>(visitor: SimpleCVisitor<Result>): Result {
 		if (visitor.visitParse) {
 			return visitor.visitParse(this);
 		} else {
@@ -2109,21 +2109,21 @@ export class ReplContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return SimpleParser.RULE_repl; }
+	public get ruleIndex(): number { return SimpleCParser.RULE_repl; }
 	// @Override
-	public enterRule(listener: SimpleListener): void {
+	public enterRule(listener: SimpleCListener): void {
 		if (listener.enterRepl) {
 			listener.enterRepl(this);
 		}
 	}
 	// @Override
-	public exitRule(listener: SimpleListener): void {
+	public exitRule(listener: SimpleCListener): void {
 		if (listener.exitRepl) {
 			listener.exitRepl(this);
 		}
 	}
 	// @Override
-	public accept<Result>(visitor: SimpleVisitor<Result>): Result {
+	public accept<Result>(visitor: SimpleCVisitor<Result>): Result {
 		if (visitor.visitRepl) {
 			return visitor.visitRepl(this);
 		} else {
@@ -2141,21 +2141,21 @@ export class FunTypeContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return SimpleParser.RULE_funType; }
+	public get ruleIndex(): number { return SimpleCParser.RULE_funType; }
 	// @Override
-	public enterRule(listener: SimpleListener): void {
+	public enterRule(listener: SimpleCListener): void {
 		if (listener.enterFunType) {
 			listener.enterFunType(this);
 		}
 	}
 	// @Override
-	public exitRule(listener: SimpleListener): void {
+	public exitRule(listener: SimpleCListener): void {
 		if (listener.exitFunType) {
 			listener.exitFunType(this);
 		}
 	}
 	// @Override
-	public accept<Result>(visitor: SimpleVisitor<Result>): Result {
+	public accept<Result>(visitor: SimpleCVisitor<Result>): Result {
 		if (visitor.visitFunType) {
 			return visitor.visitFunType(this);
 		} else {
@@ -2169,7 +2169,7 @@ export class FunctionDeclContext extends ParserRuleContext {
 	public funType(): FunTypeContext {
 		return this.getRuleContext(0, FunTypeContext);
 	}
-	public Identifier(): TerminalNode { return this.getToken(SimpleParser.Identifier, 0); }
+	public Identifier(): TerminalNode { return this.getToken(SimpleCParser.Identifier, 0); }
 	public returnBlock(): ReturnBlockContext {
 		return this.getRuleContext(0, ReturnBlockContext);
 	}
@@ -2180,21 +2180,21 @@ export class FunctionDeclContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return SimpleParser.RULE_functionDecl; }
+	public get ruleIndex(): number { return SimpleCParser.RULE_functionDecl; }
 	// @Override
-	public enterRule(listener: SimpleListener): void {
+	public enterRule(listener: SimpleCListener): void {
 		if (listener.enterFunctionDecl) {
 			listener.enterFunctionDecl(this);
 		}
 	}
 	// @Override
-	public exitRule(listener: SimpleListener): void {
+	public exitRule(listener: SimpleCListener): void {
 		if (listener.exitFunctionDecl) {
 			listener.exitFunctionDecl(this);
 		}
 	}
 	// @Override
-	public accept<Result>(visitor: SimpleVisitor<Result>): Result {
+	public accept<Result>(visitor: SimpleCVisitor<Result>): Result {
 		if (visitor.visitFunctionDecl) {
 			return visitor.visitFunctionDecl(this);
 		} else {
@@ -2208,26 +2208,26 @@ export class ParamContext extends ParserRuleContext {
 	public varType(): VarTypeContext {
 		return this.getRuleContext(0, VarTypeContext);
 	}
-	public Identifier(): TerminalNode { return this.getToken(SimpleParser.Identifier, 0); }
+	public Identifier(): TerminalNode { return this.getToken(SimpleCParser.Identifier, 0); }
 	constructor(parent: ParserRuleContext | undefined, invokingState: number) {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return SimpleParser.RULE_param; }
+	public get ruleIndex(): number { return SimpleCParser.RULE_param; }
 	// @Override
-	public enterRule(listener: SimpleListener): void {
+	public enterRule(listener: SimpleCListener): void {
 		if (listener.enterParam) {
 			listener.enterParam(this);
 		}
 	}
 	// @Override
-	public exitRule(listener: SimpleListener): void {
+	public exitRule(listener: SimpleCListener): void {
 		if (listener.exitParam) {
 			listener.exitParam(this);
 		}
 	}
 	// @Override
-	public accept<Result>(visitor: SimpleVisitor<Result>): Result {
+	public accept<Result>(visitor: SimpleCVisitor<Result>): Result {
 		if (visitor.visitParam) {
 			return visitor.visitParam(this);
 		} else {
@@ -2251,21 +2251,21 @@ export class ParamListContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return SimpleParser.RULE_paramList; }
+	public get ruleIndex(): number { return SimpleCParser.RULE_paramList; }
 	// @Override
-	public enterRule(listener: SimpleListener): void {
+	public enterRule(listener: SimpleCListener): void {
 		if (listener.enterParamList) {
 			listener.enterParamList(this);
 		}
 	}
 	// @Override
-	public exitRule(listener: SimpleListener): void {
+	public exitRule(listener: SimpleCListener): void {
 		if (listener.exitParamList) {
 			listener.exitParamList(this);
 		}
 	}
 	// @Override
-	public accept<Result>(visitor: SimpleVisitor<Result>): Result {
+	public accept<Result>(visitor: SimpleCVisitor<Result>): Result {
 		if (visitor.visitParamList) {
 			return visitor.visitParamList(this);
 		} else {
@@ -2292,21 +2292,21 @@ export class ReturnBlockContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return SimpleParser.RULE_returnBlock; }
+	public get ruleIndex(): number { return SimpleCParser.RULE_returnBlock; }
 	// @Override
-	public enterRule(listener: SimpleListener): void {
+	public enterRule(listener: SimpleCListener): void {
 		if (listener.enterReturnBlock) {
 			listener.enterReturnBlock(this);
 		}
 	}
 	// @Override
-	public exitRule(listener: SimpleListener): void {
+	public exitRule(listener: SimpleCListener): void {
 		if (listener.exitReturnBlock) {
 			listener.exitReturnBlock(this);
 		}
 	}
 	// @Override
-	public accept<Result>(visitor: SimpleVisitor<Result>): Result {
+	public accept<Result>(visitor: SimpleCVisitor<Result>): Result {
 		if (visitor.visitReturnBlock) {
 			return visitor.visitReturnBlock(this);
 		} else {
@@ -2351,21 +2351,21 @@ export class StatementContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return SimpleParser.RULE_statement; }
+	public get ruleIndex(): number { return SimpleCParser.RULE_statement; }
 	// @Override
-	public enterRule(listener: SimpleListener): void {
+	public enterRule(listener: SimpleCListener): void {
 		if (listener.enterStatement) {
 			listener.enterStatement(this);
 		}
 	}
 	// @Override
-	public exitRule(listener: SimpleListener): void {
+	public exitRule(listener: SimpleCListener): void {
 		if (listener.exitStatement) {
 			listener.exitStatement(this);
 		}
 	}
 	// @Override
-	public accept<Result>(visitor: SimpleVisitor<Result>): Result {
+	public accept<Result>(visitor: SimpleCVisitor<Result>): Result {
 		if (visitor.visitStatement) {
 			return visitor.visitStatement(this);
 		} else {
@@ -2383,21 +2383,21 @@ export class CompoundStatementContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return SimpleParser.RULE_compoundStatement; }
+	public get ruleIndex(): number { return SimpleCParser.RULE_compoundStatement; }
 	// @Override
-	public enterRule(listener: SimpleListener): void {
+	public enterRule(listener: SimpleCListener): void {
 		if (listener.enterCompoundStatement) {
 			listener.enterCompoundStatement(this);
 		}
 	}
 	// @Override
-	public exitRule(listener: SimpleListener): void {
+	public exitRule(listener: SimpleCListener): void {
 		if (listener.exitCompoundStatement) {
 			listener.exitCompoundStatement(this);
 		}
 	}
 	// @Override
-	public accept<Result>(visitor: SimpleVisitor<Result>): Result {
+	public accept<Result>(visitor: SimpleCVisitor<Result>): Result {
 		if (visitor.visitCompoundStatement) {
 			return visitor.visitCompoundStatement(this);
 		} else {
@@ -2421,21 +2421,21 @@ export class StatementsContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return SimpleParser.RULE_statements; }
+	public get ruleIndex(): number { return SimpleCParser.RULE_statements; }
 	// @Override
-	public enterRule(listener: SimpleListener): void {
+	public enterRule(listener: SimpleCListener): void {
 		if (listener.enterStatements) {
 			listener.enterStatements(this);
 		}
 	}
 	// @Override
-	public exitRule(listener: SimpleListener): void {
+	public exitRule(listener: SimpleCListener): void {
 		if (listener.exitStatements) {
 			listener.exitStatements(this);
 		}
 	}
 	// @Override
-	public accept<Result>(visitor: SimpleVisitor<Result>): Result {
+	public accept<Result>(visitor: SimpleCVisitor<Result>): Result {
 		if (visitor.visitStatements) {
 			return visitor.visitStatements(this);
 		} else {
@@ -2453,21 +2453,21 @@ export class ReturnStatementContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return SimpleParser.RULE_returnStatement; }
+	public get ruleIndex(): number { return SimpleCParser.RULE_returnStatement; }
 	// @Override
-	public enterRule(listener: SimpleListener): void {
+	public enterRule(listener: SimpleCListener): void {
 		if (listener.enterReturnStatement) {
 			listener.enterReturnStatement(this);
 		}
 	}
 	// @Override
-	public exitRule(listener: SimpleListener): void {
+	public exitRule(listener: SimpleCListener): void {
 		if (listener.exitReturnStatement) {
 			listener.exitReturnStatement(this);
 		}
 	}
 	// @Override
-	public accept<Result>(visitor: SimpleVisitor<Result>): Result {
+	public accept<Result>(visitor: SimpleCVisitor<Result>): Result {
 		if (visitor.visitReturnStatement) {
 			return visitor.visitReturnStatement(this);
 		} else {
@@ -2482,21 +2482,21 @@ export class VarTypeContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return SimpleParser.RULE_varType; }
+	public get ruleIndex(): number { return SimpleCParser.RULE_varType; }
 	// @Override
-	public enterRule(listener: SimpleListener): void {
+	public enterRule(listener: SimpleCListener): void {
 		if (listener.enterVarType) {
 			listener.enterVarType(this);
 		}
 	}
 	// @Override
-	public exitRule(listener: SimpleListener): void {
+	public exitRule(listener: SimpleCListener): void {
 		if (listener.exitVarType) {
 			listener.exitVarType(this);
 		}
 	}
 	// @Override
-	public accept<Result>(visitor: SimpleVisitor<Result>): Result {
+	public accept<Result>(visitor: SimpleCVisitor<Result>): Result {
 		if (visitor.visitVarType) {
 			return visitor.visitVarType(this);
 		} else {
@@ -2517,21 +2517,21 @@ export class VariableDeclarationContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return SimpleParser.RULE_variableDeclaration; }
+	public get ruleIndex(): number { return SimpleCParser.RULE_variableDeclaration; }
 	// @Override
-	public enterRule(listener: SimpleListener): void {
+	public enterRule(listener: SimpleCListener): void {
 		if (listener.enterVariableDeclaration) {
 			listener.enterVariableDeclaration(this);
 		}
 	}
 	// @Override
-	public exitRule(listener: SimpleListener): void {
+	public exitRule(listener: SimpleCListener): void {
 		if (listener.exitVariableDeclaration) {
 			listener.exitVariableDeclaration(this);
 		}
 	}
 	// @Override
-	public accept<Result>(visitor: SimpleVisitor<Result>): Result {
+	public accept<Result>(visitor: SimpleCVisitor<Result>): Result {
 		if (visitor.visitVariableDeclaration) {
 			return visitor.visitVariableDeclaration(this);
 		} else {
@@ -2555,21 +2555,21 @@ export class InitDeclaratorListContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return SimpleParser.RULE_initDeclaratorList; }
+	public get ruleIndex(): number { return SimpleCParser.RULE_initDeclaratorList; }
 	// @Override
-	public enterRule(listener: SimpleListener): void {
+	public enterRule(listener: SimpleCListener): void {
 		if (listener.enterInitDeclaratorList) {
 			listener.enterInitDeclaratorList(this);
 		}
 	}
 	// @Override
-	public exitRule(listener: SimpleListener): void {
+	public exitRule(listener: SimpleCListener): void {
 		if (listener.exitInitDeclaratorList) {
 			listener.exitInitDeclaratorList(this);
 		}
 	}
 	// @Override
-	public accept<Result>(visitor: SimpleVisitor<Result>): Result {
+	public accept<Result>(visitor: SimpleCVisitor<Result>): Result {
 		if (visitor.visitInitDeclaratorList) {
 			return visitor.visitInitDeclaratorList(this);
 		} else {
@@ -2580,7 +2580,7 @@ export class InitDeclaratorListContext extends ParserRuleContext {
 
 
 export class InitDeclaratorContext extends ParserRuleContext {
-	public Identifier(): TerminalNode { return this.getToken(SimpleParser.Identifier, 0); }
+	public Identifier(): TerminalNode { return this.getToken(SimpleCParser.Identifier, 0); }
 	public dimensions(): DimensionsContext[];
 	public dimensions(i: number): DimensionsContext;
 	public dimensions(i?: number): DimensionsContext | DimensionsContext[] {
@@ -2597,21 +2597,21 @@ export class InitDeclaratorContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return SimpleParser.RULE_initDeclarator; }
+	public get ruleIndex(): number { return SimpleCParser.RULE_initDeclarator; }
 	// @Override
-	public enterRule(listener: SimpleListener): void {
+	public enterRule(listener: SimpleCListener): void {
 		if (listener.enterInitDeclarator) {
 			listener.enterInitDeclarator(this);
 		}
 	}
 	// @Override
-	public exitRule(listener: SimpleListener): void {
+	public exitRule(listener: SimpleCListener): void {
 		if (listener.exitInitDeclarator) {
 			listener.exitInitDeclarator(this);
 		}
 	}
 	// @Override
-	public accept<Result>(visitor: SimpleVisitor<Result>): Result {
+	public accept<Result>(visitor: SimpleCVisitor<Result>): Result {
 		if (visitor.visitInitDeclarator) {
 			return visitor.visitInitDeclarator(this);
 		} else {
@@ -2622,26 +2622,26 @@ export class InitDeclaratorContext extends ParserRuleContext {
 
 
 export class DimensionsContext extends ParserRuleContext {
-	public Number(): TerminalNode { return this.getToken(SimpleParser.Number, 0); }
+	public Number(): TerminalNode { return this.getToken(SimpleCParser.Number, 0); }
 	constructor(parent: ParserRuleContext | undefined, invokingState: number) {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return SimpleParser.RULE_dimensions; }
+	public get ruleIndex(): number { return SimpleCParser.RULE_dimensions; }
 	// @Override
-	public enterRule(listener: SimpleListener): void {
+	public enterRule(listener: SimpleCListener): void {
 		if (listener.enterDimensions) {
 			listener.enterDimensions(this);
 		}
 	}
 	// @Override
-	public exitRule(listener: SimpleListener): void {
+	public exitRule(listener: SimpleCListener): void {
 		if (listener.exitDimensions) {
 			listener.exitDimensions(this);
 		}
 	}
 	// @Override
-	public accept<Result>(visitor: SimpleVisitor<Result>): Result {
+	public accept<Result>(visitor: SimpleCVisitor<Result>): Result {
 		if (visitor.visitDimensions) {
 			return visitor.visitDimensions(this);
 		} else {
@@ -2665,21 +2665,21 @@ export class AssignmentContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return SimpleParser.RULE_assignment; }
+	public get ruleIndex(): number { return SimpleCParser.RULE_assignment; }
 	// @Override
-	public enterRule(listener: SimpleListener): void {
+	public enterRule(listener: SimpleCListener): void {
 		if (listener.enterAssignment) {
 			listener.enterAssignment(this);
 		}
 	}
 	// @Override
-	public exitRule(listener: SimpleListener): void {
+	public exitRule(listener: SimpleCListener): void {
 		if (listener.exitAssignment) {
 			listener.exitAssignment(this);
 		}
 	}
 	// @Override
-	public accept<Result>(visitor: SimpleVisitor<Result>): Result {
+	public accept<Result>(visitor: SimpleCVisitor<Result>): Result {
 		if (visitor.visitAssignment) {
 			return visitor.visitAssignment(this);
 		} else {
@@ -2690,7 +2690,7 @@ export class AssignmentContext extends ParserRuleContext {
 
 
 export class FunctionCallContext extends ParserRuleContext {
-	public Identifier(): TerminalNode { return this.getToken(SimpleParser.Identifier, 0); }
+	public Identifier(): TerminalNode { return this.getToken(SimpleCParser.Identifier, 0); }
 	public exprList(): ExprListContext | undefined {
 		return this.tryGetRuleContext(0, ExprListContext);
 	}
@@ -2698,21 +2698,21 @@ export class FunctionCallContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return SimpleParser.RULE_functionCall; }
+	public get ruleIndex(): number { return SimpleCParser.RULE_functionCall; }
 	// @Override
-	public enterRule(listener: SimpleListener): void {
+	public enterRule(listener: SimpleCListener): void {
 		if (listener.enterFunctionCall) {
 			listener.enterFunctionCall(this);
 		}
 	}
 	// @Override
-	public exitRule(listener: SimpleListener): void {
+	public exitRule(listener: SimpleCListener): void {
 		if (listener.exitFunctionCall) {
 			listener.exitFunctionCall(this);
 		}
 	}
 	// @Override
-	public accept<Result>(visitor: SimpleVisitor<Result>): Result {
+	public accept<Result>(visitor: SimpleCVisitor<Result>): Result {
 		if (visitor.visitFunctionCall) {
 			return visitor.visitFunctionCall(this);
 		} else {
@@ -2736,21 +2736,21 @@ export class IfStatementContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return SimpleParser.RULE_ifStatement; }
+	public get ruleIndex(): number { return SimpleCParser.RULE_ifStatement; }
 	// @Override
-	public enterRule(listener: SimpleListener): void {
+	public enterRule(listener: SimpleCListener): void {
 		if (listener.enterIfStatement) {
 			listener.enterIfStatement(this);
 		}
 	}
 	// @Override
-	public exitRule(listener: SimpleListener): void {
+	public exitRule(listener: SimpleCListener): void {
 		if (listener.exitIfStatement) {
 			listener.exitIfStatement(this);
 		}
 	}
 	// @Override
-	public accept<Result>(visitor: SimpleVisitor<Result>): Result {
+	public accept<Result>(visitor: SimpleCVisitor<Result>): Result {
 		if (visitor.visitIfStatement) {
 			return visitor.visitIfStatement(this);
 		} else {
@@ -2768,21 +2768,21 @@ export class ElseStatContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return SimpleParser.RULE_elseStat; }
+	public get ruleIndex(): number { return SimpleCParser.RULE_elseStat; }
 	// @Override
-	public enterRule(listener: SimpleListener): void {
+	public enterRule(listener: SimpleCListener): void {
 		if (listener.enterElseStat) {
 			listener.enterElseStat(this);
 		}
 	}
 	// @Override
-	public exitRule(listener: SimpleListener): void {
+	public exitRule(listener: SimpleCListener): void {
 		if (listener.exitElseStat) {
 			listener.exitElseStat(this);
 		}
 	}
 	// @Override
-	public accept<Result>(visitor: SimpleVisitor<Result>): Result {
+	public accept<Result>(visitor: SimpleCVisitor<Result>): Result {
 		if (visitor.visitElseStat) {
 			return visitor.visitElseStat(this);
 		} else {
@@ -2812,21 +2812,21 @@ export class SwitchStatementContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return SimpleParser.RULE_switchStatement; }
+	public get ruleIndex(): number { return SimpleCParser.RULE_switchStatement; }
 	// @Override
-	public enterRule(listener: SimpleListener): void {
+	public enterRule(listener: SimpleCListener): void {
 		if (listener.enterSwitchStatement) {
 			listener.enterSwitchStatement(this);
 		}
 	}
 	// @Override
-	public exitRule(listener: SimpleListener): void {
+	public exitRule(listener: SimpleCListener): void {
 		if (listener.exitSwitchStatement) {
 			listener.exitSwitchStatement(this);
 		}
 	}
 	// @Override
-	public accept<Result>(visitor: SimpleVisitor<Result>): Result {
+	public accept<Result>(visitor: SimpleCVisitor<Result>): Result {
 		if (visitor.visitSwitchStatement) {
 			return visitor.visitSwitchStatement(this);
 		} else {
@@ -2850,21 +2850,21 @@ export class CaseStatementContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return SimpleParser.RULE_caseStatement; }
+	public get ruleIndex(): number { return SimpleCParser.RULE_caseStatement; }
 	// @Override
-	public enterRule(listener: SimpleListener): void {
+	public enterRule(listener: SimpleCListener): void {
 		if (listener.enterCaseStatement) {
 			listener.enterCaseStatement(this);
 		}
 	}
 	// @Override
-	public exitRule(listener: SimpleListener): void {
+	public exitRule(listener: SimpleCListener): void {
 		if (listener.exitCaseStatement) {
 			listener.exitCaseStatement(this);
 		}
 	}
 	// @Override
-	public accept<Result>(visitor: SimpleVisitor<Result>): Result {
+	public accept<Result>(visitor: SimpleCVisitor<Result>): Result {
 		if (visitor.visitCaseStatement) {
 			return visitor.visitCaseStatement(this);
 		} else {
@@ -2882,21 +2882,21 @@ export class DefaultCaseContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return SimpleParser.RULE_defaultCase; }
+	public get ruleIndex(): number { return SimpleCParser.RULE_defaultCase; }
 	// @Override
-	public enterRule(listener: SimpleListener): void {
+	public enterRule(listener: SimpleCListener): void {
 		if (listener.enterDefaultCase) {
 			listener.enterDefaultCase(this);
 		}
 	}
 	// @Override
-	public exitRule(listener: SimpleListener): void {
+	public exitRule(listener: SimpleCListener): void {
 		if (listener.exitDefaultCase) {
 			listener.exitDefaultCase(this);
 		}
 	}
 	// @Override
-	public accept<Result>(visitor: SimpleVisitor<Result>): Result {
+	public accept<Result>(visitor: SimpleCVisitor<Result>): Result {
 		if (visitor.visitDefaultCase) {
 			return visitor.visitDefaultCase(this);
 		} else {
@@ -2911,21 +2911,21 @@ export class BreakStatementContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return SimpleParser.RULE_breakStatement; }
+	public get ruleIndex(): number { return SimpleCParser.RULE_breakStatement; }
 	// @Override
-	public enterRule(listener: SimpleListener): void {
+	public enterRule(listener: SimpleCListener): void {
 		if (listener.enterBreakStatement) {
 			listener.enterBreakStatement(this);
 		}
 	}
 	// @Override
-	public exitRule(listener: SimpleListener): void {
+	public exitRule(listener: SimpleCListener): void {
 		if (listener.exitBreakStatement) {
 			listener.exitBreakStatement(this);
 		}
 	}
 	// @Override
-	public accept<Result>(visitor: SimpleVisitor<Result>): Result {
+	public accept<Result>(visitor: SimpleCVisitor<Result>): Result {
 		if (visitor.visitBreakStatement) {
 			return visitor.visitBreakStatement(this);
 		} else {
@@ -2952,21 +2952,21 @@ export class ForStatementContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return SimpleParser.RULE_forStatement; }
+	public get ruleIndex(): number { return SimpleCParser.RULE_forStatement; }
 	// @Override
-	public enterRule(listener: SimpleListener): void {
+	public enterRule(listener: SimpleCListener): void {
 		if (listener.enterForStatement) {
 			listener.enterForStatement(this);
 		}
 	}
 	// @Override
-	public exitRule(listener: SimpleListener): void {
+	public exitRule(listener: SimpleCListener): void {
 		if (listener.exitForStatement) {
 			listener.exitForStatement(this);
 		}
 	}
 	// @Override
-	public accept<Result>(visitor: SimpleVisitor<Result>): Result {
+	public accept<Result>(visitor: SimpleCVisitor<Result>): Result {
 		if (visitor.visitForStatement) {
 			return visitor.visitForStatement(this);
 		} else {
@@ -2987,21 +2987,21 @@ export class ForInitialContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return SimpleParser.RULE_forInitial; }
+	public get ruleIndex(): number { return SimpleCParser.RULE_forInitial; }
 	// @Override
-	public enterRule(listener: SimpleListener): void {
+	public enterRule(listener: SimpleCListener): void {
 		if (listener.enterForInitial) {
 			listener.enterForInitial(this);
 		}
 	}
 	// @Override
-	public exitRule(listener: SimpleListener): void {
+	public exitRule(listener: SimpleCListener): void {
 		if (listener.exitForInitial) {
 			listener.exitForInitial(this);
 		}
 	}
 	// @Override
-	public accept<Result>(visitor: SimpleVisitor<Result>): Result {
+	public accept<Result>(visitor: SimpleCVisitor<Result>): Result {
 		if (visitor.visitForInitial) {
 			return visitor.visitForInitial(this);
 		} else {
@@ -3022,21 +3022,21 @@ export class WhileStatementContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return SimpleParser.RULE_whileStatement; }
+	public get ruleIndex(): number { return SimpleCParser.RULE_whileStatement; }
 	// @Override
-	public enterRule(listener: SimpleListener): void {
+	public enterRule(listener: SimpleCListener): void {
 		if (listener.enterWhileStatement) {
 			listener.enterWhileStatement(this);
 		}
 	}
 	// @Override
-	public exitRule(listener: SimpleListener): void {
+	public exitRule(listener: SimpleCListener): void {
 		if (listener.exitWhileStatement) {
 			listener.exitWhileStatement(this);
 		}
 	}
 	// @Override
-	public accept<Result>(visitor: SimpleVisitor<Result>): Result {
+	public accept<Result>(visitor: SimpleCVisitor<Result>): Result {
 		if (visitor.visitWhileStatement) {
 			return visitor.visitWhileStatement(this);
 		} else {
@@ -3047,7 +3047,7 @@ export class WhileStatementContext extends ParserRuleContext {
 
 
 export class PrintfStatementContext extends ParserRuleContext {
-	public String(): TerminalNode { return this.getToken(SimpleParser.String, 0); }
+	public String(): TerminalNode { return this.getToken(SimpleCParser.String, 0); }
 	public expression(): ExpressionContext[];
 	public expression(i: number): ExpressionContext;
 	public expression(i?: number): ExpressionContext | ExpressionContext[] {
@@ -3061,21 +3061,21 @@ export class PrintfStatementContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return SimpleParser.RULE_printfStatement; }
+	public get ruleIndex(): number { return SimpleCParser.RULE_printfStatement; }
 	// @Override
-	public enterRule(listener: SimpleListener): void {
+	public enterRule(listener: SimpleCListener): void {
 		if (listener.enterPrintfStatement) {
 			listener.enterPrintfStatement(this);
 		}
 	}
 	// @Override
-	public exitRule(listener: SimpleListener): void {
+	public exitRule(listener: SimpleCListener): void {
 		if (listener.exitPrintfStatement) {
 			listener.exitPrintfStatement(this);
 		}
 	}
 	// @Override
-	public accept<Result>(visitor: SimpleVisitor<Result>): Result {
+	public accept<Result>(visitor: SimpleCVisitor<Result>): Result {
 		if (visitor.visitPrintfStatement) {
 			return visitor.visitPrintfStatement(this);
 		} else {
@@ -3090,30 +3090,30 @@ export class IdListContext extends ParserRuleContext {
 	public Identifier(i: number): TerminalNode;
 	public Identifier(i?: number): TerminalNode | TerminalNode[] {
 		if (i === undefined) {
-			return this.getTokens(SimpleParser.Identifier);
+			return this.getTokens(SimpleCParser.Identifier);
 		} else {
-			return this.getToken(SimpleParser.Identifier, i);
+			return this.getToken(SimpleCParser.Identifier, i);
 		}
 	}
 	constructor(parent: ParserRuleContext | undefined, invokingState: number) {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return SimpleParser.RULE_idList; }
+	public get ruleIndex(): number { return SimpleCParser.RULE_idList; }
 	// @Override
-	public enterRule(listener: SimpleListener): void {
+	public enterRule(listener: SimpleCListener): void {
 		if (listener.enterIdList) {
 			listener.enterIdList(this);
 		}
 	}
 	// @Override
-	public exitRule(listener: SimpleListener): void {
+	public exitRule(listener: SimpleCListener): void {
 		if (listener.exitIdList) {
 			listener.exitIdList(this);
 		}
 	}
 	// @Override
-	public accept<Result>(visitor: SimpleVisitor<Result>): Result {
+	public accept<Result>(visitor: SimpleCVisitor<Result>): Result {
 		if (visitor.visitIdList) {
 			return visitor.visitIdList(this);
 		} else {
@@ -3137,21 +3137,21 @@ export class ExprListContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return SimpleParser.RULE_exprList; }
+	public get ruleIndex(): number { return SimpleCParser.RULE_exprList; }
 	// @Override
-	public enterRule(listener: SimpleListener): void {
+	public enterRule(listener: SimpleCListener): void {
 		if (listener.enterExprList) {
 			listener.enterExprList(this);
 		}
 	}
 	// @Override
-	public exitRule(listener: SimpleListener): void {
+	public exitRule(listener: SimpleCListener): void {
 		if (listener.exitExprList) {
 			listener.exitExprList(this);
 		}
 	}
 	// @Override
-	public accept<Result>(visitor: SimpleVisitor<Result>): Result {
+	public accept<Result>(visitor: SimpleCVisitor<Result>): Result {
 		if (visitor.visitExprList) {
 			return visitor.visitExprList(this);
 		} else {
@@ -3166,7 +3166,7 @@ export class ExpressionContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return SimpleParser.RULE_expression; }
+	public get ruleIndex(): number { return SimpleCParser.RULE_expression; }
 	public copyFrom(ctx: ExpressionContext): void {
 		super.copyFrom(ctx);
 	}
@@ -3181,19 +3181,19 @@ export class UnaryExpressionContext extends ExpressionContext {
 		this.copyFrom(ctx);
 	}
 	// @Override
-	public enterRule(listener: SimpleListener): void {
+	public enterRule(listener: SimpleCListener): void {
 		if (listener.enterUnaryExpression) {
 			listener.enterUnaryExpression(this);
 		}
 	}
 	// @Override
-	public exitRule(listener: SimpleListener): void {
+	public exitRule(listener: SimpleCListener): void {
 		if (listener.exitUnaryExpression) {
 			listener.exitUnaryExpression(this);
 		}
 	}
 	// @Override
-	public accept<Result>(visitor: SimpleVisitor<Result>): Result {
+	public accept<Result>(visitor: SimpleCVisitor<Result>): Result {
 		if (visitor.visitUnaryExpression) {
 			return visitor.visitUnaryExpression(this);
 		} else {
@@ -3217,19 +3217,19 @@ export class BinaryExpressionContext extends ExpressionContext {
 		this.copyFrom(ctx);
 	}
 	// @Override
-	public enterRule(listener: SimpleListener): void {
+	public enterRule(listener: SimpleCListener): void {
 		if (listener.enterBinaryExpression) {
 			listener.enterBinaryExpression(this);
 		}
 	}
 	// @Override
-	public exitRule(listener: SimpleListener): void {
+	public exitRule(listener: SimpleCListener): void {
 		if (listener.exitBinaryExpression) {
 			listener.exitBinaryExpression(this);
 		}
 	}
 	// @Override
-	public accept<Result>(visitor: SimpleVisitor<Result>): Result {
+	public accept<Result>(visitor: SimpleCVisitor<Result>): Result {
 		if (visitor.visitBinaryExpression) {
 			return visitor.visitBinaryExpression(this);
 		} else {
@@ -3253,19 +3253,19 @@ export class TernaryExpressionContext extends ExpressionContext {
 		this.copyFrom(ctx);
 	}
 	// @Override
-	public enterRule(listener: SimpleListener): void {
+	public enterRule(listener: SimpleCListener): void {
 		if (listener.enterTernaryExpression) {
 			listener.enterTernaryExpression(this);
 		}
 	}
 	// @Override
-	public exitRule(listener: SimpleListener): void {
+	public exitRule(listener: SimpleCListener): void {
 		if (listener.exitTernaryExpression) {
 			listener.exitTernaryExpression(this);
 		}
 	}
 	// @Override
-	public accept<Result>(visitor: SimpleVisitor<Result>): Result {
+	public accept<Result>(visitor: SimpleCVisitor<Result>): Result {
 		if (visitor.visitTernaryExpression) {
 			return visitor.visitTernaryExpression(this);
 		} else {
@@ -3282,19 +3282,19 @@ export class ConstantExpressionContext extends ExpressionContext {
 		this.copyFrom(ctx);
 	}
 	// @Override
-	public enterRule(listener: SimpleListener): void {
+	public enterRule(listener: SimpleCListener): void {
 		if (listener.enterConstantExpression) {
 			listener.enterConstantExpression(this);
 		}
 	}
 	// @Override
-	public exitRule(listener: SimpleListener): void {
+	public exitRule(listener: SimpleCListener): void {
 		if (listener.exitConstantExpression) {
 			listener.exitConstantExpression(this);
 		}
 	}
 	// @Override
-	public accept<Result>(visitor: SimpleVisitor<Result>): Result {
+	public accept<Result>(visitor: SimpleCVisitor<Result>): Result {
 		if (visitor.visitConstantExpression) {
 			return visitor.visitConstantExpression(this);
 		} else {
@@ -3311,19 +3311,19 @@ export class FunctionCallExpressionContext extends ExpressionContext {
 		this.copyFrom(ctx);
 	}
 	// @Override
-	public enterRule(listener: SimpleListener): void {
+	public enterRule(listener: SimpleCListener): void {
 		if (listener.enterFunctionCallExpression) {
 			listener.enterFunctionCallExpression(this);
 		}
 	}
 	// @Override
-	public exitRule(listener: SimpleListener): void {
+	public exitRule(listener: SimpleCListener): void {
 		if (listener.exitFunctionCallExpression) {
 			listener.exitFunctionCallExpression(this);
 		}
 	}
 	// @Override
-	public accept<Result>(visitor: SimpleVisitor<Result>): Result {
+	public accept<Result>(visitor: SimpleCVisitor<Result>): Result {
 		if (visitor.visitFunctionCallExpression) {
 			return visitor.visitFunctionCallExpression(this);
 		} else {
@@ -3332,7 +3332,7 @@ export class FunctionCallExpressionContext extends ExpressionContext {
 	}
 }
 export class VariableExpressionContext extends ExpressionContext {
-	public Identifier(): TerminalNode { return this.getToken(SimpleParser.Identifier, 0); }
+	public Identifier(): TerminalNode { return this.getToken(SimpleCParser.Identifier, 0); }
 	public indexes(): IndexesContext | undefined {
 		return this.tryGetRuleContext(0, IndexesContext);
 	}
@@ -3341,19 +3341,19 @@ export class VariableExpressionContext extends ExpressionContext {
 		this.copyFrom(ctx);
 	}
 	// @Override
-	public enterRule(listener: SimpleListener): void {
+	public enterRule(listener: SimpleCListener): void {
 		if (listener.enterVariableExpression) {
 			listener.enterVariableExpression(this);
 		}
 	}
 	// @Override
-	public exitRule(listener: SimpleListener): void {
+	public exitRule(listener: SimpleCListener): void {
 		if (listener.exitVariableExpression) {
 			listener.exitVariableExpression(this);
 		}
 	}
 	// @Override
-	public accept<Result>(visitor: SimpleVisitor<Result>): Result {
+	public accept<Result>(visitor: SimpleCVisitor<Result>): Result {
 		if (visitor.visitVariableExpression) {
 			return visitor.visitVariableExpression(this);
 		} else {
@@ -3370,19 +3370,19 @@ export class BracketExpressionContext extends ExpressionContext {
 		this.copyFrom(ctx);
 	}
 	// @Override
-	public enterRule(listener: SimpleListener): void {
+	public enterRule(listener: SimpleCListener): void {
 		if (listener.enterBracketExpression) {
 			listener.enterBracketExpression(this);
 		}
 	}
 	// @Override
-	public exitRule(listener: SimpleListener): void {
+	public exitRule(listener: SimpleCListener): void {
 		if (listener.exitBracketExpression) {
 			listener.exitBracketExpression(this);
 		}
 	}
 	// @Override
-	public accept<Result>(visitor: SimpleVisitor<Result>): Result {
+	public accept<Result>(visitor: SimpleCVisitor<Result>): Result {
 		if (visitor.visitBracketExpression) {
 			return visitor.visitBracketExpression(this);
 		} else {
@@ -3397,31 +3397,31 @@ export class ConstantValueContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return SimpleParser.RULE_constantValue; }
+	public get ruleIndex(): number { return SimpleCParser.RULE_constantValue; }
 	public copyFrom(ctx: ConstantValueContext): void {
 		super.copyFrom(ctx);
 	}
 }
 export class NumberExpressionContext extends ConstantValueContext {
-	public Number(): TerminalNode { return this.getToken(SimpleParser.Number, 0); }
+	public Number(): TerminalNode { return this.getToken(SimpleCParser.Number, 0); }
 	constructor(ctx: ConstantValueContext) {
 		super(ctx.parent, ctx.invokingState);
 		this.copyFrom(ctx);
 	}
 	// @Override
-	public enterRule(listener: SimpleListener): void {
+	public enterRule(listener: SimpleCListener): void {
 		if (listener.enterNumberExpression) {
 			listener.enterNumberExpression(this);
 		}
 	}
 	// @Override
-	public exitRule(listener: SimpleListener): void {
+	public exitRule(listener: SimpleCListener): void {
 		if (listener.exitNumberExpression) {
 			listener.exitNumberExpression(this);
 		}
 	}
 	// @Override
-	public accept<Result>(visitor: SimpleVisitor<Result>): Result {
+	public accept<Result>(visitor: SimpleCVisitor<Result>): Result {
 		if (visitor.visitNumberExpression) {
 			return visitor.visitNumberExpression(this);
 		} else {
@@ -3430,25 +3430,25 @@ export class NumberExpressionContext extends ConstantValueContext {
 	}
 }
 export class BoolExpressionContext extends ConstantValueContext {
-	public Bool(): TerminalNode { return this.getToken(SimpleParser.Bool, 0); }
+	public Bool(): TerminalNode { return this.getToken(SimpleCParser.Bool, 0); }
 	constructor(ctx: ConstantValueContext) {
 		super(ctx.parent, ctx.invokingState);
 		this.copyFrom(ctx);
 	}
 	// @Override
-	public enterRule(listener: SimpleListener): void {
+	public enterRule(listener: SimpleCListener): void {
 		if (listener.enterBoolExpression) {
 			listener.enterBoolExpression(this);
 		}
 	}
 	// @Override
-	public exitRule(listener: SimpleListener): void {
+	public exitRule(listener: SimpleCListener): void {
 		if (listener.exitBoolExpression) {
 			listener.exitBoolExpression(this);
 		}
 	}
 	// @Override
-	public accept<Result>(visitor: SimpleVisitor<Result>): Result {
+	public accept<Result>(visitor: SimpleCVisitor<Result>): Result {
 		if (visitor.visitBoolExpression) {
 			return visitor.visitBoolExpression(this);
 		} else {
@@ -3462,19 +3462,19 @@ export class NullExpressionContext extends ConstantValueContext {
 		this.copyFrom(ctx);
 	}
 	// @Override
-	public enterRule(listener: SimpleListener): void {
+	public enterRule(listener: SimpleCListener): void {
 		if (listener.enterNullExpression) {
 			listener.enterNullExpression(this);
 		}
 	}
 	// @Override
-	public exitRule(listener: SimpleListener): void {
+	public exitRule(listener: SimpleCListener): void {
 		if (listener.exitNullExpression) {
 			listener.exitNullExpression(this);
 		}
 	}
 	// @Override
-	public accept<Result>(visitor: SimpleVisitor<Result>): Result {
+	public accept<Result>(visitor: SimpleCVisitor<Result>): Result {
 		if (visitor.visitNullExpression) {
 			return visitor.visitNullExpression(this);
 		} else {
@@ -3483,7 +3483,7 @@ export class NullExpressionContext extends ConstantValueContext {
 	}
 }
 export class StringExpressionContext extends ConstantValueContext {
-	public String(): TerminalNode { return this.getToken(SimpleParser.String, 0); }
+	public String(): TerminalNode { return this.getToken(SimpleCParser.String, 0); }
 	public indexes(): IndexesContext | undefined {
 		return this.tryGetRuleContext(0, IndexesContext);
 	}
@@ -3492,19 +3492,19 @@ export class StringExpressionContext extends ConstantValueContext {
 		this.copyFrom(ctx);
 	}
 	// @Override
-	public enterRule(listener: SimpleListener): void {
+	public enterRule(listener: SimpleCListener): void {
 		if (listener.enterStringExpression) {
 			listener.enterStringExpression(this);
 		}
 	}
 	// @Override
-	public exitRule(listener: SimpleListener): void {
+	public exitRule(listener: SimpleCListener): void {
 		if (listener.exitStringExpression) {
 			listener.exitStringExpression(this);
 		}
 	}
 	// @Override
-	public accept<Result>(visitor: SimpleVisitor<Result>): Result {
+	public accept<Result>(visitor: SimpleCVisitor<Result>): Result {
 		if (visitor.visitStringExpression) {
 			return visitor.visitStringExpression(this);
 		} else {
@@ -3522,21 +3522,21 @@ export class ListContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return SimpleParser.RULE_list; }
+	public get ruleIndex(): number { return SimpleCParser.RULE_list; }
 	// @Override
-	public enterRule(listener: SimpleListener): void {
+	public enterRule(listener: SimpleCListener): void {
 		if (listener.enterList) {
 			listener.enterList(this);
 		}
 	}
 	// @Override
-	public exitRule(listener: SimpleListener): void {
+	public exitRule(listener: SimpleCListener): void {
 		if (listener.exitList) {
 			listener.exitList(this);
 		}
 	}
 	// @Override
-	public accept<Result>(visitor: SimpleVisitor<Result>): Result {
+	public accept<Result>(visitor: SimpleCVisitor<Result>): Result {
 		if (visitor.visitList) {
 			return visitor.visitList(this);
 		} else {
@@ -3560,21 +3560,21 @@ export class IndexesContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return SimpleParser.RULE_indexes; }
+	public get ruleIndex(): number { return SimpleCParser.RULE_indexes; }
 	// @Override
-	public enterRule(listener: SimpleListener): void {
+	public enterRule(listener: SimpleCListener): void {
 		if (listener.enterIndexes) {
 			listener.enterIndexes(this);
 		}
 	}
 	// @Override
-	public exitRule(listener: SimpleListener): void {
+	public exitRule(listener: SimpleCListener): void {
 		if (listener.exitIndexes) {
 			listener.exitIndexes(this);
 		}
 	}
 	// @Override
-	public accept<Result>(visitor: SimpleVisitor<Result>): Result {
+	public accept<Result>(visitor: SimpleCVisitor<Result>): Result {
 		if (visitor.visitIndexes) {
 			return visitor.visitIndexes(this);
 		} else {
