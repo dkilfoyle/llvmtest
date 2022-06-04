@@ -5,6 +5,14 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "type": "antlr-debug",
+      "request": "launch",
+      "name": "Debug ASM Grammar",
+      "grammar": "src/SimpleASM.g4",
+      "input": "test.S",
+      "visualParseTree": true
+    },
+    {
       "type": "venus",
       "request": "launch",
       "name": "Debug Current File",

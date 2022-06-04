@@ -135,14 +135,14 @@ export class RiscvEmmiter {
   }
 
   emitSEQZ(rd:R, rs:R, comment?:string) {
-    this.emitIns(`seqz ${rd} ${rs}`, comment);
+    this.emitIns(`seqz ${rd}, ${rs}`, comment);
   }
   emitSLT(rd:R, rs1:R, rs2:R, comment?:string) {
-    this.emitIns(`slt ${rd} ${rs1} ${rs2}`, comment);
+    this.emitIns(`slt ${rd}, ${rs1}, ${rs2}`, comment);
   }
 
   emitNOT(rd:R, rs:R, comment?:string) {
-    this.emitIns(`not ${rd} ${rs}`, comment);
+    this.emitIns(`not ${rd}, ${rs}`, comment);
   }
 
   emitECALL() {
