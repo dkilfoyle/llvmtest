@@ -44,18 +44,13 @@ function assemble() {
   let tree = parser.program();
   const byteCodeGenerator = new ByteCodeGenerator();
   byteCodeGenerator.visit(tree);
-
-  // const astBuilder = new AstBuilder()
-  // const ast = astBuilder.visit(tree);
-  // console.log("AST print:");
-  // console.log(ast.toString());
-  // console.log("AST errors:\n", errorNodes);
-  // console.log("AST execute:");
-  // console.log(ast.execute());
+  byteCodeGenerator.buildMachineCode();
+  byteCodeGenerator.printStatements();
+  byteCodeGenerator.printSymbols();
 }
 
 function main(): void {
-  // compile();
+  compile();
   assemble();
 }
 

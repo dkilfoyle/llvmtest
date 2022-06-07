@@ -11,9 +11,9 @@ global: ('.global' | '.globl') ID;
 align: '.align' immediate;
 
 data:
-	name = label type = ('.string' | '.ascii' | '.asciiz') String
-	| name = label type = '.byte' numlist
-	| name = label type = '.word' numlist;
+	name = ID ':' type = ('.string' | '.ascii' | '.asciiz') String
+	| name = ID ':' type = '.byte' numlist
+	| name = ID ':' type = '.word' numlist;
 
 label: ID ':';
 
@@ -33,21 +33,11 @@ pseudo:
 	| op = 'mv' rd = register ',' rs = register
 	| op = 'not' rd = register ',' rs = register
 	// set if 0 
-	| op = 'seqz' rd = register ',' rs = register
-	| op = 'sltz' rd = register ',' rs = register
-	| op = 'sgtz' rd = register ',' rs = register
+	| op = ('seqz' | 'sltz' | 'sgtz') rd = register ',' rs1 = register
 	// branch if zero
-	| op = 'beqz' rd = register ',' offset
-	| op = 'bnez' rd = register ',' offset
-	| op = 'blez' rd = register ',' offset
-	| op = 'bgez' rd = register ',' offset
-	| op = 'bltz' rd = register ',' offset
-	| op = 'bgtz' rd = register ',' offset
+	| op = ('beqz' | 'bnez' | 'blez' | 'bgez' | 'bltz' | 'bgtz') rs1 = register ',' offset
 	// branch if compare
-	| op = 'bgt' rs = register ',' rt = register ',' offset
-	| op = 'ble' rs = register ',' rt = register ',' offset
-	| op = 'bgtu' rs = register ',' rt = register ',' offset
-	| op = 'bltu' rs = register ',' rt = register ',' offset
+	| op = ('bgt' | 'ble' | 'bgtu' | 'bltu') rs1 = register ',' rs2 = register ',' offset
 	// jumps 
 	| op = 'j' offset
 	| op = 'jal' offset
@@ -59,42 +49,39 @@ pseudo:
 environment: 'ecall';
 
 rtype:
-	op = 'add' rd = register ',' rs1 = register ',' rs2 = register
-	| op = 'sub' rd = register ',' rs1 = register ',' rs2 = register
-	| op = 'xor' rd = register ',' rs1 = register ',' rs2 = register
-	| op = 'or' rd = register ',' rs1 = register ',' rs2 = register
-	| op = 'and' rd = register ',' rs1 = register ',' rs2 = register
-	| op = 'sll' rd = register ',' rs1 = register ',' rs2 = register
-	| op = 'srl' rd = register ',' rs1 = register ',' rs2 = register
-	| op = 'sra' rd = register ',' rs1 = register ',' rs2 = register
-	| op = 'slt' rd = register ',' rs1 = register ',' rs2 = register
-	| op = 'su' rd = register ',' rs1 = register ',' rs2 = register;
+	op = (
+		'add'
+		| 'sub'
+		| 'xor'
+		| 'or'
+		| 'and'
+		| 'sll'
+		| 'srl'
+		| 'sra'
+		| 'slt'
+		| 'su'
+	) rd = register ',' rs1 = register ',' rs2 = register;
 
 itype:
-	op = 'addi' rd = register ',' rs = register ',' immediate
-	| op = 'xori' rd = register ',' rs = register ',' immediate
-	| op = 'andi' rd = register ',' rs = register ',' immediate
-	| op = 'ori' rd = register ',' rs = register ',' immediate
-	| op = 'slli' rd = register ',' rs = register ',' immediate
-	| op = 'srli' rd = register ',' rs = register ',' immediate
-	| op = 'srai' rd = register ',' rs = register ',' immediate
-	| op = 'slti' rd = register ',' rs = register ',' immediate
-	| op = 'sltiu' rd = register ',' rs = register ',' immediate
-	| op = 'lb' rd = register ',' rs = register ',' immediate
-	| op = 'lw' rd = register ',' immediate '(' rs = register ')'
-	| op = 'sltiu' rd = register ',' rs = register ',' immediate;
+	op = (
+		'addi'
+		| 'xori'
+		| 'andi'
+		| 'ori'
+		| 'slli'
+		| 'srli'
+		| 'srai'
+		| 'slti'
+		| 'sltiu'
+	) rd = register ',' rs1 = register ',' immediate
+	| op = ('lb' | 'lh' | 'lw') rd = register ',' immediate '(' rs1 = register ')';
 
 stype:
-	op = 'sb' rs1 = register ',' immediate '(' rs2 = register ')'
-	| op = 'sw' rs1 = register ',' immediate '(' rs2 = register ')';
+	op = ('sb' | 'sh' | 'sw') rs2 = register ',' immediate '(' rs1 = register ')';
 
 btype:
-	op = 'beq' rs1 = register ',' rs2 = register ',' immediate
-	| op = 'bne' rs1 = register ',' rs2 = register ',' immediate
-	| op = 'blt' rs1 = register ',' rs2 = register ',' immediate
-	| op = 'bge' rs1 = register ',' rs2 = register ',' immediate
-	| op = 'bltu' rs1 = register ',' rs2 = register ',' immediate
-	| op = 'bgeu' rs1 = register ',' rs2 = register ',' immediate;
+	op = ('beq' | 'bne' | 'blt' | 'bge' | 'bltu' | 'bgeu') rs1 = register ',' rs2 = register ','
+		immediate;
 
 jtype:
 	op = 'jalr' rd = register ',' immediate '(' rs1 = register ')'
@@ -106,7 +93,7 @@ utype:
 
 offset: immediate | ID;
 register: ('zero' | 'ra' | 'sp' | 'gp' | 'tp' | 'fp') | REG;
-immediate: INT | HEX | BIN | ID;
+immediate: INT | HEX | BIN;
 numlist: immediate (',' immediate)*;
 
 // numbers
