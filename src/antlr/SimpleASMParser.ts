@@ -692,7 +692,7 @@ export class SimpleASMParser extends Parser {
 				this.state = 104;
 				this.match(SimpleASMParser.T__15);
 				this.state = 105;
-				_localctx._id = this.match(SimpleASMParser.ID);
+				_localctx._symbol = this.match(SimpleASMParser.ID);
 				}
 				break;
 			case SimpleASMParser.T__16:
@@ -1918,7 +1918,7 @@ export class InstructionContext extends ParserRuleContext {
 export class PseudoContext extends ParserRuleContext {
 	public _op!: Token;
 	public _rd!: RegisterContext;
-	public _id!: Token;
+	public _symbol!: Token;
 	public _rs1!: RegisterContext;
 	public _rs2!: RegisterContext;
 	public _rs!: RegisterContext;

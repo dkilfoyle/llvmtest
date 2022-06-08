@@ -3,7 +3,7 @@
 
 import { ParserRuleContext } from "antlr4ts/ParserRuleContext";
 import { AbstractParseTreeVisitor } from "antlr4ts/tree/AbstractParseTreeVisitor";
-import { EnvironmentContext, ItypeContext, JtypeContext, LabelContext, PseudoContext, RtypeContext, StypeContext, UtypeContext } from "../../antlr/SimpleASMParser";
+import { DataContext, EnvironmentContext, ItypeContext, JtypeContext, LabelContext, PseudoContext, RtypeContext, StypeContext, UtypeContext } from "../../antlr/SimpleASMParser";
 import { SimpleASMVisitor } from "../../antlr/SimpleASMVisitor";
 
 const maskBits = (lo:number, hi:number = lo) => {
@@ -208,6 +208,7 @@ interface InstructionParameters {
   rd?: number;
   imm?: number;
   offset?: number | string;
+  symbol?: string;
 }
 
 class Instruction {
@@ -233,6 +234,10 @@ class Instruction {
 
     if (typeof(this.params.offset) == "string") {
       this.params.imm = symbols[this.params.offset] - (index*4); 
+    }
+
+    if (this.params.symbol) {
+      this.params.imm = symbols[this.params.symbol]
     }
 
     const [fmt, opcode, funct3, funct7] = operations[this.opName];
@@ -325,6 +330,8 @@ export class ByteCodeGenerator extends AbstractParseTreeVisitor<void> implements
   // textView: DataView;
   instructions: Instruction[];
   symbols: SymbolTable;
+  staticData: Uint8Array;
+  staticPointer: number;
 
   constructor() {
     super();
@@ -336,6 +343,8 @@ export class ByteCodeGenerator extends AbstractParseTreeVisitor<void> implements
     // this.textView = new DataView(this.params.textBytes);
     this.instructions = new Array<Instruction>();
     this.symbols = {};
+    this.staticData = new Uint8Array(1024);
+    this.staticPointer = 0;
   }
 
   protected defaultResult() {
@@ -365,6 +374,31 @@ export class ByteCodeGenerator extends AbstractParseTreeVisitor<void> implements
 
   getPos(ctx: ParserRuleContext): [number, number] {
     return [ctx.start.line, ctx.start.charPositionInLine];
+  }
+
+  visitData(ctx: DataContext) {
+    const name = ctx._name.text;
+    const type = ctx._type.text;
+
+    this.symbols[name] = 0x1000_0000 + this.staticPointer;
+
+    switch (type) {
+      case '.string':
+      case '.ascii':
+      case '.asciiz': {
+        const data = ctx.String().text;
+        for (let i = 0; i < data.length; i++) {
+          this.staticData[this.staticPointer++] = data.charCodeAt(i);
+        }
+        break;
+      }
+      case '.byte':
+      case '.word':
+        // TODO
+        break;
+      default:
+        throw new Error();
+    }
   }
 
   visitEnvironment(ctx: EnvironmentContext) {
@@ -418,11 +452,11 @@ export class ByteCodeGenerator extends AbstractParseTreeVisitor<void> implements
     const rd = ctx._rd ? parseInt(registerNumbers[ctx._rd.text]) : undefined;
     const imm = ctx.immediate() ? parseInt(ctx.immediate().text) : undefined;
     const offset = ctx.offset() ? ctx.offset().text : undefined;
-    const symbol = ctx._id ? this.symbols[ctx._id.text] : undefined;
+    const symbol = ctx._symbol ? ctx._symbol.text : undefined;
 
     if (op == "la") {
-      this.instructions.push(new Instruction("lui", {rd, imm: getBits(symbol, 31, 12)}, this.getPos(ctx)))
-      this.instructions.push(new Instruction("addi", {rd, rs1:rd, imm: getBits(symbol, 11, 0)}, this.getPos(ctx)))
+      this.instructions.push(new Instruction("auipc", {rd, symbol}, this.getPos(ctx)))
+      this.instructions.push(new Instruction("addi", {rd, rs1:rd, symbol}, this.getPos(ctx)))
       return;
     }
 

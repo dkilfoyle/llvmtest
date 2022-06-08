@@ -28,7 +28,7 @@ instruction:
 	| btype;
 
 pseudo:
-	op = 'la' rd = register ',' id = ID
+	op = 'la' rd = register ',' symbol = ID
 	| op = 'li' rd = register ',' immediate
 	| op = 'mv' rd = register ',' rs1 = register
 	| op = 'not' rd = register ',' rs1 = register
