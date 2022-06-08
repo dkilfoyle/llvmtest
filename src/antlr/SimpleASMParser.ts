@@ -1,4 +1,4 @@
-// Generated from /home/dkilfoyle/llvmtest/src/SimpleASM.g4 by ANTLR 4.7.3-SNAPSHOT
+// Generated from /home/dkilfoyle/llvmtest/src/SimpleASM.g4 by ANTLR 4.9.0-SNAPSHOT
 
 
 import { ATN } from "antlr4ts/atn/ATN";
@@ -190,6 +190,10 @@ export class SimpleASMParser extends Parser {
 
 	// @Override
 	public get serializedATN(): string { return SimpleASMParser._serializedATN; }
+
+	protected createFailedPredicateException(predicate?: string, message?: string): FailedPredicateException {
+		return new FailedPredicateException(this, predicate, message);
+	}
 
 	constructor(input: TokenStream) {
 		super(input);
@@ -714,7 +718,7 @@ export class SimpleASMParser extends Parser {
 				this.state = 114;
 				this.match(SimpleASMParser.T__15);
 				this.state = 115;
-				_localctx._rs = this.register();
+				_localctx._rs1 = this.register();
 				}
 				break;
 			case SimpleASMParser.T__18:
@@ -727,7 +731,7 @@ export class SimpleASMParser extends Parser {
 				this.state = 119;
 				this.match(SimpleASMParser.T__15);
 				this.state = 120;
-				_localctx._rs = this.register();
+				_localctx._rs1 = this.register();
 				}
 				break;
 			case SimpleASMParser.T__19:
@@ -1793,8 +1797,8 @@ export class AlignContext extends ParserRuleContext {
 
 
 export class DataContext extends ParserRuleContext {
-	public _name: Token;
-	public _type: Token;
+	public _name!: Token;
+	public _type!: Token;
 	public String(): TerminalNode | undefined { return this.tryGetToken(SimpleASMParser.String, 0); }
 	public ID(): TerminalNode { return this.getToken(SimpleASMParser.ID, 0); }
 	public numlist(): NumlistContext | undefined {
@@ -1912,12 +1916,12 @@ export class InstructionContext extends ParserRuleContext {
 
 
 export class PseudoContext extends ParserRuleContext {
-	public _op: Token;
-	public _rd: RegisterContext;
-	public _id: Token;
-	public _rs: RegisterContext;
-	public _rs1: RegisterContext;
-	public _rs2: RegisterContext;
+	public _op!: Token;
+	public _rd!: RegisterContext;
+	public _id!: Token;
+	public _rs1!: RegisterContext;
+	public _rs2!: RegisterContext;
+	public _rs!: RegisterContext;
 	public register(): RegisterContext[];
 	public register(i: number): RegisterContext;
 	public register(i?: number): RegisterContext | RegisterContext[] {
@@ -1992,10 +1996,10 @@ export class EnvironmentContext extends ParserRuleContext {
 
 
 export class RtypeContext extends ParserRuleContext {
-	public _op: Token;
-	public _rd: RegisterContext;
-	public _rs1: RegisterContext;
-	public _rs2: RegisterContext;
+	public _op!: Token;
+	public _rd!: RegisterContext;
+	public _rs1!: RegisterContext;
+	public _rs2!: RegisterContext;
 	public register(): RegisterContext[];
 	public register(i: number): RegisterContext;
 	public register(i?: number): RegisterContext | RegisterContext[] {
@@ -2034,9 +2038,9 @@ export class RtypeContext extends ParserRuleContext {
 
 
 export class ItypeContext extends ParserRuleContext {
-	public _op: Token;
-	public _rd: RegisterContext;
-	public _rs1: RegisterContext;
+	public _op!: Token;
+	public _rd!: RegisterContext;
+	public _rs1!: RegisterContext;
 	public immediate(): ImmediateContext {
 		return this.getRuleContext(0, ImmediateContext);
 	}
@@ -2078,9 +2082,9 @@ export class ItypeContext extends ParserRuleContext {
 
 
 export class StypeContext extends ParserRuleContext {
-	public _op: Token;
-	public _rs2: RegisterContext;
-	public _rs1: RegisterContext;
+	public _op!: Token;
+	public _rs2!: RegisterContext;
+	public _rs1!: RegisterContext;
 	public immediate(): ImmediateContext {
 		return this.getRuleContext(0, ImmediateContext);
 	}
@@ -2122,9 +2126,9 @@ export class StypeContext extends ParserRuleContext {
 
 
 export class BtypeContext extends ParserRuleContext {
-	public _op: Token;
-	public _rs1: RegisterContext;
-	public _rs2: RegisterContext;
+	public _op!: Token;
+	public _rs1!: RegisterContext;
+	public _rs2!: RegisterContext;
 	public immediate(): ImmediateContext {
 		return this.getRuleContext(0, ImmediateContext);
 	}
@@ -2166,9 +2170,9 @@ export class BtypeContext extends ParserRuleContext {
 
 
 export class JtypeContext extends ParserRuleContext {
-	public _op: Token;
-	public _rd: RegisterContext;
-	public _rs1: RegisterContext;
+	public _op!: Token;
+	public _rd!: RegisterContext;
+	public _rs1!: RegisterContext;
 	public immediate(): ImmediateContext | undefined {
 		return this.tryGetRuleContext(0, ImmediateContext);
 	}
@@ -2213,8 +2217,8 @@ export class JtypeContext extends ParserRuleContext {
 
 
 export class UtypeContext extends ParserRuleContext {
-	public _op: Token;
-	public _rd: RegisterContext;
+	public _op!: Token;
+	public _rd!: RegisterContext;
 	public immediate(): ImmediateContext {
 		return this.getRuleContext(0, ImmediateContext);
 	}

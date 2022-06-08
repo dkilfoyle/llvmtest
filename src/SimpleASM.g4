@@ -30,8 +30,8 @@ instruction:
 pseudo:
 	op = 'la' rd = register ',' id = ID
 	| op = 'li' rd = register ',' immediate
-	| op = 'mv' rd = register ',' rs = register
-	| op = 'not' rd = register ',' rs = register
+	| op = 'mv' rd = register ',' rs1 = register
+	| op = 'not' rd = register ',' rs1 = register
 	// set if 0 
 	| op = ('seqz' | 'sltz' | 'sgtz') rd = register ',' rs1 = register
 	// branch if zero

@@ -433,12 +433,6 @@ export class ByteCodeGenerator extends AbstractParseTreeVisitor<void> implements
     }
 
     const rop = pseudos[op];
-    this.instructions.push(new Instruction(rop.name, {
-      rs1: rop.rs1 || rs1,
-      rs2: rop.rs2 || rs2,
-      rd: rop.rd || rd,
-      imm: rop.imm || imm,
-      offset
-    }, this.getPos(ctx)));
+    this.instructions.push(new Instruction(rop.name, {...{rs1, rs2, rd, imm, offset}, ...rop}, this.getPos(ctx)));
   }
 }
