@@ -41,8 +41,8 @@ pseudo:
 	// jumps 
 	| op = 'j' offset
 	| op = 'jal' offset
-	| op = 'jr' rs = register
-	| op = 'jalr' rs = register
+	| op = 'jr' rs1 = register
+	| op = 'jalr' rs1 = register
 	| op = 'ret'
 	| op = 'call' offset;
 

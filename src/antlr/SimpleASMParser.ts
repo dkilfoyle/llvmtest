@@ -844,7 +844,7 @@ export class SimpleASMParser extends Parser {
 				this.state = 143;
 				_localctx._op = this.match(SimpleASMParser.T__34);
 				this.state = 144;
-				_localctx._rs = this.register();
+				_localctx._rs1 = this.register();
 				}
 				break;
 			case SimpleASMParser.T__35:
@@ -853,7 +853,7 @@ export class SimpleASMParser extends Parser {
 				this.state = 145;
 				_localctx._op = this.match(SimpleASMParser.T__35);
 				this.state = 146;
-				_localctx._rs = this.register();
+				_localctx._rs1 = this.register();
 				}
 				break;
 			case SimpleASMParser.T__36:
@@ -1921,7 +1921,6 @@ export class PseudoContext extends ParserRuleContext {
 	public _symbol!: Token;
 	public _rs1!: RegisterContext;
 	public _rs2!: RegisterContext;
-	public _rs!: RegisterContext;
 	public register(): RegisterContext[];
 	public register(i: number): RegisterContext;
 	public register(i?: number): RegisterContext | RegisterContext[] {

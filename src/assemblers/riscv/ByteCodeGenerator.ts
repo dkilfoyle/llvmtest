@@ -209,6 +209,7 @@ interface InstructionParameters {
   imm?: number;
   offset?: number | string;
   symbol?: string;
+  macro?: "hi" | "lo"
 }
 
 class Instruction {
@@ -237,7 +238,14 @@ class Instruction {
     }
 
     if (this.params.symbol) {
-      this.params.imm = symbols[this.params.symbol]
+      this.params.imm = symbols[this.params.symbol] - ((index-1)*4); // = symbol - PC
+    }
+
+    if (this.params.macro == "hi") {
+      this.params.imm = ((this.params.imm >>> 12) + getBits(this.params.imm, 12, 11)) << 12;
+      // la rd, symbol =>
+      // auipc rd, delta[31:12] + delta[11] where delta = symbol - PC
+      // addi rd, rd, delta[11:0]
     }
 
     const [fmt, opcode, funct3, funct7] = operations[this.opName];
@@ -272,7 +280,7 @@ class Instruction {
         code = setCode(code, "imm_11b", this.params.imm >>> 11);
         code = setCode(code, "imm_4_1", this.params.imm >>> 1);
         code = setCode(code, "imm_10_5", this.params.imm >>> 5);
-        code = setCode(code, "imm_12", this.params.imm >>> 12);
+        code = setCode(code, "imm_12", this.params.imm >>> 12);  
         break;
       case "J":
         code = setCode(code, "rd", this.params.rd);
@@ -324,14 +332,39 @@ class Instruction {
   }
 }
 
+class DataSection {
+  data: Uint8Array;
+  pointer: number;
+  constructor() {
+    this.reset();
+  }
+  reset() {
+    this.data = new Uint8Array(1024);
+    this.pointer = 0;
+  }
+  pushByte(x:number) {
+    this.data[this.pointer++] = x & 0xff;
+  }
+  pushString(x:string) {
+    for (let i = 0; i < x.length; i++) {
+      this.pushByte(x.charCodeAt(i));
+    }
+  }
+  pushWord(x:number) {
+    this.pushByte(x);
+    this.pushByte(x >> 8);
+    this.pushByte(x >> 16);
+    this.pushByte(x >> 24);
+  }
+}
+
 export class ByteCodeGenerator extends AbstractParseTreeVisitor<void> implements SimpleASMVisitor<void> {
 
   // textBytes: ArrayBuffer;
   // textView: DataView;
   instructions: Instruction[];
   symbols: SymbolTable;
-  staticData: Uint8Array;
-  staticPointer: number;
+  dataSection: DataSection;
 
   constructor() {
     super();
@@ -343,8 +376,7 @@ export class ByteCodeGenerator extends AbstractParseTreeVisitor<void> implements
     // this.textView = new DataView(this.params.textBytes);
     this.instructions = new Array<Instruction>();
     this.symbols = {};
-    this.staticData = new Uint8Array(1024);
-    this.staticPointer = 0;
+    this.dataSection = new DataSection();
   }
 
   protected defaultResult() {
@@ -379,22 +411,19 @@ export class ByteCodeGenerator extends AbstractParseTreeVisitor<void> implements
   visitData(ctx: DataContext) {
     const name = ctx._name.text;
     const type = ctx._type.text;
-
-    this.symbols[name] = 0x1000_0000 + this.staticPointer;
-
+    this.symbols[name] = 0x1000_0000 + this.dataSection.pointer;
     switch (type) {
       case '.string':
       case '.ascii':
       case '.asciiz': {
-        const data = ctx.String().text;
-        for (let i = 0; i < data.length; i++) {
-          this.staticData[this.staticPointer++] = data.charCodeAt(i);
-        }
+        this.dataSection.pushString(ctx.String().text)
         break;
       }
       case '.byte':
+        this.dataSection.pushByte(parseInt(ctx.String().text))
+        break;
       case '.word':
-        // TODO
+        this.dataSection.pushWord(parseInt(ctx.String().text))
         break;
       default:
         throw new Error();
@@ -455,8 +484,8 @@ export class ByteCodeGenerator extends AbstractParseTreeVisitor<void> implements
     const symbol = ctx._symbol ? ctx._symbol.text : undefined;
 
     if (op == "la") {
-      this.instructions.push(new Instruction("auipc", {rd, symbol}, this.getPos(ctx)))
-      this.instructions.push(new Instruction("addi", {rd, rs1:rd, symbol}, this.getPos(ctx)))
+      this.instructions.push(new Instruction("auipc", {rd, symbol, macro:"hi"}, this.getPos(ctx)))
+      this.instructions.push(new Instruction("addi", {rd, rs1:rd, symbol, macro:"lo"}, this.getPos(ctx)))
       return;
     }
 
