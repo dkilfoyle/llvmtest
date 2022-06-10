@@ -1,8 +1,8 @@
 // adapted from Chocopy
 
 import { ParserRuleContext } from "antlr4ts";
-import { AstArrayDeclaration, AstAssignment, AstBinaryExpression, AstBlock, AstConstExpression, AstExpression, AstFunctionCall, AstFunctionDeclaration, AstIdentifierDeclaration, AstIf, AstNode, AstPrintf, AstRepl, AstReturn, AstStatement, AstVariableDeclaration, AstVariableExpression, AstWhile } from "../../ast/nodes";
-import { Scope, ScopeStack } from "../../ast/scopeStack";
+import { AstArrayDeclaration, AstAssignment, AstBinaryExpression, AstBlock, AstConstExpression, AstExpression, AstFunctionCall, AstFunctionDeclaration, AstIdentifierDeclaration, AstIf, AstNode, AstPrintf, AstRepl, AstReturn, AstStatement, AstVariableDeclaration, AstVariableExpression, AstWhile } from "../../languages/simpleC/nodes";
+import { Scope, ScopeStack } from "../../languages/simpleC/scopeStack";
 import { R, RiscvEmmiter } from "./emitter";
 
 // Optimisations?

@@ -1,8 +1,8 @@
 import { ParserRuleContext } from "antlr4ts";
 import llvm from "llvm-bindings";
 import { threadId } from "worker_threads";
-import { AstAssignment, AstBinaryExpression, AstBlock, AstConstExpression, AstExpression, AstFunctionCall, AstFunctionDeclaration, AstIf, AstNode, AstPrintf, AstRepl, AstReturn, AstStatement, AstVariableDeclaration, AstVariableExpression, AstWhile } from "../../ast/nodes";
-import { ScopeStack } from "../../ast/scopeStack";
+import { AstAssignment, AstBinaryExpression, AstBlock, AstConstExpression, AstExpression, AstFunctionCall, AstFunctionDeclaration, AstIf, AstNode, AstPrintf, AstRepl, AstReturn, AstStatement, AstVariableDeclaration, AstVariableExpression, AstWhile } from "../../languages/simpleC/nodes";
+import { ScopeStack } from "../../languages/simpleC/scopeStack";
 
 export class IRGenerator {
   context: llvm.LLVMContext;
